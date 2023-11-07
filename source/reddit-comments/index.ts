@@ -12,18 +12,19 @@ const isReddit = currentHostname === 'www.reddit.com';
 // vertical nav, like vs code
 // disable windowing, ask react reddit
 // run only in active tab
+// lodash debounce
+// hashmapa url: time latest comment, for unread
 
-
-const currentUrl = window.location.href;
 const redditThreadRegex = /https?:\/\/(www\.)?reddit\.com\/r\/(\w+)\/comments\/([^/]+)/;
-const isRedditThread = currentUrl.match(redditThreadRegex) !== null;
+const timestampSelector = '[data-testid="comment_timestamp"]';
+
+let currentUrl = window.location.href;
+let isRedditThread = false;
 
 
 const highlight = () => { 
 
-const timestampSelector = '[data-testid="comment_timestamp"]';
-// const timestampSelector = 'div';
-
+    if (!isRedditThread) return;
     
     const timestampElements = document.querySelectorAll(timestampSelector);
     timestampElements.forEach(element  => {
@@ -49,41 +50,62 @@ const debug = () => {
 const main = () => { 
     if (isDebug) debug();
 
-    if (!isRedditThread) return;
-
-    // Attach the debounced scroll handler to the window's scroll event
-    window.addEventListener('scroll', debouncedScrollHandler);
+  observer.observe(document, {subtree: true, childList: true});
+  window.addEventListener('beforeunload', () => observer.disconnect());
 
  }
 
 
 export default main;
 
-// Function to be executed when the user stops scrolling
-function handleScroll() {
-    // Your code to run when scrolling has stopped
+const handleScroll = () =>  highlight();
+
+let previousUrl = '';
+const observer = new MutationObserver(() => {
+  if (location.href !== previousUrl) {
+      previousUrl = location.href;
+      // alert(location.href)
+      debouncedLocationChangeHandler()
+    }
+});
+
+
+const handleLocationChange = () => {
+
+  currentUrl = window.location.href;
+  isRedditThread = currentUrl.match(redditThreadRegex) !== null;
+
+
+  if(isRedditThread) {
+    window.addEventListener('scroll', debouncedScrollHandler);
+    alert('attached')
     highlight();
   }
+  else {
+    window.removeEventListener('scroll', debouncedScrollHandler);
+    alert('DEttached')
+  }
+
+}
   
   // Debounce function
   function debounce(func: Function, wait: number) {
     let timeout: any;
     
-    return function(this: Window) {
+    return function() {
       const args = arguments;
   
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        func.apply(this, args);
+        func.apply(window, args);
       }, wait);
     };
   }
   
-  // Set the wait time in milliseconds (e.g., 300 milliseconds)
   const debounceWait = 1000;
   
-  // Create a debounced scroll handler
   const debouncedScrollHandler = debounce(handleScroll, debounceWait);
+  const debouncedLocationChangeHandler = debounce(handleLocationChange, debounceWait);
   
  
   
