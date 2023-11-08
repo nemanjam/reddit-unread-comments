@@ -1,5 +1,8 @@
 @import '../styles/tailwind';
 
 .ruc-highlight-comment {
-  border: 2px solid blue;
+  // border: 2px solid red;
+  // #{!important}
+  @apply border-2 border-slate-500;
+  // @apply bg-slate-500;
 }

@@ -1,5 +1,5 @@
 import { redditThreadRegex } from './constants';
-import { debounce, highlight } from './utils';
+import { debounce, highlight, isActiveTab } from './utils';
 import { debounceWait } from './constants';
 
 // onScroll
@@ -50,4 +50,6 @@ const onUrlChange = () => {
 
 // onUrlChange -> onDOMReady -> onScroll
 
-export const attachAllEventHandlers = () => onUrlChange();
+export const attachAllEventHandlers = () => {
+  if (isActiveTab()) onUrlChange();
+};

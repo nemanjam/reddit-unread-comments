@@ -18,9 +18,11 @@ export const debounce = (func: Function, wait: number) => {
 export const highlight = () => {
   const timestampElements = document.querySelectorAll<HTMLElement>(timestampSelector);
   timestampElements.forEach((element) => {
-    // element.classList.add('ruc-highlight-comment');
-    element.style.border = '2px solid blue';
+    element.classList.add('ruc-highlight-comment');
+    // element.style.border = '2px solid blue';
   });
 
   debug(`Highlighting, timestampElements.length: ${timestampElements.length}`);
 };
+
+export const isActiveTab = () => document.visibilityState === 'visible';
