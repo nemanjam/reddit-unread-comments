@@ -4,4 +4,4 @@ export const timestampSelector = '[data-testid="comment_timestamp"]';
 
 export const isDebug = process.env.IS_DEBUG ===  'true' || true;
 
-export const debounceWait = 1000;
+export const debounceWait = 2000;

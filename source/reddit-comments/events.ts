@@ -7,51 +7,49 @@ import { debounceWait } from './constants';
 const handleScroll = () =>  highlight();
 const debouncedScrollHandler = debounce(handleScroll, debounceWait);
 
-// onUrlChange
+// onDOMReady
 
-const handleLocationChange = () => {
-
+const handleDOMReady = () => {
     const currentUrl = location.href;
     const isRedditThread = currentUrl.match(redditThreadRegex) !== null;
   
     // attach/detach onScroll
     if(isRedditThread) {
-      document.addEventListener('scroll', debouncedScrollHandler);
-      // highlight onUrlChange
+        // alert('attach scrollHandler');
+        document.addEventListener('scroll', debouncedScrollHandler);
       highlight();
-    }
-    else {
-      document.removeEventListener('scroll', debouncedScrollHandler);
+    } else {
+        document.removeEventListener('scroll', debouncedScrollHandler);
     }
   
-  }
+}
 
-const debouncedLocationChangeHandler = debounce(handleLocationChange, debounceWait);
+const debouncedDOMReadyHandler = debounce(handleDOMReady, debounceWait);
+
+const onDOMReady = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', debouncedDOMReadyHandler);
+    } else {
+      debouncedDOMReadyHandler();
+    }
+}
+
+// onUrlChange
 
 let previousUrl = '';
 const observer = new MutationObserver(() => {
   if (location.href !== previousUrl) {
       previousUrl = location.href;
-      debouncedLocationChangeHandler()
+      onDOMReady()
     }
 });
-
 
 const onUrlChange = () => { 
     observer.observe(document, {subtree: true, childList: true});
     document.addEventListener('beforeunload', () => observer.disconnect());
 }
 
-// onDOMReady
-
-const onDOMReady = () => {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => onUrlChange());
-    } else {
-      onUrlChange();
-    }
-}
+// onUrlChange -> onDOMReady -> onScroll
   
-export const attachAllEventHandlers = () => onDOMReady();
+export const attachAllEventHandlers = () => onUrlChange();
  
-  
