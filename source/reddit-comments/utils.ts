@@ -21,4 +21,6 @@ export const highlight = () => {
         // element.classList.add('ruc-highlight-comment');
         element.style.border = '2px solid blue';
     });
+
+    debug(`Highlighting, timestampElements.length: ${timestampElements.length}`);
 }

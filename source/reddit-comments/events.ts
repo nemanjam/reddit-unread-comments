@@ -44,14 +44,14 @@ const onUrlChange = () => {
 
 // onDOMReady
 
-const onDOMReady = (callback: Function) => {
+const onDOMReady = () => {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => callback());
+      document.addEventListener('DOMContentLoaded', () => onUrlChange());
     } else {
-      callback();
+      onUrlChange();
     }
 }
   
-export const attachAllEventHandlers = () => onDOMReady(onUrlChange);
+export const attachAllEventHandlers = () => onDOMReady();
  
   
