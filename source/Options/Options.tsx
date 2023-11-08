@@ -20,8 +20,8 @@ const Options: React.FC = () => {
         </p>
         <p>
           <label htmlFor="logging">
-            <input type="checkbox" name="logging" /> Show the features enabled
-            on each page in the console
+            <input type="checkbox" name="logging" /> Show the features enabled on each
+            page in the console
           </label>
 
           <p>cool cool cool</p>

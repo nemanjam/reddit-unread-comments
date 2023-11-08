@@ -2,10 +2,8 @@ import { attachAllEventHandlers } from './events';
 
 // import './styles.scss';
 
-const main = () => { 
+const main = () => {
   attachAllEventHandlers();
-}
+};
 
 export default main;
-
-
