@@ -10,7 +10,8 @@ export const captureCommentIdFromTimestampIdRegex =
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
-export const debounceWait = 4000;
+export const scrollDebounceWait = 2000;
+export const domReadyDebounceWait = 2;
 
 // document
 //   .querySelectorAll('[data-testid="comment_timestamp"]')

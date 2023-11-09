@@ -24,22 +24,33 @@ export const isElementInViewport = (
 };
 
 export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
-  const elementArray = Array.from(elements);
   const visibleElements: HTMLElement[] = [];
 
-  elementArray.forEach((element) =>
+  // MUST work with original NodeList.forEach
+  elements.forEach((element) =>
     isElementInViewport(element, (isVisible) => {
       if (isVisible) visibleElements.push(element);
     })
   );
 
   return visibleElements;
+
+  // console.log('==============', 'visibleElements.length:', visibleElements.length);
+  // console.log('==============', 'visibleElements', visibleElements);
+
+  // const selector = visibleElements.map((element) => {
+  //   console.log('element', element);
+  //   // return `#${element.id}`;
+  // }).join(',');
+  // console.log('selector', selector);
+
+  // const selectedElements = document.querySelectorAll(selector);
+  // return selectedElements;
 };
 
 export const highlight = () => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   // const visibleElements = filterVisibleElements(commentElements);
-  // console.log('visibleElements', visibleElements.length, visibleElements);
 
   commentElements.forEach((commentElement) => {
     commentElement.classList.add('ruc-highlight-comment');

@@ -1,12 +1,12 @@
 import { redditThreadRegex } from './constants';
 import { debounce, isActiveTab } from './utils';
 import { highlight } from './dom';
-import { debounceWait } from './constants';
+import { scrollDebounceWait, domReadyDebounceWait } from './constants';
 
 // onScroll
 
 const handleScroll = () => highlight();
-const debouncedScrollHandler = debounce(handleScroll, debounceWait);
+const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
 // onDOMReady
 
@@ -24,7 +24,7 @@ const handleDOMReady = () => {
   }
 };
 
-const debouncedDOMReadyHandler = debounce(handleDOMReady, debounceWait);
+const debouncedDOMReadyHandler = debounce(handleDOMReady, domReadyDebounceWait);
 
 const onDOMReady = () => {
   if (document.readyState === 'loading') {
