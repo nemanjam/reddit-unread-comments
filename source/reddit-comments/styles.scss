@@ -1,8 +1,16 @@
 @import '../styles/tailwind';
 
-.ruc-highlight-comment {
-  // border: 2px solid red;
-  // #{!important}
-  @apply border-2 border-slate-500;
-  // @apply bg-slate-500;
+.ruc-highlight-comment [data-testid='comment'] {
+  @apply bg-red-100;
+  border: 1px solid rgb(239 68 68);
 }
+
+// border: 2px solid red;
+// #{!important}
+// @apply border-2 border-red-200;
+// @apply bg-slate-500;
+// @apply outline-1 outline-red-300;
+
+// --tw-border-opacity: 1;
+// border: 1px;
+// border-color: rgb(254 202 202 / var(--tw-border-opacity));

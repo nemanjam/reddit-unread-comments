@@ -13,7 +13,11 @@
   "homepage_url": "https://github.com/abhijithvijayan/web-extension-starter",
   "short_name": "Sample Name",
 
-  "permissions": ["activeTab", "storage", "http://*/*", "https://*/*"],
+  "permissions": [
+    "storage",
+    "http://*.reddit.com/*/comments/*",
+    "https://*.reddit.com/*/comments/*"
+  ],
 
   "content_security_policy": "script-src 'self'; object-src 'self'",
 
@@ -58,7 +62,10 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": [
+        "http://*.reddit.com/*/comments/*",
+        "https://*.reddit.com/*/comments/*"
+      ],
       "js": ["js/contentScript.bundle.js"],
       "css": ["css/contentScript.css"]
     }

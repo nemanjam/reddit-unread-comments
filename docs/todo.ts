@@ -8,4 +8,5 @@
 // lodash debounce
 // hashmapa url: time latest comment, for unread
 // inject only in reddit, both js, css
+// sort by new always
 
