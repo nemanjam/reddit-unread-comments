@@ -1,5 +1,6 @@
 import { redditThreadRegex } from './constants';
-import { debounce, highlight, isActiveTab } from './utils';
+import { debounce, isActiveTab } from './utils';
+import { highlight } from './dom';
 import { debounceWait } from './constants';
 
 // onScroll

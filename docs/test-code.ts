@@ -37,3 +37,42 @@ async function scrollToEnd() {
     await checkForContentChange();
   }
   
+  // t1_k8etzzz from CommentTopMeta--Created--t1_k8etzzzinOverlay
+// t1_k8etzzz from CommentTopMeta--Created--t1_k8etzzz // actually this
+export const getCommentIdFromTimestampId = (timestampId: string) => {
+  const match = timestampId.match(captureCommentIdFromTimestampIdRegex);
+
+  if (match) {
+    const extractedString = match[1];
+    return extractedString;
+  }
+
+  return null;
+};
+
+export const getCommentElementFromTimestampElement = (timestampElement: HTMLElement) => {
+  const commentId = getCommentIdFromTimestampId(timestampElement.id);
+  const commentElement = document.querySelector<HTMLElement>(`#${commentId}`);
+  return commentElement;
+};
+
+export const findClosestParent = (
+  startingElement: Node,
+  selector: string
+): Node | null => {
+  let currentElement: Node | null = startingElement;
+
+  while (currentElement && currentElement !== document) {
+    currentElement = currentElement.parentNode;
+
+    if (!(currentElement instanceof Element)) {
+      continue;
+    }
+
+    if (currentElement.matches(selector)) {
+      return currentElement;
+    }
+  }
+
+  return null;
+};
