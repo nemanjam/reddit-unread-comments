@@ -5,50 +5,33 @@ export const getTimestampIdFromCommentId = (commentId: string) => {
   return `CommentTopMeta--Created--${commentId}`;
 };
 
-export const isElementInViewport = (
-  element: HTMLElement,
-  callback: (isVisible: boolean) => void
-): void => {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        callback(true);
-        observer.disconnect();
-      } else {
-        callback(false);
-      }
-    });
-  });
-
-  observer.observe(element);
+// sync
+const isElementInViewport = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
 };
 
 export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   const visibleElements: HTMLElement[] = [];
 
   // MUST work with original NodeList.forEach
-  elements.forEach((element) =>
-    isElementInViewport(element, (isVisible) => {
-      if (isVisible) visibleElements.push(element);
-    })
-  );
+  elements.forEach((element) => {
+    if (isElementInViewport(element)) visibleElements.push(element);
+  });
 
-  return visibleElements;
+  const selector = visibleElements.map((element) => `#${element.id}`).join(',');
 
-  // console.log('==============', 'visibleElements.length:', visibleElements.length);
-  // console.log('==============', 'visibleElements', visibleElements);
-
-  // const selector = visibleElements.map((element) => {
-  //   console.log('element', element);
-  //   // return `#${element.id}`;
-  // }).join(',');
-  // console.log('selector', selector);
-
-  // const selectedElements = document.querySelectorAll(selector);
-  // return selectedElements;
+  const selectedElements = document.querySelectorAll(selector);
+  return selectedElements;
 };
 
 export const highlight = () => {
+  // must compare ids for filter
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   // const visibleElements = filterVisibleElements(commentElements);
 

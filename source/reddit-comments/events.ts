@@ -1,46 +1,51 @@
-import { redditThreadRegex } from './constants';
-import { debounce, isActiveTab } from './utils';
+import { debounce, isRedditThread } from './utils';
 import { highlight } from './dom';
 import { scrollDebounceWait, domReadyDebounceWait } from './constants';
 
-// onScroll
+/**------------------------------------------------------------------------
+ *                           onUrlChange ->  onScroll
+ *------------------------------------------------------------------------**/
 
-const handleScroll = () => highlight();
+/*-------------------------------- onScroll ------------------------------*/
+
+const handleScroll = () => {
+  alert('handleScroll');
+  highlight();
+};
 const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
-// onDOMReady
+const handleUrlChange = () => {
+  if (isRedditThread()) {
+    alert('attach scroll handler');
 
-const handleDOMReady = () => {
-  const currentUrl = location.href;
-  const isRedditThread = currentUrl.match(redditThreadRegex) !== null;
-
-  // attach/detach onScroll
-  if (isRedditThread) {
-    // alert('attach scrollHandler');
+    // test onUrlChange and onScroll independently
     document.addEventListener('scroll', debouncedScrollHandler);
-    highlight();
+    // highlight();
   } else {
+    alert('DETACH scroll handler');
+
     document.removeEventListener('scroll', debouncedScrollHandler);
   }
 };
 
-const debouncedDOMReadyHandler = debounce(handleDOMReady, domReadyDebounceWait);
+// must wait for redirect and page content load
+const debouncedUrlChangeHandler = debounce(handleUrlChange, domReadyDebounceWait);
 
-const onDOMReady = () => {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', debouncedDOMReadyHandler);
-  } else {
-    debouncedDOMReadyHandler();
-  }
-};
-
-// onUrlChange
+/*-------------------------------- onUrlChange ------------------------------*/
 
 let previousUrl = '';
 const observer = new MutationObserver(() => {
   if (location.href !== previousUrl) {
     previousUrl = location.href;
-    onDOMReady();
+
+    // alert(`isRedditThread(): ${isRedditThread()}, location.href: ${location.href}`);
+
+    // track routing on all pages, but run listeners only on threads
+    if (isRedditThread()) {
+      alert('attach all');
+
+      debouncedUrlChangeHandler();
+    }
   }
 });
 
@@ -49,8 +54,6 @@ const onUrlChange = () => {
   document.addEventListener('beforeunload', () => observer.disconnect());
 };
 
-// onUrlChange -> onDOMReady -> onScroll
-
 export const attachAllEventHandlers = () => {
-  if (isActiveTab()) onUrlChange();
+  onUrlChange();
 };

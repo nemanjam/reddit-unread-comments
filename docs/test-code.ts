@@ -122,3 +122,56 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   // const selectedElements = document.querySelectorAll(selector);
   return [];
 };
+
+// nepouzdano
+let previousUrl = '';
+const observer = new MutationObserver(() => {
+  console.log('location.href', location.href);
+  console.log('previousUrl', previousUrl);
+  if (location.href !== previousUrl) {
+    console.log('URL CHANGED');
+    alert('URL CHANGED 1');
+
+    previousUrl = location.href;
+    debouncedDOMReadyHandler();
+
+    // observer.disconnect();
+  }
+});
+
+const onUrlChange = () => {
+  observer.observe(document, { subtree: true, childList: true });
+  document.addEventListener('beforeunload', () => observer.disconnect());
+};
+
+//------------------
+
+// onUrlChange
+
+console.log('bilo sta');
+
+const onUrlChange = () => {
+  let currentUrl = location.href;
+  setInterval(() => {
+    console.log('setInterval');
+
+    if (currentUrl !== location.href) {
+      currentUrl = location.href;
+      alert('url changed 123');
+      debouncedDOMReadyHandler();
+    }
+  }, checkUrlInterval);
+};
+
+export const onDOMReady = () => {
+  console.log('document.readyState', document.readyState);
+  if (document.readyState === 'loading') { // uvek je document.readyState === completed, uvek else grana, beskoristan
+    alert('document.readyState === loading');
+
+    document.addEventListener('DOMContentLoaded', debouncedDOMReadyHandler);
+  } else {
+    alert('else');
+
+    debouncedDOMReadyHandler();
+  }
+};

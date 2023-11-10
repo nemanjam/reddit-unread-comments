@@ -1,4 +1,4 @@
-import { isDebug } from './constants';
+import { isDebug, redditThreadRegex } from './constants';
 
 export const debug = (...args: any[]) => {
   if (isDebug) console.log(...args);
@@ -16,3 +16,5 @@ export const debounce = (func: Function, wait: number) => {
 };
 
 export const isActiveTab = () => document.visibilityState === 'visible';
+
+export const isRedditThread = () => redditThreadRegex.test(location.href);
