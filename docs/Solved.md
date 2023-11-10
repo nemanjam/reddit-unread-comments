@@ -21,5 +21,11 @@ Solution: must run in entire reddit "http://*.reddit.com/*", just prevent attach
 export const isRedditThread = () => redditThreadRegex.test(location.href);
 --------
 domready ne postoji zbog client side routing
+-------------
+// scroll attach detach, modal, ne html
+drugi element ima scroll, neki div kao modal, ne html
+nije ista sranica na direktan thread link i redirect from subreddit
+zapazi da je modal zapravo, <div id="overlayScrollContainer"
+https://stackoverflow.com/questions/34532331/finding-all-elements-with-a-scroll
 
 

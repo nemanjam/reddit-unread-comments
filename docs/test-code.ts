@@ -175,3 +175,10 @@ export const onDOMReady = () => {
     debouncedDOMReadyHandler();
   }
 };
+
+
+const handleScroll = () => console.log('handleScroll');
+
+document.addEventListener('scroll', handleScroll);
+
+document.removeEventListener('scroll', handleScroll);

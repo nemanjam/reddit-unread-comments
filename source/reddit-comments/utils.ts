@@ -7,12 +7,14 @@ export const debug = (...args: any[]) => {
 export const debounce = (func: Function, wait: number) => {
   let timeout: any;
 
-  return function () {
+  const debouncedFunction = function () {
     const args = arguments;
     clearTimeout(timeout);
 
     timeout = setTimeout(() => func.apply(window, args), wait);
   };
+
+  return debouncedFunction;
 };
 
 export const isActiveTab = () => document.visibilityState === 'visible';

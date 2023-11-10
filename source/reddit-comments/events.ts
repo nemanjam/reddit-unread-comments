@@ -16,14 +16,14 @@ const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
 const handleUrlChange = () => {
   if (isRedditThread()) {
-    alert('attach scroll handler');
+    alert(`attach scroll handler`);
+    // detect modal
 
     // test onUrlChange and onScroll independently
     document.addEventListener('scroll', debouncedScrollHandler);
     // highlight();
   } else {
-    alert('DETACH scroll handler');
-
+    // alert('DETACH scroll handler');
     document.removeEventListener('scroll', debouncedScrollHandler);
   }
 };
@@ -38,14 +38,8 @@ const observer = new MutationObserver(() => {
   if (location.href !== previousUrl) {
     previousUrl = location.href;
 
-    // alert(`isRedditThread(): ${isRedditThread()}, location.href: ${location.href}`);
-
-    // track routing on all pages, but run listeners only on threads
-    if (isRedditThread()) {
-      alert('attach all');
-
-      debouncedUrlChangeHandler();
-    }
+    // run on all pages to attach and detach scroll listeners
+    debouncedUrlChangeHandler();
   }
 });
 
