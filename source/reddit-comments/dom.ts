@@ -1,9 +1,8 @@
-import { commentSelector } from './constants';
+import { commentSelector, highlightedCommentClass, timestampIdPrefix } from './constants';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
-export const getTimestampIdFromCommentId = (commentId: string) => {
-  return `CommentTopMeta--Created--${commentId}`;
-};
+export const getTimestampIdFromCommentId = (commentId: string) =>
+  timestampIdPrefix + commentId;
 
 // sync
 const isElementInViewport = (element: HTMLElement) => {
@@ -34,7 +33,7 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
 const highlight = (commentElements: NodeListOf<HTMLElement>) => {
   // compare with db
   commentElements.forEach((commentElement) => {
-    commentElement.classList.add('ruc-highlight-comment');
+    commentElement.classList.add(highlightedCommentClass);
   });
 };
 

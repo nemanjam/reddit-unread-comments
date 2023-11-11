@@ -33,5 +33,18 @@ timestamp neprecizan 2 months ago
 resenje za tailwind border, falilo border-style: solid // eto
 @apply border border-solid border-red-300;
 ---------
+// indexDb
+create me following schema for indexdb:
 
+thread table has following columns:
+id // number autoincrement
+threadId // string, primary key
+updatedAt // datetime
+latestPostId // string
+latestPostTimestamp // datetime
+
+post table has following columns:
+id // number, autoincrement
+postId // string, unique, Post.postId and Post.threadId compose primary key
+threadId // references Thread.threadId
 

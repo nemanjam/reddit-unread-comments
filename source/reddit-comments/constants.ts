@@ -1,20 +1,35 @@
-export const redditThreadRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comments\/.+/;
+/*-------------------------------- Reddit constants ------------------------------*/
+
+/**------------------------------------------------------------------------
+ *      Reddit can change these, these can break.
+ *      All in a single place.
+ *------------------------------------------------------------------------**/
+
+export const redditThreadUrlRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comments\/.+/;
 
 // selectors, easier to select children than parents
 export const commentSelector = '[id^="t1_"]:not([id*="-"])';
 export const timestampSelector = '[data-testid="comment_timestamp"]';
+export const timestampIdPrefix = 'CommentTopMeta--Created--';
+
 export const numberOfCommentsSelector = '[data-test-id="post-content"]';
 export const modalScrollContainerSelector = '#overlayScrollContainer';
 
-export const captureCommentIdFromTimestampIdRegex =
-  /(?:CommentTopMeta--Created--)(t1_[a-z0-9]+)/;
+/*----------------------------------- My constants ---------------------------------*/
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
-// must reduce number of triggers on scroll
+/** Must reduce number of triggers on scroll */
 export const scrollDebounceWait = 1000;
-// must wait for routing (change page), and load content
+
+/** Must wait for routing (change page), and load content */
 export const domReadyDebounceWait = 2000;
+
+export const highlightedCommentClass = 'ruc-highlight-comment';
+
+export const databaseName = 'reddit-unread-comments-db';
+
+/*------------------------------ test code, remove later ----------------------------*/
 
 // document
 //   .querySelectorAll('[data-testid="comment_timestamp"]')
