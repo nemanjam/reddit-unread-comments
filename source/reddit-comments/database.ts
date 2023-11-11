@@ -4,8 +4,8 @@ export interface ThreadData {
   id?: number;
   threadId: string;
   updatedAt: Date;
-  latestCommentId: string;
-  latestCommentTimestamp: Date;
+  latestCommentId?: string;
+  latestCommentTimestamp?: Date;
 }
 
 export interface CommentData {
@@ -74,20 +74,35 @@ const onError = (reject: (reason?: any) => void, event: Event) => {
   reject((event.target as IDBRequest).error);
 };
 
-const addThread = async (db: IDBDatabase, threadData: ThreadData): Promise<number> =>
+export const addThread = async (
+  db: IDBDatabase,
+  threadData: ThreadData
+): Promise<ThreadData> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(ThreadObjectStore, 'readwrite');
     const threadObjectStore = transaction.objectStore(ThreadObjectStore);
 
     const addObjectRequest = threadObjectStore.add(threadData);
 
-    addObjectRequest.onsuccess = (event) =>
-      resolve((event.target as IDBRequest).result as number);
+    addObjectRequest.onsuccess = (event) => {
+      const addedThreadId = (event.target as IDBRequest).result as number;
+
+      // Retrieve the added thread using the ID
+      const getRequest = threadObjectStore.get(addedThreadId);
+
+      getRequest.onsuccess = (event) => {
+        const addedThread = (event.target as IDBRequest).result as ThreadData;
+        resolve(addedThread);
+      };
+
+      getRequest.onerror = () => reject(transaction.error);
+    };
+
     addObjectRequest.onerror = () => reject(transaction.error);
     transaction.oncomplete = () => console.log('Thread added successfully');
   });
 
-const getThread = async (
+export const getThread = async (
   db: IDBDatabase,
   threadId: string
 ): Promise<ThreadData | undefined> =>
@@ -100,20 +115,80 @@ const getThread = async (
     getRequest.onerror = () => reject(transaction.error);
   });
 
-const addComment = async (db: IDBDatabase, commentData: CommentData): Promise<number> =>
+export const updateThread = async (
+  db: IDBDatabase,
+  updatedThreadData: Partial<ThreadData>
+): Promise<ThreadData> => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(ThreadObjectStore, 'readwrite');
+    const threadObjectStore = transaction.objectStore(ThreadObjectStore);
+
+    const getRequest = threadObjectStore.get(updatedThreadData.threadId as string);
+
+    getRequest.onsuccess = (event) => {
+      const existingThread = (event.target as IDBRequest).result as ThreadData;
+
+      if (existingThread) {
+        // Merge the existing thread with the updated data
+        const mergedThread = { ...existingThread, ...updatedThreadData };
+
+        // Update the thread in the object store
+        const updateRequest = threadObjectStore.put(mergedThread);
+
+        updateRequest.onsuccess = () => {
+          console.log('Thread updated successfully');
+          resolve(mergedThread);
+        };
+
+        updateRequest.onerror = (event) => {
+          console.error('Error updating thread:', (event.target as IDBRequest).error);
+          reject((event.target as IDBRequest).error);
+        };
+      } else {
+        console.error('Thread not found');
+        reject('Thread not found');
+      }
+    };
+
+    getRequest.onerror = (event) => {
+      console.error(
+        'Error fetching thread for update:',
+        (event.target as IDBRequest).error
+      );
+      reject((event.target as IDBRequest).error);
+    };
+  });
+};
+
+export const addComment = async (
+  db: IDBDatabase,
+  commentData: CommentData
+): Promise<CommentData> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(CommentObjectStore, 'readwrite');
     const commentObjectStore = transaction.objectStore(CommentObjectStore);
 
     const addObjectRequest = commentObjectStore.add(commentData);
 
-    addObjectRequest.onsuccess = (event) =>
-      resolve((event.target as IDBRequest).result as number);
+    addObjectRequest.onsuccess = (event) => {
+      const addedCommentId = (event.target as IDBRequest).result as number;
+
+      // Retrieve the added Comment using the ID
+      const getRequest = commentObjectStore.get(addedCommentId);
+
+      getRequest.onsuccess = (event) => {
+        const addedComment = (event.target as IDBRequest).result as CommentData;
+        resolve(addedComment);
+      };
+
+      getRequest.onerror = () => reject(transaction.error);
+    };
+
     addObjectRequest.onerror = () => reject(transaction.error);
     transaction.oncomplete = () => console.log('Comment added successfully');
   });
 
-const getComment = async (
+export const getComment = async (
   db: IDBDatabase,
   commentId: string
 ): Promise<CommentData | undefined> =>

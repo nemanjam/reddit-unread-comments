@@ -182,3 +182,8 @@ const handleScroll = () => console.log('handleScroll');
 document.addEventListener('scroll', handleScroll);
 
 document.removeEventListener('scroll', handleScroll);
+
+
+const timestampId = getTimestampIdFromCommentId(commentElement.id);
+const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
+const timestamp = timestampElement?.textContent;

@@ -5,10 +5,21 @@ import {
   threadPostSelector,
   timestampIdPrefix,
 } from './constants';
+import { addThread, getThread, globalDb, addComment, updateThread } from './database';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
-export const getTimestampIdFromCommentId = (commentId: string) =>
-  timestampIdPrefix + commentId;
+const getTimestampIdFromCommentId = (commentId: string) => timestampIdPrefix + commentId;
+
+const getTimestampFromCommentId = (commentId: string): Date | null => {
+  const timestampId = getTimestampIdFromCommentId(commentId);
+  const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
+  if (!timestampElement) return null;
+
+  // 2 hr. ago
+  const timeAgo = timestampElement.textContent;
+  // calc
+  return new Date();
+};
 
 export const getThreadId = (): string | null => {
   const threadElement = document.querySelector<HTMLElement>(threadPostSelector);
@@ -48,25 +59,59 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
 };
 
 const highlight = (commentElements: NodeListOf<HTMLElement>) => {
-  // compare with db
   commentElements.forEach((commentElement) => {
+    // compare with db here
     commentElement.classList.add(highlightedCommentClass);
   });
 };
 
-const markAsRead = (commentElements: NodeListOf<HTMLElement>) => {
-  const threadId = getThreadId();
+const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
+  if (!(commentElements.length > 0)) return;
 
-  commentElements.forEach((commentElement) => {
-    if (isElementInViewport(commentElement)) {
-      const timestampId = getTimestampIdFromCommentId(commentElement.id);
-      const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
-      const timestamp = timestampElement?.textContent;
+  const db = globalDb;
+  if (!db) return;
 
-      // check time
-      // add comment id in db
+  let threadIdFromDom = getThreadId();
+  if (!threadIdFromDom) return;
+
+  // add new thread if it doesn't exist
+  const thread =
+    (await getThread(db, threadIdFromDom)) ??
+    (await addThread(db, { threadId: threadIdFromDom, updatedAt: new Date() }).catch(
+      (error) => console.error(error)
+    ));
+
+  const threadId = thread?.threadId;
+  if (!threadId) return;
+
+  let latestCommentId = commentElements[0].id;
+  let latestCommentTimestamp = getTimestampFromCommentId(commentElements[0].id);
+
+  commentElements.forEach(async (commentElement, index) => {
+    if (!isElementInViewport(commentElement) || !commentElement.id) return;
+
+    // check time
+    // add comment id in db
+    const { threadId } = thread;
+    await addComment(db, { commentId: commentElement.id, threadId });
+
+    // get latest comment
+    const currentTimestamp = getTimestampFromCommentId(commentElements[0].id);
+    if (index === 0 || !latestCommentTimestamp || !currentTimestamp) return;
+    // convert
+    if (currentTimestamp > latestCommentTimestamp) {
+      latestCommentId = commentElement.id;
+      latestCommentTimestamp = currentTimestamp;
     }
   });
+
+  // update thread bellow forEach
+  await updateThread(db, {
+    threadId,
+    updatedAt: new Date(),
+    ...(latestCommentId && { latestCommentId }),
+    ...(latestCommentTimestamp && { latestCommentTimestamp }),
+  }).catch((error) => console.error(error));
 };
 
 export const traverseComments = () => {
