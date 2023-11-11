@@ -16,6 +16,7 @@ const isElementInViewport = (element: HTMLElement) => {
   );
 };
 
+// only elements with ids
 export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   const visibleElements: HTMLElement[] = [];
 
@@ -30,14 +31,30 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   return selectedElements;
 };
 
-export const highlight = () => {
-  // must compare ids for filter
-  const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
-  // const visibleElements = filterVisibleElements(commentElements);
-
+const highlight = (commentElements: NodeListOf<HTMLElement>) => {
+  // compare with db
   commentElements.forEach((commentElement) => {
     commentElement.classList.add('ruc-highlight-comment');
-    // console.log('commentElement', commentElement);
-    // commentElement.style.border = '2px solid pink';
   });
+};
+
+const markAsRead = (commentElements: NodeListOf<HTMLElement>) => {
+  commentElements.forEach((commentElement) => {
+    if (isElementInViewport(commentElement)) {
+      const timestampId = getTimestampIdFromCommentId(commentElement.id);
+      const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
+
+      // check time
+      // add comment id in db
+
+      console.log('in viewport', timestampElement?.textContent);
+    }
+  });
+};
+
+export const traverseComments = () => {
+  const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+
+  markAsRead(commentElements);
+  highlight(commentElements);
 };

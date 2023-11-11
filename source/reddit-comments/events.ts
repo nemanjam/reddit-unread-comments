@@ -1,5 +1,5 @@
 import { debounce, isRedditThread } from './utils';
-import { highlight } from './dom';
+import { traverseComments } from './dom';
 import {
   scrollDebounceWait,
   domReadyDebounceWait,
@@ -12,7 +12,7 @@ import {
 
 /*-------------------------------- onScroll ------------------------------*/
 
-const handleScroll = () => highlight();
+const handleScroll = () => traverseComments();
 const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
 const handleUrlChange = () => {
@@ -25,7 +25,7 @@ const handleUrlChange = () => {
   if (isRedditThread()) {
     scrollElement.addEventListener('scroll', debouncedScrollHandler);
     // test onUrlChange and onScroll independently
-    highlight();
+    traverseComments();
   } else {
     scrollElement.removeEventListener('scroll', debouncedScrollHandler);
   }

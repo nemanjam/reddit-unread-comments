@@ -27,5 +27,11 @@ drugi element ima scroll, neki div kao modal, ne html
 nije ista sranica na direktan thread link i redirect from subreddit
 zapazi da je modal zapravo, <div id="overlayScrollContainer"
 https://stackoverflow.com/questions/34532331/finding-all-elements-with-a-scroll
+-------------
+timestamp neprecizan 2 months ago
+--------------
+resenje za tailwind border, falilo border-style: solid // eto
+@apply border border-solid border-red-300;
+---------
 
 
