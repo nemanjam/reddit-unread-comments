@@ -1,8 +1,25 @@
-import { commentSelector, highlightedCommentClass, timestampIdPrefix } from './constants';
+import {
+  commentSelector,
+  highlightedCommentClass,
+  threadPostIdRegex,
+  threadPostSelector,
+  timestampIdPrefix,
+} from './constants';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 export const getTimestampIdFromCommentId = (commentId: string) =>
   timestampIdPrefix + commentId;
+
+export const getThreadId = (): string | null => {
+  const threadElement = document.querySelector<HTMLElement>(threadPostSelector);
+
+  const threadId =
+    threadElement && threadPostIdRegex.test(threadElement.id)
+      ? threadElement.id.replace(threadPostIdRegex, '')
+      : null;
+
+  return threadId;
+};
 
 // sync
 const isElementInViewport = (element: HTMLElement) => {
@@ -38,15 +55,16 @@ const highlight = (commentElements: NodeListOf<HTMLElement>) => {
 };
 
 const markAsRead = (commentElements: NodeListOf<HTMLElement>) => {
+  const threadId = getThreadId();
+
   commentElements.forEach((commentElement) => {
     if (isElementInViewport(commentElement)) {
       const timestampId = getTimestampIdFromCommentId(commentElement.id);
       const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
+      const timestamp = timestampElement?.textContent;
 
       // check time
       // add comment id in db
-
-      console.log('in viewport', timestampElement?.textContent);
     }
   });
 };

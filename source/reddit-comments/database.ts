@@ -1,7 +1,5 @@
 import { databaseName } from './constants';
 
-const request = indexedDB.open(databaseName, 1);
-
 export interface ThreadData {
   id?: number;
   threadId: string;
@@ -16,11 +14,23 @@ export interface CommentData {
   threadId: string;
 }
 
+export let globalDb: IDBDatabase | null = null;
+
+export const openDatabase = async () => {
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open(databaseName, 1);
+
+    request.onupgradeneeded = onUpgradeNeeded;
+    request.onsuccess = (event) => onSuccess(resolve, event);
+    request.onerror = (event) => onError(reject, event);
+  });
+};
+
 const ThreadObjectStore = 'Thread' as const;
 const CommentObjectStore = 'Comment' as const;
 
 // Create schema
-request.onupgradeneeded = (event) => {
+const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   const db: IDBDatabase = (event.target as IDBOpenDBRequest).result;
 
   // Create Thread object store - table
@@ -49,6 +59,19 @@ request.onupgradeneeded = (event) => {
   commentObjectStore.createIndex('CommentThreadIdIndex', ['commentId', 'threadId'], {
     unique: true,
   });
+};
+
+const onSuccess = (
+  resolve: (value: IDBDatabase | PromiseLike<IDBDatabase>) => void,
+  event: Event
+) => {
+  const db = (event.target as IDBRequest).result as IDBDatabase;
+  globalDb = db;
+  resolve(db);
+};
+
+const onError = (reject: (reason?: any) => void, event: Event) => {
+  reject((event.target as IDBRequest).error);
 };
 
 const addThread = async (db: IDBDatabase, threadData: ThreadData): Promise<number> =>

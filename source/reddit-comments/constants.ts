@@ -12,6 +12,10 @@ export const commentSelector = '[id^="t1_"]:not([id*="-"])';
 export const timestampSelector = '[data-testid="comment_timestamp"]';
 export const timestampIdPrefix = 'CommentTopMeta--Created--';
 
+// thread, id="t3_17mmb4o" data-testid="post-container"
+export const threadPostSelector = '[data-testid="post-container"]';
+export const threadPostIdRegex = /^t3_/;
+
 export const numberOfCommentsSelector = '[data-test-id="post-content"]';
 export const modalScrollContainerSelector = '#overlayScrollContainer';
 
