@@ -5,7 +5,7 @@ export const debug = (...args: any[]) => {
 };
 
 export const debounce = (func: Function, wait: number) => {
-  let timeout: any;
+  let timeout: NodeJS.Timeout;
 
   const debouncedFunction = function () {
     const args = arguments;

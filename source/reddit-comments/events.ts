@@ -1,6 +1,10 @@
 import { debounce, isRedditThread } from './utils';
 import { highlight } from './dom';
-import { scrollDebounceWait, domReadyDebounceWait } from './constants';
+import {
+  scrollDebounceWait,
+  domReadyDebounceWait,
+  modalScrollContainerSelector,
+} from './constants';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -8,23 +12,22 @@ import { scrollDebounceWait, domReadyDebounceWait } from './constants';
 
 /*-------------------------------- onScroll ------------------------------*/
 
-const handleScroll = () => {
-  alert('handleScroll');
-  highlight();
-};
+const handleScroll = () => highlight();
 const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
 const handleUrlChange = () => {
-  if (isRedditThread()) {
-    alert(`attach scroll handler`);
-    // detect modal
+  // detect modal
+  const modalScrollContainer = document.querySelector<HTMLElement>(
+    modalScrollContainerSelector
+  );
+  const scrollElement = modalScrollContainer ?? document;
 
+  if (isRedditThread()) {
+    scrollElement.addEventListener('scroll', debouncedScrollHandler);
     // test onUrlChange and onScroll independently
-    document.addEventListener('scroll', debouncedScrollHandler);
-    // highlight();
+    highlight();
   } else {
-    // alert('DETACH scroll handler');
-    document.removeEventListener('scroll', debouncedScrollHandler);
+    scrollElement.removeEventListener('scroll', debouncedScrollHandler);
   }
 };
 
