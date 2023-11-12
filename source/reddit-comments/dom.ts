@@ -1,33 +1,50 @@
 import {
+  commentIdRegexValidate,
   commentSelector,
   highlightedCommentClass,
-  threadPostIdRegex,
+  threadPostIdRegexValidate,
   threadPostSelector,
   timestampIdPrefix,
 } from './constants';
-import { addThread, getThread, globalDb, addComment, updateThread } from './database';
+import {
+  addThread,
+  getThread,
+  openDatabase,
+  addComment,
+  updateThread,
+  ThreadData,
+  getAllCommentsForThread,
+} from './database';
+import { relativeTimeStringToDate } from './datetime';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => timestampIdPrefix + commentId;
 
-const getTimestampFromCommentId = (commentId: string): Date | null => {
+// todo: fix error handling here, in all dom query functions
+const getDateFromCommentId = (commentId: string): Date | null => {
   const timestampId = getTimestampIdFromCommentId(commentId);
   const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
-  if (!timestampElement) return null;
 
   // 2 hr. ago
-  const timeAgo = timestampElement.textContent;
-  // calc
-  return new Date();
+  const timeAgo = timestampElement?.textContent;
+  if (!timeAgo) return null;
+
+  const date = relativeTimeStringToDate(timeAgo);
+  return date;
 };
+
+/** Returns boolean. */
+export const validateThreadId = (threadId: string): boolean =>
+  threadPostIdRegexValidate.test(threadId);
+
+export const validateCommentId = (commentId: string): boolean =>
+  commentIdRegexValidate.test(commentId);
 
 export const getThreadId = (): string | null => {
   const threadElement = document.querySelector<HTMLElement>(threadPostSelector);
 
   const threadId =
-    threadElement && threadPostIdRegex.test(threadElement.id)
-      ? threadElement.id.replace(threadPostIdRegex, '')
-      : null;
+    threadElement && validateThreadId(threadElement.id) ? threadElement.id : null;
 
   return threadId;
 };
@@ -43,7 +60,7 @@ const isElementInViewport = (element: HTMLElement) => {
   );
 };
 
-// only elements with ids
+// only elements with ids, unused
 export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   const visibleElements: HTMLElement[] = [];
 
@@ -58,17 +75,29 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   return selectedElements;
 };
 
-const highlight = (commentElements: NodeListOf<HTMLElement>) => {
-  commentElements.forEach((commentElement) => {
+// todo: filter un-highlight only from last session
+const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
+  const threadIdFromDom = getThreadId();
+  const db = await openDatabase();
+
+  // fix this with try catch
+  if (!db || !threadIdFromDom) return;
+
+  commentElements.forEach(async (commentElement) => {
     // compare with db here
-    commentElement.classList.add(highlightedCommentClass);
+    const readComments = await getAllCommentsForThread(db, threadIdFromDom);
+    const isReadComment = readComments
+      .map((comment) => comment.commentId)
+      .includes(commentElement.id);
+
+    if (!isReadComment) commentElement.classList.add(highlightedCommentClass);
   });
 };
 
 const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   if (!(commentElements.length > 0)) return;
 
-  const db = globalDb;
+  const db = await openDatabase();
   if (!db) return;
 
   let threadIdFromDom = getThreadId();
@@ -77,9 +106,10 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   // add new thread if it doesn't exist
   const thread =
     (await getThread(db, threadIdFromDom)) ??
-    (await addThread(db, { threadId: threadIdFromDom, updatedAt: new Date() }).catch(
-      (error) => console.error(error)
-    ));
+    ((await addThread(db, {
+      threadId: threadIdFromDom,
+      updatedAt: new Date().getTime(),
+    }).catch((error) => console.error(error))) as ThreadData);
 
   const threadId = thread?.threadId;
   if (!threadId) return;
@@ -87,11 +117,12 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const initialCommentId = commentElements[0].id;
   const latestCommentUpdater = createLatestCommentUpdater(
     initialCommentId,
-    getTimestampFromCommentId(initialCommentId)
+    getDateFromCommentId(initialCommentId)
   );
 
   commentElements.forEach(async (commentElement, index) => {
-    if (!isElementInViewport(commentElement) || !commentElement.id) return;
+    if (!validateCommentId(commentElement.id) || !isElementInViewport(commentElement))
+      return;
 
     // check time
     // add comment id in db
@@ -99,42 +130,41 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
     await addComment(db, { commentId: commentElement.id, threadId });
 
     // get latest comment
-    latestCommentUpdater.updateLatestComment(commentElement, index);
+    // latestCommentUpdater.updateLatestComment(commentElement, index);
   });
 
-  const { latestCommentId, latestCommentTimestamp } =
-    latestCommentUpdater.getLatestComment();
+  const { latestCommentId, latestCommentDate } = latestCommentUpdater.getLatestComment();
 
   // update thread bellow forEach
   await updateThread(db, {
     threadId,
-    updatedAt: new Date(),
+    updatedAt: new Date().getTime(),
     ...(latestCommentId && { latestCommentId }),
-    ...(latestCommentTimestamp && { latestCommentTimestamp }),
+    ...(latestCommentDate && { latestCommentTimestamp: latestCommentDate.getTime() }),
   }).catch((error) => console.error(error));
 };
 
 const createLatestCommentUpdater = (
   initialCommentId: string,
-  initialTimestamp: Date | null
+  initialDate: Date | null
 ) => {
   let latestCommentId = initialCommentId;
-  let latestCommentTimestamp = initialTimestamp;
+  let latestCommentDate = initialDate;
 
   const updateLatestComment = (commentElement: HTMLElement, index: number) => {
-    const currentTimestamp = getTimestampFromCommentId(commentElement.id);
+    const currentDate = getDateFromCommentId(commentElement.id);
 
-    if (index === 0 || !latestCommentTimestamp || !currentTimestamp) return;
+    if (index === 0 || !latestCommentDate || !currentDate) return;
 
-    if (currentTimestamp > latestCommentTimestamp) {
+    if (currentDate > latestCommentDate) {
       latestCommentId = commentElement.id;
-      latestCommentTimestamp = currentTimestamp;
+      latestCommentDate = currentDate;
     }
   };
 
   return {
     updateLatestComment,
-    getLatestComment: () => ({ latestCommentId, latestCommentTimestamp }),
+    getLatestComment: () => ({ latestCommentId, latestCommentDate }),
   };
 };
 

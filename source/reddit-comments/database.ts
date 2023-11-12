@@ -3,9 +3,10 @@ import { databaseName } from './constants';
 export interface ThreadData {
   id?: number;
   threadId: string;
-  updatedAt: Date;
+  updatedAt: number;
   latestCommentId?: string;
-  latestCommentTimestamp?: Date;
+  /** In db store as numeric timestamp. Work with Date. */
+  latestCommentTimestamp?: number;
 }
 
 export interface CommentData {
@@ -14,6 +15,7 @@ export interface CommentData {
   threadId: string;
 }
 
+/** Don't use globalDb, use db = await openDatabase(). */
 export let globalDb: IDBDatabase | null = null;
 
 export const openDatabase = async () => {
@@ -201,6 +203,33 @@ export const getComment = async (
     getRequest.onerror = () => reject(transaction.error);
   });
 
+export const getAllCommentsForThread = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  new Promise<CommentData[]>((resolve, reject) => {
+    const transaction = db.transaction(CommentObjectStore, 'readonly');
+    const objectStore = transaction.objectStore(CommentObjectStore);
+    const index = objectStore.index('ThreadIdIndex');
+
+    const comments: CommentData[] = [];
+
+    index.openCursor(IDBKeyRange.only(threadId)).onsuccess = (cursorEvent) => {
+      const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+
+      if (cursor) {
+        comments.push(cursor.value);
+        cursor.continue();
+      } else {
+        resolve(comments);
+      }
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+
 // Example usage:
 const exampleUsage = async (db: IDBDatabase) => {
   const threadId = 'yourThreadId';
@@ -209,9 +238,9 @@ const exampleUsage = async (db: IDBDatabase) => {
   // Adding a thread
   const newThreadId = await addThread(db, {
     threadId,
-    updatedAt: new Date(),
+    updatedAt: new Date().getTime(),
     latestCommentId: commentId,
-    latestCommentTimestamp: new Date(),
+    latestCommentTimestamp: new Date().getTime(),
   });
 
   // Retrieving a thread

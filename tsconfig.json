@@ -8,7 +8,10 @@
     "isolatedModules": true,
     /* Additional Checks */
     "useDefineForClassFields": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    // I added bellow
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": ["source", "webpack.config.js"]
 }

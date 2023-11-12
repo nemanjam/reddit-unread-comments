@@ -3,18 +3,25 @@
 /**------------------------------------------------------------------------
  *      Reddit can change these, these can break.
  *      All in a single place.
+ *
+ *      Store ids in db as in dom, with prefix t1_ - comment, t3_ - thread.
+ *      Only for thread url regex.replace()
+ *
  *------------------------------------------------------------------------**/
 
 export const redditThreadUrlRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comments\/.+/;
 
 // selectors, easier to select children than parents
 export const commentSelector = '[id^="t1_"]:not([id*="-"])';
+export const commentIdRegexValidate = /^t1_[a-z0-9]+$/;
+
 export const timestampSelector = '[data-testid="comment_timestamp"]';
 export const timestampIdPrefix = 'CommentTopMeta--Created--';
 
 // thread, id="t3_17mmb4o" data-testid="post-container"
 export const threadPostSelector = '[data-testid="post-container"]';
-export const threadPostIdRegex = /^t3_/;
+export const threadPostIdRegexReplace = /^t3_/; // Only to get url id from element.id
+export const threadPostIdRegexValidate = /^t3_[a-z0-9]+$/;
 
 export const numberOfCommentsSelector = '[data-test-id="post-content"]';
 export const modalScrollContainerSelector = '#overlayScrollContainer';

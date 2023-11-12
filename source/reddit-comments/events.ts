@@ -51,6 +51,8 @@ const onUrlChange = () => {
   document.addEventListener('beforeunload', () => observer.disconnect());
 };
 
+// alert('global');
+
 export const attachAllEventHandlers = () => {
   onUrlChange();
 };
