@@ -84,8 +84,11 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const threadId = thread?.threadId;
   if (!threadId) return;
 
-  let latestCommentId = commentElements[0].id;
-  let latestCommentTimestamp = getTimestampFromCommentId(commentElements[0].id);
+  const initialCommentId = commentElements[0].id;
+  const latestCommentUpdater = createLatestCommentUpdater(
+    initialCommentId,
+    getTimestampFromCommentId(initialCommentId)
+  );
 
   commentElements.forEach(async (commentElement, index) => {
     if (!isElementInViewport(commentElement) || !commentElement.id) return;
@@ -96,14 +99,11 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
     await addComment(db, { commentId: commentElement.id, threadId });
 
     // get latest comment
-    const currentTimestamp = getTimestampFromCommentId(commentElements[0].id);
-    if (index === 0 || !latestCommentTimestamp || !currentTimestamp) return;
-    // convert
-    if (currentTimestamp > latestCommentTimestamp) {
-      latestCommentId = commentElement.id;
-      latestCommentTimestamp = currentTimestamp;
-    }
+    latestCommentUpdater.updateLatestComment(commentElement, index);
   });
+
+  const { latestCommentId, latestCommentTimestamp } =
+    latestCommentUpdater.getLatestComment();
 
   // update thread bellow forEach
   await updateThread(db, {
@@ -112,6 +112,30 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
     ...(latestCommentId && { latestCommentId }),
     ...(latestCommentTimestamp && { latestCommentTimestamp }),
   }).catch((error) => console.error(error));
+};
+
+const createLatestCommentUpdater = (
+  initialCommentId: string,
+  initialTimestamp: Date | null
+) => {
+  let latestCommentId = initialCommentId;
+  let latestCommentTimestamp = initialTimestamp;
+
+  const updateLatestComment = (commentElement: HTMLElement, index: number) => {
+    const currentTimestamp = getTimestampFromCommentId(commentElement.id);
+
+    if (index === 0 || !latestCommentTimestamp || !currentTimestamp) return;
+
+    if (currentTimestamp > latestCommentTimestamp) {
+      latestCommentId = commentElement.id;
+      latestCommentTimestamp = currentTimestamp;
+    }
+  };
+
+  return {
+    updateLatestComment,
+    getLatestComment: () => ({ latestCommentId, latestCommentTimestamp }),
+  };
 };
 
 export const traverseComments = () => {
