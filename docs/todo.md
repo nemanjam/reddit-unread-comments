@@ -14,6 +14,23 @@ interface:
 redirect/sort by new
 mark last hour, week, slider 
 call content scripts from interface popup
+// ReactComponent.js
+// Send a message to the content script
+browser.runtime.sendMessage({
+    messageFromReact: message,
+});
+// contentScript.js
+
+// Listen for messages from the extension
+browser.runtime.onMessage.addListener((message) => {
+  if (message.messageFromReact) {
+    // Do something with the message received from the React component
+    console.log('Received message from React:', message.messageFromReact);
+    
+    // Call your function and pass the message
+    myFunction(message.messageFromReact);
+  }
+});
 -------
 replace return null with try catch and exceptions
 validate function input arguments

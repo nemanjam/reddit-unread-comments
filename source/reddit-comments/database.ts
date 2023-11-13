@@ -11,8 +11,9 @@ export interface ThreadData {
 
 export interface CommentData {
   id?: number;
-  commentId: string;
   threadId: string;
+  sessionCreatedAt: number;
+  commentId: string;
 }
 
 /** Don't use globalDb, use db = await openDatabase(). */
@@ -56,6 +57,9 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   });
   commentObjectStore.createIndex('CommentIdIndex', 'commentId', { unique: true });
   commentObjectStore.createIndex('ThreadIdIndex', 'threadId', { unique: false });
+  commentObjectStore.createIndex('SessionCreatedAtIndex', 'sessionCreatedAt', {
+    unique: false,
+  });
 
   // Optionally, create a compound index for commentId and threadId as a pseudo-primary key - constraint only
   commentObjectStore.createIndex('CommentThreadIdIndex', ['commentId', 'threadId'], {
@@ -248,9 +252,15 @@ const exampleUsage = async (db: IDBDatabase) => {
   console.log('Retrieved Thread:', retrievedThread);
 
   // Adding a comment
-  const newCommentId = await addComment(db, { commentId, threadId });
+  const newCommentId = await addComment(db, {
+    commentId,
+    threadId,
+    sessionCreatedAt: new Date().getTime(),
+  });
 
   // Retrieving a comment
   const retrievedComment = await getComment(db, commentId);
   console.log('Retrieved Comment:', retrievedComment);
 };
+
+// 1 699 867 623 577 // 2066
