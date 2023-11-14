@@ -1,7 +1,13 @@
 import {
+  MyElementIdNotValidDOMException,
+  MyElementNotFoundDOMException,
+} from './Exceptions';
+import {
   commentIdRegexValidate,
   commentSelector,
+  currentSessionCreatedAt,
   highlightedCommentClass,
+  modalScrollContainerSelector,
   threadPostIdRegexValidate,
   threadPostSelector,
   timestampIdPrefix,
@@ -40,11 +46,19 @@ export const validateThreadId = (threadId: string): boolean =>
 export const validateCommentId = (commentId: string): boolean =>
   commentIdRegexValidate.test(commentId);
 
-export const getThreadId = (): string | null => {
+/** Throws DOM exceptions. */
+export const getThreadIdFromDom = (): string => {
   const threadElement = document.querySelector<HTMLElement>(threadPostSelector);
 
-  const threadId =
-    threadElement && validateThreadId(threadElement.id) ? threadElement.id : null;
+  if (!threadElement)
+    throw new MyElementNotFoundDOMException(
+      'Thread element not found in DOM by attribute.'
+    );
+
+  if (!validateThreadId(threadElement.id))
+    throw new MyElementIdNotValidDOMException('Thread element.id not found or invalid.');
+
+  const threadId = threadElement.id;
 
   return threadId;
 };
@@ -77,11 +91,8 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
 
 // todo: filter un-highlight only from last session
 const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
-  const threadIdFromDom = getThreadId();
+  const threadIdFromDom = getThreadIdFromDom();
   const db = await openDatabase();
-
-  // fix this with try catch
-  if (!db || !threadIdFromDom) return;
 
   commentElements.forEach(async (commentElement) => {
     // compare with db here
@@ -94,25 +105,15 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   });
 };
 
-const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
+const markAsRead = async (
+  commentElements: NodeListOf<HTMLElement>,
+  source: TraverseCommentsSource
+) => {
   if (!(commentElements.length > 0)) return;
 
   const db = await openDatabase();
-  if (!db) return;
 
-  let threadIdFromDom = getThreadId();
-  if (!threadIdFromDom) return;
-
-  // add new thread if it doesn't exist
-  const thread =
-    (await getThread(db, threadIdFromDom)) ??
-    ((await addThread(db, {
-      threadId: threadIdFromDom,
-      updatedAt: new Date().getTime(),
-    }).catch((error) => console.error(error))) as ThreadData);
-
-  const threadId = thread?.threadId;
-  if (!threadId) return;
+  const { threadId } = await getOrCreateThread();
 
   const initialCommentId = commentElements[0].id;
   const latestCommentUpdater = createLatestCommentUpdater(
@@ -126,8 +127,11 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
 
     // check time
     // add comment id in db
-    const { threadId } = thread;
-    await addComment(db, { commentId: commentElement.id, threadId });
+    await addComment(db, {
+      threadId,
+      commentId: commentElement.id,
+      sessionCreatedAt: currentSessionCreatedAt,
+    });
 
     // get latest comment
     // latestCommentUpdater.updateLatestComment(commentElement, index);
@@ -138,7 +142,7 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   // update thread bellow forEach
   await updateThread(db, {
     threadId,
-    updatedAt: new Date().getTime(),
+    updatedAt: new Date().getTime(), // not this, session
     ...(latestCommentId && { latestCommentId }),
     ...(latestCommentDate && { latestCommentTimestamp: latestCommentDate.getTime() }),
   }).catch((error) => console.error(error));
@@ -168,9 +172,35 @@ const createLatestCommentUpdater = (
   };
 };
 
-export const traverseComments = () => {
+export const getOrCreateThread = async () => {
+  const db = await openDatabase();
+  const threadIdFromDom = getThreadIdFromDom();
+
+  // add new thread if it doesn't exist
+  const thread =
+    (await getThread(db, threadIdFromDom)) ??
+    ((await addThread(db, {
+      threadId: threadIdFromDom,
+      updatedAt: new Date().getTime(),
+    })) as ThreadData);
+
+  return thread;
+};
+
+export const getScrollElement = () => {
+  // detect modal
+  const modalScrollContainer = document.querySelector<HTMLElement>(
+    modalScrollContainerSelector
+  );
+  const scrollElement = modalScrollContainer ?? document;
+  return scrollElement;
+};
+
+type TraverseCommentsSource = 'onUrlChange' | 'onScroll';
+
+export const traverseComments = (source: TraverseCommentsSource) => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
 
-  markAsRead(commentElements);
+  markAsRead(commentElements, source);
   highlight(commentElements);
 };

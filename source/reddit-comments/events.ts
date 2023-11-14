@@ -1,5 +1,5 @@
-import { debounce, isRedditThread } from './utils';
-import { traverseComments } from './dom';
+import { debounce, hasArrivedToRedditThread, hasLeftRedditThread } from './utils';
+import { getOrCreateThread, getScrollElement, traverseComments } from './dom';
 import {
   scrollDebounceWait,
   domReadyDebounceWait,
@@ -12,21 +12,21 @@ import {
 
 /*-------------------------------- onScroll ------------------------------*/
 
-const handleScroll = () => traverseComments();
+const handleScroll = () => traverseComments('onScroll');
 const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
-const handleUrlChange = () => {
-  // detect modal
-  const modalScrollContainer = document.querySelector<HTMLElement>(
-    modalScrollContainerSelector
-  );
-  const scrollElement = modalScrollContainer ?? document;
+const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
+  // modal or document
+  const scrollElement = getScrollElement();
 
-  if (isRedditThread()) {
+  if (hasArrivedToRedditThread(previousUrl, currentUrl)) {
     scrollElement.addEventListener('scroll', debouncedScrollHandler);
+
     // test onUrlChange and onScroll independently
-    traverseComments();
-  } else {
+    traverseComments('onUrlChange');
+  }
+
+  if (hasLeftRedditThread(previousUrl, currentUrl)) {
     scrollElement.removeEventListener('scroll', debouncedScrollHandler);
   }
 };
@@ -38,11 +38,14 @@ const debouncedUrlChangeHandler = debounce(handleUrlChange, domReadyDebounceWait
 
 let previousUrl = '';
 const observer = new MutationObserver(() => {
+  // string is primitive type, create backup
+  const previousUrlCopy = previousUrl;
+
   if (location.href !== previousUrl) {
     previousUrl = location.href;
 
     // run on all pages to attach and detach scroll listeners
-    debouncedUrlChangeHandler();
+    debouncedUrlChangeHandler(previousUrlCopy, location.href);
   }
 });
 

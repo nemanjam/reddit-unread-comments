@@ -40,6 +40,9 @@ export const highlightedCommentClass = 'ruc-highlight-comment';
 
 export const databaseName = 'reddit-unread-comments-db';
 
+/** 2 * 10**12 */
+export const currentSessionCreatedAt = 2e12 as const;
+
 /*------------------------------ test code, remove later ----------------------------*/
 
 // document
@@ -49,3 +52,5 @@ export const databaseName = 'reddit-unread-comments-db';
 // [id^="t1_"]:not([id*="-"])
 
 // document.querySelectorAll('[id^="t1_"]:not([id*="-"])');
+
+// now 1 699 946 225 776

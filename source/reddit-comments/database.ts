@@ -19,14 +19,26 @@ export interface CommentData {
 /** Don't use globalDb, use db = await openDatabase(). */
 export let globalDb: IDBDatabase | null = null;
 
-export const openDatabase = async () => {
-  return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(databaseName, 1);
+/** Returns database or throws exception. */
+export const openDatabase = async (): Promise<IDBDatabase> => {
+  const openDatabaseLocal = async (): Promise<IDBDatabase> => {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(databaseName, 1);
 
-    request.onupgradeneeded = onUpgradeNeeded;
-    request.onsuccess = (event) => onSuccess(resolve, event);
-    request.onerror = (event) => onError(reject, event);
-  });
+      request.onupgradeneeded = onUpgradeNeeded;
+      request.onsuccess = (event) => onSuccess(resolve, event);
+      request.onerror = (event) => onError(reject, event);
+    });
+  };
+
+  try {
+    const db = await openDatabaseLocal();
+    return db;
+  } catch (error) {
+    // Handle the error or rethrow if needed
+    console.error('Error opening database:', error);
+    throw error;
+  }
 };
 
 const ThreadObjectStore = 'Thread' as const;

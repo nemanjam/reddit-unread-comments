@@ -8,7 +8,7 @@ run only in active tab
 lodash debounce
 hashmapa url: time latest comment, for unread
 inject only in reddit, both js, css
-sort by new always
+sort by new always // to
 ------
 interface:
 redirect/sort by new
@@ -38,5 +38,5 @@ validate function input arguments
 add sessions for scroll
 filter un-highlight only from last session, detect, na url change, in memory copy cache
 -------
-
+create custom exception classes // to
 
