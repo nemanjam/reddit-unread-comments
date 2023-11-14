@@ -1,14 +1,9 @@
+import { MyElementNotFoundDOMException } from './Exceptions';
 import {
-  MyElementIdNotValidDOMException,
-  MyElementNotFoundDOMException,
-} from './Exceptions';
-import {
-  commentIdRegexValidate,
   commentSelector,
   currentSessionCreatedAt,
   highlightedCommentClass,
   modalScrollContainerSelector,
-  threadPostIdRegexValidate,
   threadPostSelector,
   timestampIdPrefix,
 } from './constants';
@@ -19,32 +14,30 @@ import {
   addComment,
   updateThread,
   ThreadData,
-  getAllCommentsForThread,
+  getAllCommentsForThreadWithoutCurrentSession,
 } from './database';
 import { relativeTimeStringToDate } from './datetime';
+import {
+  validateCommentElementIdOrThrow,
+  validateThreadElementIdOrThrow,
+} from './validation';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => timestampIdPrefix + commentId;
 
-// todo: fix error handling here, in all dom query functions
-const getDateFromCommentId = (commentId: string): Date | null => {
+const getDateFromCommentId = (commentId: string): Date => {
   const timestampId = getTimestampIdFromCommentId(commentId);
   const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
 
+  if (!timestampElement)
+    throw new MyElementNotFoundDOMException('Comment timestamp element not found.');
+
   // 2 hr. ago
-  const timeAgo = timestampElement?.textContent;
-  if (!timeAgo) return null;
+  const timeAgo = timestampElement.innerHTML;
 
   const date = relativeTimeStringToDate(timeAgo);
   return date;
 };
-
-/** Returns boolean. */
-export const validateThreadId = (threadId: string): boolean =>
-  threadPostIdRegexValidate.test(threadId);
-
-export const validateCommentId = (commentId: string): boolean =>
-  commentIdRegexValidate.test(commentId);
 
 /** Throws DOM exceptions. */
 export const getThreadIdFromDom = (): string => {
@@ -55,10 +48,7 @@ export const getThreadIdFromDom = (): string => {
       'Thread element not found in DOM by attribute.'
     );
 
-  if (!validateThreadId(threadElement.id))
-    throw new MyElementIdNotValidDOMException('Thread element.id not found or invalid.');
-
-  const threadId = threadElement.id;
+  const threadId = validateThreadElementIdOrThrow(threadElement);
 
   return threadId;
 };
@@ -74,32 +64,20 @@ const isElementInViewport = (element: HTMLElement) => {
   );
 };
 
-// only elements with ids, unused
-export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
-  const visibleElements: HTMLElement[] = [];
-
-  // MUST work with original NodeList.forEach
-  elements.forEach((element) => {
-    if (isElementInViewport(element)) visibleElements.push(element);
-  });
-
-  const selector = visibleElements.map((element) => `#${element.id}`).join(',');
-
-  const selectedElements = document.querySelectorAll(selector);
-  return selectedElements;
-};
-
-// todo: filter un-highlight only from last session
 const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const threadIdFromDom = getThreadIdFromDom();
   const db = await openDatabase();
 
   commentElements.forEach(async (commentElement) => {
-    // compare with db here
-    const readComments = await getAllCommentsForThread(db, threadIdFromDom);
+    const commentId = validateCommentElementIdOrThrow(commentElement);
+    const readComments = await getAllCommentsForThreadWithoutCurrentSession(
+      db,
+      threadIdFromDom
+    );
+
     const isReadComment = readComments
       .map((comment) => comment.commentId)
-      .includes(commentElement.id);
+      .includes(commentId);
 
     if (!isReadComment) commentElement.classList.add(highlightedCommentClass);
   });
@@ -109,27 +87,30 @@ const markAsRead = async (
   commentElements: NodeListOf<HTMLElement>,
   source: TraverseCommentsSource
 ) => {
-  if (!(commentElements.length > 0)) return;
-
   const db = await openDatabase();
 
   const { threadId } = await getOrCreateThread();
 
-  const initialCommentId = commentElements[0].id;
+  // if (source === 'onUrlChange') await updateCommentsFromPreviousSession()
+  // if (source === 'onScroll') const currentSessionComments = await getCommentsFromCurrentSession()
+
+  const initialCommentId = validateCommentElementIdOrThrow(commentElements[0]);
   const latestCommentUpdater = createLatestCommentUpdater(
     initialCommentId,
     getDateFromCommentId(initialCommentId)
   );
 
   commentElements.forEach(async (commentElement, index) => {
-    if (!validateCommentId(commentElement.id) || !isElementInViewport(commentElement))
-      return;
+    const commentId = validateCommentElementIdOrThrow(commentElement);
 
+    if (!isElementInViewport(commentElement)) return;
+
+    // if (!currentSessionComments.includes(commentId))
     // check time
     // add comment id in db
     await addComment(db, {
       threadId,
-      commentId: commentElement.id,
+      commentId,
       sessionCreatedAt: currentSessionCreatedAt,
     });
 
@@ -145,23 +126,21 @@ const markAsRead = async (
     updatedAt: new Date().getTime(), // not this, session
     ...(latestCommentId && { latestCommentId }),
     ...(latestCommentDate && { latestCommentTimestamp: latestCommentDate.getTime() }),
-  }).catch((error) => console.error(error));
+  });
 };
 
-const createLatestCommentUpdater = (
-  initialCommentId: string,
-  initialDate: Date | null
-) => {
+const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date) => {
   let latestCommentId = initialCommentId;
   let latestCommentDate = initialDate;
 
   const updateLatestComment = (commentElement: HTMLElement, index: number) => {
-    const currentDate = getDateFromCommentId(commentElement.id);
+    const commentId = validateCommentElementIdOrThrow(commentElement);
+    const currentDate = getDateFromCommentId(commentId);
 
-    if (index === 0 || !latestCommentDate || !currentDate) return;
+    if (index === 0) return;
 
     if (currentDate > latestCommentDate) {
-      latestCommentId = commentElement.id;
+      latestCommentId = commentId;
       latestCommentDate = currentDate;
     }
   };
@@ -198,9 +177,14 @@ export const getScrollElement = () => {
 
 type TraverseCommentsSource = 'onUrlChange' | 'onScroll';
 
-export const traverseComments = (source: TraverseCommentsSource) => {
+export const traverseComments = async (source: TraverseCommentsSource) => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+  if (!(commentElements.length > 0)) return;
 
-  markAsRead(commentElements, source);
-  highlight(commentElements);
+  try {
+    await markAsRead(commentElements, source);
+    await highlight(commentElements);
+  } catch (error) {
+    console.error('Error traversing comments:', error);
+  }
 };

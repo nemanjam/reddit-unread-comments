@@ -187,3 +187,19 @@ document.removeEventListener('scroll', handleScroll);
 const timestampId = getTimestampIdFromCommentId(commentElement.id);
 const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
 const timestamp = timestampElement?.textContent;
+
+
+// only elements with ids, unused
+export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
+  const visibleElements: HTMLElement[] = [];
+
+  // MUST work with original NodeList.forEach
+  elements.forEach((element) => {
+    if (isElementInViewport(element)) visibleElements.push(element);
+  });
+
+  const selector = visibleElements.map((element) => `#${element.id}`).join(',');
+
+  const selectedElements = document.querySelectorAll(selector);
+  return selectedElements;
+};

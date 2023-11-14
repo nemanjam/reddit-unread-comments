@@ -1,4 +1,4 @@
-import { databaseName } from './constants';
+import { currentSessionCreatedAt, databaseName } from './constants';
 
 export interface ThreadData {
   id?: number;
@@ -245,6 +245,15 @@ export const getAllCommentsForThread = async (
       db.close();
     };
   });
+
+/** Returns all comments for thread except comments from current session. */
+export const getAllCommentsForThreadWithoutCurrentSession = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  (await getAllCommentsForThread(db, threadId)).filter(
+    (comment) => comment.sessionCreatedAt !== currentSessionCreatedAt
+  );
 
 // Example usage:
 const exampleUsage = async (db: IDBDatabase) => {

@@ -1,4 +1,5 @@
 import { add } from 'date-fns';
+import { MyUnparsableDateException } from './Exceptions';
 
 type TimeUnit =
   | 'sec.'
@@ -44,7 +45,7 @@ export const relativeTimeStringToDate = (relativeTime: string): Date => {
       date = add(new Date(), { years: -parseInt(value, 10) });
       break;
     default:
-      throw new Error('Invalid unit in relative time string');
+      throw new MyUnparsableDateException('Invalid unit in relative time string');
   }
 
   return date;

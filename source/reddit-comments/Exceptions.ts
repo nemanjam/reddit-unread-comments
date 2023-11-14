@@ -2,32 +2,35 @@
  *                           My Custom Exceptions
  *------------------------------------------------------------------------**/
 
-/**------------------------------------------------------------------------
- *                           DOM Exceptions
- *------------------------------------------------------------------------**/
-export class MyElementNotFoundDOMException extends DOMException {
+/*--------------------------- Base Exceptions -------------------------*/
+
+class MyBaseDOMException extends DOMException {
   constructor(message?: string, name?: string) {
     super(message, name);
   }
 }
 
-export class MyElementIdNotValidDOMException extends DOMException {
-  constructor(message?: string, name?: string) {
-    super(message, name);
-  }
-}
-
-/**------------------------------------------------------------------------
- *                           Database Exceptions
- *------------------------------------------------------------------------**/
-
-// not needed
-export class MyOpenIndexedDBException extends Error {
+class MyBaseException extends Error {
   constructor(message?: string, name?: string) {
     super(message);
-    this.name = 'MyOpenIndexedDBException' ?? name;
+    this.name = name ?? 'MyBaseError';
 
     // Ensure the prototype is correctly set
-    Object.setPrototypeOf(this, MyOpenIndexedDBException.prototype);
+    Object.setPrototypeOf(this, MyBaseException.prototype);
   }
 }
+
+/*----------------------------- DOM Exceptions ---------------------------*/
+
+export class MyElementNotFoundDOMException extends MyBaseDOMException {}
+
+export class MyElementIdNotValidDOMException extends MyBaseDOMException {}
+
+/*--------------------------- Database Exceptions -------------------------*/
+
+// not needed
+export class MyOpenIndexedDBException extends MyBaseException {}
+
+/*---------------------------- Datetime Exceptions --------------------------*/
+
+export class MyUnparsableDateException extends MyBaseException {}

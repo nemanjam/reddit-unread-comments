@@ -39,4 +39,5 @@ add sessions for scroll
 filter un-highlight only from last session, detect, na url change, in memory copy cache
 -------
 create custom exception classes // to
+db function to update comment.sessionCreatedAt to thread.updatedAt
 
