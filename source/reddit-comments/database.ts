@@ -255,6 +255,79 @@ export const getAllCommentsForThreadWithoutCurrentSession = async (
     (comment) => comment.sessionCreatedAt !== currentSessionCreatedAt
   );
 
+export const updateComment = async (
+  db: IDBDatabase,
+  updatedCommentData: Partial<CommentData>
+): Promise<CommentData> => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(CommentObjectStore, 'readwrite');
+    const commentObjectStore = transaction.objectStore(CommentObjectStore);
+
+    const getRequest = commentObjectStore
+      .index('CommentIdIndex')
+      .get(updatedCommentData.commentId as string);
+
+    getRequest.onsuccess = (event) => {
+      const existingComment = (event.target as IDBRequest).result as CommentData;
+
+      if (existingComment) {
+        // Merge the existing comment with the updated data
+        const mergedComment = { ...existingComment, ...updatedCommentData };
+
+        // Update the comment in the object store
+        const updateRequest = commentObjectStore.put(mergedComment);
+
+        updateRequest.onsuccess = () => {
+          console.log('Comment updated successfully');
+          resolve(mergedComment);
+        };
+
+        updateRequest.onerror = (event) => {
+          console.error('Error updating comment:', (event.target as IDBRequest).error);
+          reject((event.target as IDBRequest).error);
+        };
+      } else {
+        console.error('Comment not found');
+        reject('Comment not found');
+      }
+    };
+
+    getRequest.onerror = (event) => {
+      console.error(
+        'Error fetching comment for update:',
+        (event.target as IDBRequest).error
+      );
+      reject((event.target as IDBRequest).error);
+    };
+  });
+};
+
+export const updateCommentsSessionCreatedAtForThread = (
+  db: IDBDatabase,
+  threadId: string,
+  sessionCreatedAt: number
+): Promise<CommentData[]> =>
+  new Promise<CommentData[]>((resolve, reject) => {
+    getAllCommentsForThread(db, threadId)
+      .then((comments) => {
+        const commentsToUpdate = comments.filter(
+          (comment) => comment.sessionCreatedAt === currentSessionCreatedAt
+        );
+
+        const updatePromises = commentsToUpdate.map((comment) =>
+          updateComment(db, {
+            ...comment,
+            sessionCreatedAt,
+          })
+        );
+
+        Promise.all(updatePromises)
+          .then((updatedComments) => resolve(updatedComments))
+          .catch((error) => reject(error));
+      })
+      .catch((error) => reject(error));
+  });
+
 // Example usage:
 const exampleUsage = async (db: IDBDatabase) => {
   const threadId = 'yourThreadId';

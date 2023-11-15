@@ -203,3 +203,59 @@ export const filterVisibleElements = (elements: NodeListOf<HTMLElement>) => {
   const selectedElements = document.querySelectorAll(selector);
   return selectedElements;
 };
+
+
+export const updateCommentsSessionCreatedAtForThread = (
+  db: IDBDatabase,
+  threadId: string,
+  sessionCreatedAt: number
+): Promise<CommentData[]> => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([CommentObjectStore], 'readwrite');
+    const commentObjectStore = transaction.objectStore(CommentObjectStore);
+
+    const index = commentObjectStore.index('ThreadIdIndex');
+
+    const getRequest = index.getAll(threadId);
+
+    getRequest.onsuccess = (event: any) => {
+      const comments = event.target.result;
+
+      if (comments && comments.length > 0) {
+        const updateTransaction = db.transaction([CommentObjectStore], 'readwrite');
+        const updateObjectStore = updateTransaction.objectStore(CommentObjectStore);
+        const updatedComments: CommentData[] = [];
+
+        comments.forEach((comment: CommentData) => {
+          if (comment.sessionCreatedAt === currentSessionCreatedAt) {
+            // Update only comments with sessionCreatedAt === 2e12
+            comment.sessionCreatedAt = sessionCreatedAt;
+            updateObjectStore.put(comment);
+            updatedComments.push(comment);
+          }
+        });
+
+        updateTransaction.oncomplete = () => {
+          console.log('SessionCreatedAt updated successfully');
+          resolve(updatedComments); // Resolve with the updated comments
+        };
+
+        updateTransaction.onerror = (error: any) => {
+          console.error('Error updating SessionCreatedAt:', error);
+          reject(error);
+        };
+      } else {
+        console.warn('No comments found for the specified threadId:', threadId);
+        resolve([]); // Resolve with an empty array since there are no comments to update
+      }
+    };
+
+    getRequest.onerror = (error: any) => {
+      console.error('Error retrieving comments:', error);
+      reject(error);
+    };
+  });
+};
+
+
+
