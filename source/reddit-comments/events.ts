@@ -1,6 +1,6 @@
 import { debounce, hasArrivedToRedditThread, hasLeftRedditThread } from './utils';
-import { getScrollElement, traverseComments } from './dom';
-import { scrollDebounceWait, domReadyDebounceWait } from './constants';
+import { getScrollElement, handleScrollDom, handleUrlChangeDom } from './dom';
+import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -8,7 +8,7 @@ import { scrollDebounceWait, domReadyDebounceWait } from './constants';
 
 /*-------------------------------- onScroll ------------------------------*/
 
-const handleScroll = () => traverseComments('onScroll');
+const handleScroll = () => handleScrollDom();
 const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
 
 const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
@@ -19,7 +19,7 @@ const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
     scrollElement.addEventListener('scroll', debouncedScrollHandler);
 
     // test onUrlChange and onScroll independently
-    await traverseComments('onUrlChange');
+    await handleUrlChangeDom();
   }
 
   if (hasLeftRedditThread(previousUrl, currentUrl)) {
@@ -28,7 +28,7 @@ const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
 };
 
 // must wait for redirect and page content load
-const debouncedUrlChangeHandler = debounce(handleUrlChange, domReadyDebounceWait);
+const debouncedUrlChangeHandler = debounce(handleUrlChange, urlChangeDebounceWait);
 
 /*-------------------------------- onUrlChange ------------------------------*/
 

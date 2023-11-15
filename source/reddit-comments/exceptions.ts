@@ -31,6 +31,10 @@ export class MyElementIdNotValidDOMException extends MyBaseDOMException {}
 // not needed
 export class MyOpenIndexedDBException extends MyBaseException {}
 
+export class MyCreateModelFailedDBException extends MyBaseException {}
+
+export class MyModelNotFoundDBException extends MyBaseException {}
+
 /*---------------------------- Datetime Exceptions --------------------------*/
 
 export class MyUnparsableDateException extends MyBaseException {}

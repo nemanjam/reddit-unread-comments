@@ -1,4 +1,8 @@
-import { MyElementNotFoundDOMException } from './exceptions';
+import {
+  MyCreateModelFailedDBException,
+  MyElementNotFoundDOMException,
+  MyModelNotFoundDBException,
+} from './exceptions';
 import {
   commentSelector,
   currentSessionCreatedAt,
@@ -14,7 +18,10 @@ import {
   addComment,
   updateThread,
   ThreadData,
-  getAllCommentsForThreadWithoutCurrentSession,
+  getCommentsForThreadWithoutCurrentSession,
+  updateCommentsSessionCreatedAtForThread,
+  CommentData,
+  getCommentsForThreadForCurrentSession,
 } from './database';
 import { relativeTimeStringToDate } from './datetime';
 import {
@@ -64,36 +71,49 @@ const isElementInViewport = (element: HTMLElement) => {
   );
 };
 
+/**
+ * Highlights all comments except from current session.
+ *
+ * onUrlChange - creates session
+ * onScroll - doesn't create session
+ */
 const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
-  const threadIdFromDom = getThreadIdFromDom();
   const db = await openDatabase();
+  const threadIdFromDom = getThreadIdFromDom();
+
+  const readComments = await getCommentsForThreadWithoutCurrentSession(
+    db,
+    threadIdFromDom
+  );
+  const readCommentsIds = readComments.map((comment) => comment.commentId);
 
   commentElements.forEach(async (commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
-    const readComments = await getAllCommentsForThreadWithoutCurrentSession(
-      db,
-      threadIdFromDom
-    );
+    const isReadComment = readCommentsIds.includes(commentId);
 
-    const isReadComment = readComments
-      .map((comment) => comment.commentId)
-      .includes(commentId);
+    const hasClassAlready = commentElement.classList.contains(highlightedCommentClass);
 
-    if (!isReadComment) commentElement.classList.add(highlightedCommentClass);
+    // disjunction between all comments and read comments in db
+    if (!hasClassAlready && !isReadComment)
+      commentElement.classList.add(highlightedCommentClass);
   });
 };
 
-const markAsRead = async (
-  commentElements: NodeListOf<HTMLElement>,
-  source: TraverseCommentsSource
-) => {
+/** Mutates only database, no live DOM updates. */
+const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
 
-  const { threadId } = await getOrCreateThread();
+  const { threadId } = await getCurrentThread();
+  // already marked comments as read in db
+  const currentSessionComments = await getCommentsForThreadForCurrentSession(
+    db,
+    threadId
+  );
+  const currentSessionCommentsIds = currentSessionComments.map(
+    (comment) => comment.commentId
+  );
 
-  // if (source === 'onUrlChange') await updateCommentsFromPreviousSession()
-  // if (source === 'onScroll') const currentSessionComments = await getCommentsFromCurrentSession()
-
+  // unfiltered comments here, for entire session
   const initialCommentId = validateCommentElementIdOrThrow(commentElements[0]);
   const latestCommentUpdater = createLatestCommentUpdater(
     initialCommentId,
@@ -102,11 +122,12 @@ const markAsRead = async (
 
   commentElements.forEach(async (commentElement, index) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
+    const isAlreadyMarkedComment = currentSessionCommentsIds.includes(commentId); // all checks in one loop
 
-    if (!isElementInViewport(commentElement)) return;
+    if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
 
-    // if (!currentSessionComments.includes(commentId))
-    // check time
+    // check time...
+
     // add comment id in db
     await addComment(db, {
       threadId,
@@ -115,7 +136,7 @@ const markAsRead = async (
     });
 
     // get latest comment
-    // latestCommentUpdater.updateLatestComment(commentElement, index);
+    latestCommentUpdater.updateLatestComment(commentId, index);
   });
 
   const { latestCommentId, latestCommentDate } = latestCommentUpdater.getLatestComment();
@@ -123,7 +144,6 @@ const markAsRead = async (
   // update thread bellow forEach
   await updateThread(db, {
     threadId,
-    updatedAt: new Date().getTime(), // not this, session
     ...(latestCommentId && { latestCommentId }),
     ...(latestCommentDate && { latestCommentTimestamp: latestCommentDate.getTime() }),
   });
@@ -133,8 +153,7 @@ const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date)
   let latestCommentId = initialCommentId;
   let latestCommentDate = initialDate;
 
-  const updateLatestComment = (commentElement: HTMLElement, index: number) => {
-    const commentId = validateCommentElementIdOrThrow(commentElement);
+  const updateLatestComment = (commentId: string, index: number) => {
     const currentDate = getDateFromCommentId(commentId);
 
     if (index === 0) return;
@@ -151,19 +170,58 @@ const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date)
   };
 };
 
-export const getOrCreateThread = async () => {
+const getCurrentThread = async (): Promise<ThreadData> => {
   const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
 
-  // add new thread if it doesn't exist
-  const thread =
-    (await getThread(db, threadIdFromDom)) ??
-    ((await addThread(db, {
-      threadId: threadIdFromDom,
-      updatedAt: new Date().getTime(),
-    })) as ThreadData);
+  const thread = await getThread(db, threadIdFromDom);
+
+  if (!thread) throw new MyModelNotFoundDBException('Thread with id from DOM not found.');
 
   return thread;
+};
+
+export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise<{
+  isExistingThread: boolean;
+  updatedComments: CommentData[];
+  thread: ThreadData;
+}> => {
+  const db = await openDatabase();
+  const threadIdFromDom = getThreadIdFromDom();
+
+  const existingThread = await getThread(db, threadIdFromDom);
+
+  if (existingThread) {
+    const { threadId, updatedAt } = existingThread;
+    const updatedComments = await updateCommentsSessionCreatedAtForThread(
+      db,
+      threadId,
+      updatedAt
+    );
+
+    const result = {
+      isExistingThread: true,
+      updatedComments,
+      thread: existingThread,
+    };
+    return result;
+  }
+
+  // add new thread if it doesn't exist
+  const newThread = await addThread(db, {
+    threadId: threadIdFromDom,
+    updatedAt: new Date().getTime(), // first run creates session - comment.currentCreatedAt
+  });
+
+  if (!newThread)
+    throw new MyCreateModelFailedDBException('Failed to create new Thread.');
+
+  const result = {
+    isExistingThread: false,
+    updatedComments: [],
+    thread: newThread,
+  };
+  return result;
 };
 
 export const getScrollElement = () => {
@@ -175,16 +233,28 @@ export const getScrollElement = () => {
   return scrollElement;
 };
 
-type TraverseCommentsSource = 'onUrlChange' | 'onScroll';
-
-export const traverseComments = async (source: TraverseCommentsSource) => {
+/** onScroll - markAsRead, highlight */
+export const handleScrollDom = async () => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
 
   try {
-    await markAsRead(commentElements, source);
+    await markAsRead(commentElements);
     await highlight(commentElements);
   } catch (error) {
-    console.error('Error traversing comments:', error);
+    console.error('Error handling comments onScroll:', error);
+  }
+};
+
+/** updateCommentsFromPreviousSession, highlight */
+export const handleUrlChangeDom = async () => {
+  const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+  if (!(commentElements.length > 0)) return;
+
+  try {
+    await updateCommentsFromPreviousSessionOrCreateThread();
+    await highlight(commentElements);
+  } catch (error) {
+    console.error('Error handling comments onUrlChange:', error);
   }
 };

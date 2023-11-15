@@ -34,7 +34,7 @@ export const isDebug = process.env.IS_DEBUG === 'true' || true;
 export const scrollDebounceWait = 1000;
 
 /** Must wait for routing (change page), and load content */
-export const domReadyDebounceWait = 2000;
+export const urlChangeDebounceWait = 2000;
 
 export const highlightedCommentClass = 'ruc-highlight-comment';
 

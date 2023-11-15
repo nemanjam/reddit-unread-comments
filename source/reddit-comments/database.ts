@@ -247,12 +247,20 @@ export const getAllCommentsForThread = async (
   });
 
 /** Returns all comments for thread except comments from current session. */
-export const getAllCommentsForThreadWithoutCurrentSession = async (
+export const getCommentsForThreadWithoutCurrentSession = async (
   db: IDBDatabase,
   threadId: string
 ): Promise<CommentData[]> =>
   (await getAllCommentsForThread(db, threadId)).filter(
     (comment) => comment.sessionCreatedAt !== currentSessionCreatedAt
+  );
+
+export const getCommentsForThreadForCurrentSession = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  (await getAllCommentsForThread(db, threadId)).filter(
+    (comment) => comment.sessionCreatedAt === currentSessionCreatedAt
   );
 
 export const updateComment = async (
