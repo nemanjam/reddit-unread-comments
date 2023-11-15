@@ -1,5 +1,5 @@
 import { add } from 'date-fns';
-import { MyUnparsableDateException } from './Exceptions';
+import { MyUnparsableDateException } from './exceptions';
 
 type TimeUnit =
   | 'sec.'

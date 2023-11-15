@@ -1,4 +1,4 @@
-import { MyElementNotFoundDOMException } from './Exceptions';
+import { MyElementNotFoundDOMException } from './exceptions';
 import {
   commentSelector,
   currentSessionCreatedAt,

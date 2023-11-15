@@ -1,4 +1,4 @@
-import { MyElementIdNotValidDOMException } from './Exceptions';
+import { MyElementIdNotValidDOMException } from './exceptions';
 import { commentIdRegexValidate, threadPostIdRegexValidate } from './constants';
 
 /** Returns boolean. */
