@@ -138,7 +138,8 @@ export const addThread = async (
     };
 
     addObjectRequest.onerror = () => reject(transaction.error);
-    transaction.oncomplete = () => console.log('Thread added successfully');
+    transaction.oncomplete = () =>
+      console.log(`Thread with threadId: ${threadData.threadId} added successfully.`);
   });
 
 export const getThread = async (
@@ -177,7 +178,9 @@ export const updateThread = async (
         const updateRequest = threadObjectStore.put(mergedThread);
 
         updateRequest.onsuccess = () => {
-          console.log('Thread updated successfully');
+          console.log(
+            `Thread with threadId: ${updatedThreadData.threadId} updated successfully.`
+          );
           resolve(mergedThread);
         };
 
@@ -186,8 +189,9 @@ export const updateThread = async (
           reject((event.target as IDBRequest).error);
         };
       } else {
-        console.error('Thread not found');
-        reject('Thread not found');
+        const message = `Thread with threadId: ${updatedThreadData.threadId} not found.`;
+        console.error(message);
+        reject(message);
       }
     };
 
@@ -226,7 +230,10 @@ export const addComment = async (
     };
 
     addObjectRequest.onerror = () => reject(transaction.error);
-    transaction.oncomplete = () => console.log('Comment added successfully');
+    transaction.oncomplete = () =>
+      console.log(
+        `Comment with commentId: ${commentData.id}, threadId: ${commentData.threadId} added successfully.`
+      );
   });
 
 export const getComment = async (
@@ -309,7 +316,9 @@ export const updateComment = async (
         const updateRequest = commentObjectStore.put(mergedComment);
 
         updateRequest.onsuccess = () => {
-          console.log('Comment updated successfully');
+          console.log(
+            `Comment with commentId: ${updatedCommentData.commentId} updated successfully.`
+          );
           resolve(mergedComment);
         };
 
@@ -318,8 +327,9 @@ export const updateComment = async (
           reject((event.target as IDBRequest).error);
         };
       } else {
-        console.error('Comment not found');
-        reject('Comment not found');
+        const message = `Comment with commentId: ${updatedCommentData.commentId} not found.`;
+        console.error(message);
+        reject(message);
       }
     };
 
@@ -344,6 +354,8 @@ export const updateCommentsSessionCreatedAtForThread = (
         const commentsToUpdate = comments.filter(
           (comment) => comment.sessionCreatedAt === currentSessionCreatedAt
         );
+
+        if (!(commentsToUpdate.length > 0)) return resolve([]);
 
         const updatePromises = commentsToUpdate.map((comment) =>
           updateComment(db, {

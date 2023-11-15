@@ -9,6 +9,7 @@ import {
   highlightedCommentClass,
   modalScrollContainerSelector,
   threadPostSelector,
+  timestampIdModalSuffix,
   timestampIdPrefix,
 } from './constants';
 import {
@@ -31,20 +32,42 @@ import {
 import { isActiveTab } from './utils';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
-const getTimestampIdFromCommentId = (commentId: string) => timestampIdPrefix + commentId;
+const getTimestampIdFromCommentId = (commentId: string) => {
+  const modalSuffix = hasModalScrollContainer() ? timestampIdModalSuffix : '';
+  const timestampId = timestampIdPrefix + commentId + modalSuffix;
+  return timestampId;
+};
 
 const getDateFromCommentId = (commentId: string): Date => {
   const timestampId = getTimestampIdFromCommentId(commentId);
   const timestampElement = document.querySelector<HTMLElement>(`#${timestampId}`);
 
   if (!timestampElement)
-    throw new MyElementNotFoundDOMException('Comment timestamp element not found.');
+    throw new MyElementNotFoundDOMException(
+      `Comment timestamp element with timestampId: ${timestampId} not found.`
+    ); // here, blocked users
 
   // 2 hr. ago
   const timeAgo = timestampElement.innerHTML;
 
   const date = relativeTimeStringToDate(timeAgo);
   return date;
+};
+
+export const hasModalScrollContainer = (): boolean => {
+  const modalScrollContainer = document.querySelector<HTMLElement>(
+    modalScrollContainerSelector
+  );
+  return Boolean(modalScrollContainer);
+};
+
+export const getScrollElement = () => {
+  // detect modal
+  const modalScrollContainer = document.querySelector<HTMLElement>(
+    modalScrollContainerSelector
+  );
+  const scrollElement = modalScrollContainer ?? document;
+  return scrollElement;
 };
 
 /** Throws DOM exceptions. */
@@ -95,8 +118,14 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     const hasClassAlready = commentElement.classList.contains(highlightedCommentClass);
 
     // disjunction between all comments and read comments in db
-    if (!hasClassAlready && !isReadComment)
+    if (!hasClassAlready && !isReadComment) {
       commentElement.classList.add(highlightedCommentClass);
+    }
+
+    // remove highlight // if needed
+    if (hasClassAlready && isReadComment) {
+      commentElement.classList.remove(highlightedCommentClass);
+    }
   });
 };
 
@@ -104,7 +133,9 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
 
-  const { threadId } = await getCurrentThread();
+  const thread = await getCurrentThread();
+  const { threadId } = thread;
+
   // already marked comments as read in db
   const currentSessionComments = await getCommentsForThreadForCurrentSession(
     db,
@@ -127,6 +158,15 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
 
     if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
 
+    console.log(
+      'Marking comment as read for current session. commentId:',
+      commentId,
+      'threadId:',
+      threadId,
+      'sessionCreatedAt:',
+      currentSessionCreatedAt
+    );
+
     // check time...
 
     // add comment id in db
@@ -135,6 +175,17 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
       commentId,
       sessionCreatedAt: currentSessionCreatedAt,
     });
+
+    // unhilight in real time...
+    // setTimeout(
+    //   () =>
+    //     addComment(db, {
+    //       threadId,
+    //       commentId,
+    //       sessionCreatedAt: thread.updatedAt,
+    //     }),
+    //   5000
+    // );
 
     // get latest comment
     latestCommentUpdater.updateLatestComment(commentId, index);
@@ -150,6 +201,7 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   });
 };
 
+// todo: compare comments from database too
 const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date) => {
   let latestCommentId = initialCommentId;
   let latestCommentDate = initialDate;
@@ -177,7 +229,10 @@ const getCurrentThread = async (): Promise<ThreadData> => {
 
   const thread = await getThread(db, threadIdFromDom);
 
-  if (!thread) throw new MyModelNotFoundDBException('Thread with id from DOM not found.');
+  if (!thread)
+    throw new MyModelNotFoundDBException(
+      `Thread with threadIdFromDom: ${threadIdFromDom} not found.`
+    );
 
   return thread;
 };
@@ -199,6 +254,12 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
       threadId,
       updatedAt
     );
+
+    const message =
+      updatedComments.length > 0
+        ? `Updated ${updatedComments.length} pending comments from previous session.`
+        : 'No pending comments to update from previous session.';
+    console.log(message);
 
     const result = {
       isExistingThread: true,
@@ -223,15 +284,6 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
     thread: newThread,
   };
   return result;
-};
-
-export const getScrollElement = () => {
-  // detect modal
-  const modalScrollContainer = document.querySelector<HTMLElement>(
-    modalScrollContainerSelector
-  );
-  const scrollElement = modalScrollContainer ?? document;
-  return scrollElement;
 };
 
 /** onScroll - markAsRead, highlight */

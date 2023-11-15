@@ -8,7 +8,10 @@ class MyBaseDOMException extends DOMException {
   constructor(message?: string, name?: string) {
     super(message, name);
 
-    // Error.captureStackTrace(this, this.constructor);
+    // Check if captureStackTrace is available (Node.js)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
   }
 }
 
@@ -17,7 +20,13 @@ class MyBaseException extends Error {
     super(message);
     this.name = name ?? 'MyBaseError';
 
-    // Error.captureStackTrace(this, this.constructor);
+    // Check if captureStackTrace is available (Node.js)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      // Fallback for environments without captureStackTrace
+      this.stack = new Error().stack;
+    }
 
     // Ensure the prototype is correctly set
     Object.setPrototypeOf(this, MyBaseException.prototype);

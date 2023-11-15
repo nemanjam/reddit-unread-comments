@@ -17,6 +17,7 @@ export const commentIdRegexValidate = /^t1_[a-z0-9]+$/;
 
 export const timestampSelector = '[data-testid="comment_timestamp"]';
 export const timestampIdPrefix = 'CommentTopMeta--Created--';
+export const timestampIdModalSuffix = 'inOverlay';
 
 // thread, id="t3_17mmb4o" data-testid="post-container"
 export const threadPostSelector = '[data-testid="post-container"]';
