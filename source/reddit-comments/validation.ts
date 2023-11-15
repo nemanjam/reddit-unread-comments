@@ -10,12 +10,14 @@ export const validateCommentId = (commentId: string): boolean =>
 
 export const validateThreadElementIdOrThrow = (threadElement: HTMLElement): string => {
   if (!validateThreadId(threadElement.id))
-    throw new MyElementIdNotValidDOMException('Invalid Thread.id.');
+    throw new MyElementIdNotValidDOMException(`Invalid Thread.id: ${threadElement.id}`);
   return threadElement.id;
 };
 
 export const validateCommentElementIdOrThrow = (commentElement: HTMLElement): string => {
-  if (!validateThreadId(commentElement.id))
-    throw new MyElementIdNotValidDOMException('Invalid Comment.id.');
+  if (!validateCommentId(commentElement.id))
+    throw new MyElementIdNotValidDOMException(`Invalid Comment.id: ${commentElement.id}`);
   return commentElement.id;
 };
+
+// Error: Invalid Comment.id: t1_k9bfuvf

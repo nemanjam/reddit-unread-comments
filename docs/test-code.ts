@@ -258,4 +258,17 @@ export const updateCommentsSessionCreatedAtForThread = (
 };
 
 
+// get all threads for debugging
+export const getThreads = async (db: IDBDatabase): Promise<ThreadData[]> =>
+  new Promise((resolve, reject) => {
+    const transaction = db.transaction('ThreadObjectStore', 'readonly');
+    const threadObjectStore = transaction.objectStore('ThreadObjectStore');
+    const getAllRequest = threadObjectStore.getAll();
 
+    getAllRequest.onsuccess = () => {
+      const threads = getAllRequest.result as ThreadData[];
+      resolve(threads);
+    };
+
+    getAllRequest.onerror = () => reject(transaction.error);
+  });

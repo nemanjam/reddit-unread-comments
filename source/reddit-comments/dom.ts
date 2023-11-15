@@ -28,6 +28,7 @@ import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
 } from './validation';
+import { isActiveTab } from './utils';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => timestampIdPrefix + commentId;
@@ -235,6 +236,8 @@ export const getScrollElement = () => {
 
 /** onScroll - markAsRead, highlight */
 export const handleScrollDom = async () => {
+  if (!isActiveTab()) return; // disable handlers, and not attaching only
+
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
 
@@ -248,6 +251,8 @@ export const handleScrollDom = async () => {
 
 /** updateCommentsFromPreviousSession, highlight */
 export const handleUrlChangeDom = async () => {
+  if (!isActiveTab()) return;
+
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
 

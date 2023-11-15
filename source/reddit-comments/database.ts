@@ -41,42 +41,63 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
   }
 };
 
-const ThreadObjectStore = 'Thread' as const;
-const CommentObjectStore = 'Comment' as const;
+const Thread = {
+  ThreadObjectStore: 'Thread',
+  ThreadIdIndex: 'ThreadIdIndex',
+  UpdatedAtIndex: 'UpdatedAtIndex',
+  LatestCommentIdIndex: 'LatestCommentIdIndex',
+  LatestCommentTimestampIndex: 'LatestCommentTimestampIndex',
+} as const;
+
+const Comment = {
+  CommentObjectStore: 'Comment',
+  CommentIdIndex: 'CommentIdIndex',
+  ThreadIdIndex: 'ThreadIdIndex',
+  SessionCreatedAtIndex: 'SessionCreatedAtIndex',
+  CommentIdThreadIdIndex: 'CommentIdThreadIdIndex',
+} as const;
 
 // Create schema
 const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   const db: IDBDatabase = (event.target as IDBOpenDBRequest).result;
 
   // Create Thread object store - table
-  const threadObjectStore = db.createObjectStore(ThreadObjectStore, {
+  const threadObjectStore = db.createObjectStore(Thread.ThreadObjectStore, {
     keyPath: 'id',
     autoIncrement: true,
   });
-  threadObjectStore.createIndex('ThreadIdIndex', 'threadId', { unique: true });
-  threadObjectStore.createIndex('UpdatedAtIndex', 'updatedAt', { unique: false });
-  threadObjectStore.createIndex('LatestCommentIdIndex', 'latestCommentId', {
+  threadObjectStore.createIndex(Thread.ThreadIdIndex, 'threadId', { unique: true });
+  threadObjectStore.createIndex(Thread.UpdatedAtIndex, 'updatedAt', { unique: false });
+  threadObjectStore.createIndex(Thread.LatestCommentIdIndex, 'latestCommentId', {
     unique: false,
   });
-  threadObjectStore.createIndex('LatestCommentTimestampIndex', 'latestCommentTimestamp', {
-    unique: false,
-  });
+  threadObjectStore.createIndex(
+    Thread.LatestCommentTimestampIndex,
+    'latestCommentTimestamp',
+    {
+      unique: false,
+    }
+  );
 
   // Create Comment object store - table
-  const commentObjectStore = db.createObjectStore(CommentObjectStore, {
+  const commentObjectStore = db.createObjectStore(Comment.CommentObjectStore, {
     keyPath: 'id',
     autoIncrement: true,
   });
-  commentObjectStore.createIndex('CommentIdIndex', 'commentId', { unique: true });
-  commentObjectStore.createIndex('ThreadIdIndex', 'threadId', { unique: false });
-  commentObjectStore.createIndex('SessionCreatedAtIndex', 'sessionCreatedAt', {
+  commentObjectStore.createIndex(Comment.CommentIdIndex, 'commentId', { unique: true });
+  commentObjectStore.createIndex(Comment.ThreadIdIndex, 'threadId', { unique: false });
+  commentObjectStore.createIndex(Comment.SessionCreatedAtIndex, 'sessionCreatedAt', {
     unique: false,
   });
 
   // Optionally, create a compound index for commentId and threadId as a pseudo-primary key - constraint only
-  commentObjectStore.createIndex('CommentThreadIdIndex', ['commentId', 'threadId'], {
-    unique: true,
-  });
+  commentObjectStore.createIndex(
+    Comment.CommentIdThreadIdIndex,
+    ['commentId', 'threadId'],
+    {
+      unique: true,
+    }
+  );
 };
 
 const onSuccess = (
@@ -97,8 +118,8 @@ export const addThread = async (
   threadData: ThreadData
 ): Promise<ThreadData> =>
   new Promise((resolve, reject) => {
-    const transaction = db.transaction(ThreadObjectStore, 'readwrite');
-    const threadObjectStore = transaction.objectStore(ThreadObjectStore);
+    const transaction = db.transaction(Thread.ThreadObjectStore, 'readwrite');
+    const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
 
     const addObjectRequest = threadObjectStore.add(threadData);
 
@@ -125,9 +146,9 @@ export const getThread = async (
   threadId: string
 ): Promise<ThreadData | undefined> =>
   new Promise((resolve, reject) => {
-    const transaction = db.transaction(ThreadObjectStore, 'readonly');
-    const threadObjectStore = transaction.objectStore(ThreadObjectStore);
-    const getRequest = threadObjectStore.get(threadId);
+    const transaction = db.transaction(Thread.ThreadObjectStore, 'readonly');
+    const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
+    const getRequest = threadObjectStore.index(Thread.ThreadIdIndex).get(threadId);
 
     getRequest.onsuccess = () => resolve(getRequest.result as ThreadData);
     getRequest.onerror = () => reject(transaction.error);
@@ -138,10 +159,12 @@ export const updateThread = async (
   updatedThreadData: Partial<ThreadData>
 ): Promise<ThreadData> => {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(ThreadObjectStore, 'readwrite');
-    const threadObjectStore = transaction.objectStore(ThreadObjectStore);
+    const transaction = db.transaction(Thread.ThreadObjectStore, 'readwrite');
+    const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
 
-    const getRequest = threadObjectStore.get(updatedThreadData.threadId as string);
+    const getRequest = threadObjectStore
+      .index(Thread.ThreadIdIndex)
+      .get(updatedThreadData.threadId as string);
 
     getRequest.onsuccess = (event) => {
       const existingThread = (event.target as IDBRequest).result as ThreadData;
@@ -183,8 +206,8 @@ export const addComment = async (
   commentData: CommentData
 ): Promise<CommentData> =>
   new Promise((resolve, reject) => {
-    const transaction = db.transaction(CommentObjectStore, 'readwrite');
-    const commentObjectStore = transaction.objectStore(CommentObjectStore);
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readwrite');
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
 
     const addObjectRequest = commentObjectStore.add(commentData);
 
@@ -211,9 +234,9 @@ export const getComment = async (
   commentId: string
 ): Promise<CommentData | undefined> =>
   new Promise((resolve, reject) => {
-    const transaction = db.transaction(CommentObjectStore, 'readonly');
-    const commentObjectStore = transaction.objectStore(CommentObjectStore);
-    const getRequest = commentObjectStore.get(commentId);
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
+    const getRequest = commentObjectStore.index(Comment.CommentIdIndex).get(commentId);
 
     getRequest.onsuccess = () => resolve(getRequest.result as CommentData);
     getRequest.onerror = () => reject(transaction.error);
@@ -224,9 +247,9 @@ export const getAllCommentsForThread = async (
   threadId: string
 ): Promise<CommentData[]> =>
   new Promise<CommentData[]>((resolve, reject) => {
-    const transaction = db.transaction(CommentObjectStore, 'readonly');
-    const objectStore = transaction.objectStore(CommentObjectStore);
-    const index = objectStore.index('ThreadIdIndex');
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
+    const objectStore = transaction.objectStore(Comment.CommentObjectStore);
+    const index = objectStore.index(Thread.ThreadIdIndex);
 
     const comments: CommentData[] = [];
 
@@ -268,11 +291,11 @@ export const updateComment = async (
   updatedCommentData: Partial<CommentData>
 ): Promise<CommentData> => {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(CommentObjectStore, 'readwrite');
-    const commentObjectStore = transaction.objectStore(CommentObjectStore);
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readwrite');
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
 
     const getRequest = commentObjectStore
-      .index('CommentIdIndex')
+      .index(Comment.CommentIdIndex)
       .get(updatedCommentData.commentId as string);
 
     getRequest.onsuccess = (event) => {

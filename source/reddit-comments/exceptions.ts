@@ -7,6 +7,8 @@
 class MyBaseDOMException extends DOMException {
   constructor(message?: string, name?: string) {
     super(message, name);
+
+    // Error.captureStackTrace(this, this.constructor);
   }
 }
 
@@ -14,6 +16,8 @@ class MyBaseException extends Error {
   constructor(message?: string, name?: string) {
     super(message);
     this.name = name ?? 'MyBaseError';
+
+    // Error.captureStackTrace(this, this.constructor);
 
     // Ensure the prototype is correctly set
     Object.setPrototypeOf(this, MyBaseException.prototype);

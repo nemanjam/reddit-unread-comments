@@ -1,4 +1,9 @@
-import { debounce, hasArrivedToRedditThread, hasLeftRedditThread } from './utils';
+import {
+  debounce,
+  hasArrivedToRedditThread,
+  hasLeftRedditThread,
+  isActiveTab,
+} from './utils';
 import { getScrollElement, handleScrollDom, handleUrlChangeDom } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 
@@ -53,5 +58,7 @@ const onUrlChange = () => {
 // alert('global');
 
 export const attachAllEventHandlers = () => {
+  if (!isActiveTab()) return;
+
   onUrlChange();
 };
