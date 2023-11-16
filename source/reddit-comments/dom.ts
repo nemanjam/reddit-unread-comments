@@ -119,19 +119,27 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const readCommentsIds = readComments.map((comment) => comment.commentId);
 
   commentElements.forEach(async (commentElement) => {
+    const hasHighlightedReadClassAlready = commentElement.classList.contains(
+      highlightedCommentReadClass
+    );
+    // handled comment already
+    if (hasHighlightedReadClassAlready) return;
+
     const commentId = validateCommentElementIdOrThrow(commentElement);
     // disjunction between all comments and read comments in db
     const isReadComment = readCommentsIds.includes(commentId);
 
-    const hasClassAlready = commentElement.classList.contains(highlightedCommentClass);
+    const hasHighlightedClassAlready = commentElement.classList.contains(
+      highlightedCommentClass
+    );
 
-    if (!hasClassAlready && !isReadComment) {
+    if (!hasHighlightedClassAlready && !isReadComment) {
       console.log('adding highlight class');
       commentElement.classList.add(highlightedCommentClass);
     }
 
     // remove highlight // if needed
-    if (hasClassAlready && isReadComment) {
+    if (hasHighlightedClassAlready && isReadComment) {
       console.log('replacing with read highlight class');
       commentElement.classList.replace(
         highlightedCommentClass,
