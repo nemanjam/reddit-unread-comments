@@ -61,6 +61,7 @@ time range control i highlight
 unhighlight mode: scroll, url-change
 clear database, clear thread
 github url
+sort by new by default
 ---------------
 database size limit
 log level debug, lib neki
