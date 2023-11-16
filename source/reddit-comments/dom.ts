@@ -6,7 +6,7 @@ import {
 import {
   commentSelector,
   currentSessionCreatedAt,
-  defaultRealtimeUnHighlightMode,
+  defaultUnHighlightMode,
   highlightedCommentClass,
   highlightedCommentReadClass,
   markAsReadDelay,
@@ -112,11 +112,21 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const threadIdFromDom = getThreadIdFromDom();
 
   // works for both realtime and onUrlChange un-highlight, no need for getAllCommentsForThread()
-  const readComments = await getCommentsForThreadWithoutCurrentSession(
+  const readCommentsPreviousSessions = await getCommentsForThreadWithoutCurrentSession(
     db,
     threadIdFromDom
   );
-  const readCommentsIds = readComments.map((comment) => comment.commentId);
+  const readCommentsCurrentSession = await getCommentsForThreadForCurrentSession(
+    db,
+    threadIdFromDom
+  );
+
+  const readCommentsPreviousSessionsIds = readCommentsPreviousSessions.map(
+    (comment) => comment.commentId
+  );
+  const readCommentsCurrentSessionIds = readCommentsCurrentSession.map(
+    (comment) => comment.commentId
+  );
 
   commentElements.forEach(async (commentElement) => {
     const hasHighlightedReadClassAlready = commentElement.classList.contains(
@@ -127,20 +137,27 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 
     const commentId = validateCommentElementIdOrThrow(commentElement);
     // disjunction between all comments and read comments in db
-    const isReadComment = readCommentsIds.includes(commentId);
+    const isReadCommentPreviousSessions =
+      readCommentsPreviousSessionsIds.includes(commentId);
+    const isReadCommentCurrentSession = readCommentsCurrentSessionIds.includes(commentId);
+
+    if (isReadCommentPreviousSessions) return;
 
     const hasHighlightedClassAlready = commentElement.classList.contains(
       highlightedCommentClass
     );
 
-    if (!hasHighlightedClassAlready && !isReadComment) {
-      console.log('adding highlight class');
+    // highlighting
+    if (!hasHighlightedClassAlready && !isReadCommentCurrentSession) {
+      console.log('Adding highlight class.');
       commentElement.classList.add(highlightedCommentClass);
     }
 
-    // remove highlight // if needed
-    if (hasHighlightedClassAlready && isReadComment) {
-      console.log('replacing with read highlight class');
+    if (defaultUnHighlightMode !== 'scroll') return;
+
+    // un-highlighting
+    if (hasHighlightedClassAlready && isReadCommentCurrentSession) {
+      console.log('Replacing highlight with highlight-read class.');
       commentElement.classList.replace(
         highlightedCommentClass,
         highlightedCommentReadClass
@@ -156,16 +173,11 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const thread = await getCurrentThread();
   const { threadId } = thread;
 
-  // already marked comments as read in db
-  // prevent adding already added comments, same id will throw
-  // realtime unHighlight vs onUrlChange, first difference
-  const currentSessionComments = defaultRealtimeUnHighlightMode
-    ? await getAllCommentsForThread(db, threadId)
-    : await getCommentsForThreadForCurrentSession(db, threadId);
+  // all read comments from all sessions
+  // updating comments only onUrlChange, thread load
+  const allSessionsComments = await getAllCommentsForThread(db, threadId);
 
-  const currentSessionCommentsIds = currentSessionComments.map(
-    (comment) => comment.commentId
-  );
+  const allSessionsCommentsIds = allSessionsComments.map((comment) => comment.commentId);
 
   // unfiltered comments here, for entire session, only new are fine?
   const initialCommentId = validateCommentElementIdOrThrow(commentElements[0]);
@@ -176,22 +188,14 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
 
   commentElements.forEach(async (commentElement, index) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
-    const isAlreadyMarkedComment = currentSessionCommentsIds.includes(commentId); // all checks in one loop
+    const isAlreadyMarkedComment = allSessionsCommentsIds.includes(commentId); // all checks in one loop
 
     if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
 
     // check time...
 
-    // second difference
-    const sessionCreatedAt = defaultRealtimeUnHighlightMode
-      ? thread.updatedAt
-      : currentSessionCreatedAt;
-
-    await addComment(db, {
-      threadId,
-      commentId,
-      sessionCreatedAt,
-    });
+    const sessionCreatedAt = currentSessionCreatedAt;
+    await addComment(db, { threadId, commentId, sessionCreatedAt });
 
     // get latest comment
     latestCommentUpdater.updateLatestComment(commentId, index);
@@ -301,7 +305,7 @@ export const handleScrollDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    if (defaultRealtimeUnHighlightMode)
+    if (defaultUnHighlightMode === 'scroll')
       await delayExecution(markAsRead, markAsReadDelay, commentElements);
     else await markAsRead(commentElements);
 
@@ -319,8 +323,6 @@ export const handleUrlChangeDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    await truncateDatabase();
-
     await updateCommentsFromPreviousSessionOrCreateThread();
     await highlight(commentElements);
   } catch (error) {

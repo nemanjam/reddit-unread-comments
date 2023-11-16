@@ -6,6 +6,7 @@ import {
 } from './utils';
 import { getScrollElement, handleScrollDom, handleUrlChangeDom } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
+import { truncateDatabase } from './database';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -57,8 +58,10 @@ const onUrlChange = () => {
 
 // alert('global');
 
-export const attachAllEventHandlers = () => {
+export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
+
+  await truncateDatabase();
 
   onUrlChange();
 };

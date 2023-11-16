@@ -26,5 +26,5 @@
 - transition on remove class only, you need to redefine transition prop too
 https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 
-
+- keep all state (read comments) in database, no state in dom, windowing, unmount redirect
 
