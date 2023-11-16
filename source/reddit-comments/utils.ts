@@ -29,6 +29,18 @@ export const debounce = <T extends (...args: any[]) => Promise<void>>(
   return debouncedFunction;
 };
 
+export const delayExecution = async <T extends any[]>(
+  func: (...args: T) => Promise<void>,
+  wait: number,
+  ...args: T
+): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(async () => {
+      await func(...args);
+      resolve();
+    }, wait);
+  });
+
 export const isActiveTab = () => document.visibilityState === 'visible';
 
 export const isRedditThread = (url: string): boolean => redditThreadUrlRegex.test(url);

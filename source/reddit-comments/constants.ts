@@ -31,13 +31,19 @@ export const modalScrollContainerSelector = '#overlayScrollContainer';
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
+export const defaultRealtimeUnHighlightMode = true;
+
 /** Must reduce number of triggers on scroll */
 export const scrollDebounceWait = 1000;
 
 /** Must wait for routing (change page), and load content */
 export const urlChangeDebounceWait = 2000;
 
+/** In realtime mode, delay to mark as read and un-highlight comments. */
+export const markAsReadDelay = 5 * 1000;
+
 export const highlightedCommentClass = 'ruc-highlight-comment';
+export const highlightedCommentReadClass = 'ruc-highlight-comment-read';
 
 export const databaseName = 'reddit-unread-comments-db';
 

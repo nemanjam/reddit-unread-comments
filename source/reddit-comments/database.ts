@@ -35,7 +35,6 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
     const db = await openDatabaseLocal();
     return db;
   } catch (error) {
-    // Handle the error or rethrow if needed
     console.error('Error opening database:', error);
     throw error;
   }
@@ -104,12 +103,14 @@ const onSuccess = (
   resolve: (value: IDBDatabase | PromiseLike<IDBDatabase>) => void,
   event: Event
 ) => {
+  console.log('Database connected successfully.');
   const db = (event.target as IDBRequest).result as IDBDatabase;
   globalDb = db;
   resolve(db);
 };
 
 const onError = (reject: (reason?: any) => void, event: Event) => {
+  console.error('Database connection failed.');
   reject((event.target as IDBRequest).error);
 };
 
@@ -205,6 +206,19 @@ export const updateThread = async (
   });
 };
 
+export const getComment = async (
+  db: IDBDatabase,
+  commentId: string
+): Promise<CommentData | undefined> =>
+  new Promise((resolve, reject) => {
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
+    const getRequest = commentObjectStore.index(Comment.CommentIdIndex).get(commentId);
+
+    getRequest.onsuccess = () => resolve(getRequest.result as CommentData);
+    getRequest.onerror = () => reject(transaction.error);
+  });
+
 export const addComment = async (
   db: IDBDatabase,
   commentData: CommentData
@@ -232,66 +246,9 @@ export const addComment = async (
     addObjectRequest.onerror = () => reject(transaction.error);
     transaction.oncomplete = () =>
       console.log(
-        `Comment with commentId: ${commentData.id}, threadId: ${commentData.threadId} added successfully.`
+        `Comment with commentId: ${commentData.commentId}, threadId: ${commentData.threadId} added successfully.`
       );
   });
-
-export const getComment = async (
-  db: IDBDatabase,
-  commentId: string
-): Promise<CommentData | undefined> =>
-  new Promise((resolve, reject) => {
-    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
-    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
-    const getRequest = commentObjectStore.index(Comment.CommentIdIndex).get(commentId);
-
-    getRequest.onsuccess = () => resolve(getRequest.result as CommentData);
-    getRequest.onerror = () => reject(transaction.error);
-  });
-
-export const getAllCommentsForThread = async (
-  db: IDBDatabase,
-  threadId: string
-): Promise<CommentData[]> =>
-  new Promise<CommentData[]>((resolve, reject) => {
-    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
-    const objectStore = transaction.objectStore(Comment.CommentObjectStore);
-    const index = objectStore.index(Thread.ThreadIdIndex);
-
-    const comments: CommentData[] = [];
-
-    index.openCursor(IDBKeyRange.only(threadId)).onsuccess = (cursorEvent) => {
-      const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
-
-      if (cursor) {
-        comments.push(cursor.value);
-        cursor.continue();
-      } else {
-        resolve(comments);
-      }
-    };
-
-    transaction.oncomplete = () => {
-      db.close();
-    };
-  });
-
-/** Returns all comments for thread except comments from current session. */
-export const getCommentsForThreadWithoutCurrentSession = async (
-  db: IDBDatabase,
-  threadId: string
-): Promise<CommentData[]> =>
-  (await getAllCommentsForThread(db, threadId)).filter(
-    (comment) => comment.sessionCreatedAt !== currentSessionCreatedAt
-  );
-
-export const getCommentsForThreadForCurrentSession = async (
-  db: IDBDatabase,
-  threadId: string
-): Promise<CommentData[]> =>
-  (await getAllCommentsForThread(db, threadId)).filter(
-    (comment) => comment.sessionCreatedAt === currentSessionCreatedAt
-  );
 
 export const updateComment = async (
   db: IDBDatabase,
@@ -343,6 +300,50 @@ export const updateComment = async (
   });
 };
 
+export const getAllCommentsForThread = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  new Promise<CommentData[]>((resolve, reject) => {
+    const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
+    const objectStore = transaction.objectStore(Comment.CommentObjectStore);
+    const index = objectStore.index(Thread.ThreadIdIndex);
+
+    const comments: CommentData[] = [];
+
+    index.openCursor(IDBKeyRange.only(threadId)).onsuccess = (cursorEvent) => {
+      const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+
+      if (cursor) {
+        comments.push(cursor.value);
+        cursor.continue();
+      } else {
+        resolve(comments);
+      }
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+
+/** Returns all comments for thread except comments from current session. */
+export const getCommentsForThreadWithoutCurrentSession = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  (await getAllCommentsForThread(db, threadId)).filter(
+    (comment) => comment.sessionCreatedAt !== currentSessionCreatedAt
+  );
+
+export const getCommentsForThreadForCurrentSession = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<CommentData[]> =>
+  (await getAllCommentsForThread(db, threadId)).filter(
+    (comment) => comment.sessionCreatedAt === currentSessionCreatedAt
+  );
+
 export const updateCommentsSessionCreatedAtForThread = (
   db: IDBDatabase,
   threadId: string,
@@ -370,6 +371,32 @@ export const updateCommentsSessionCreatedAtForThread = (
       })
       .catch((error) => reject(error));
   });
+
+export const truncateDatabase = async () => {
+  const db = await openDatabase();
+
+  const truncateObjectStore = (storeName: string) => {
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(storeName, 'readwrite');
+      const objectStore = transaction.objectStore(storeName);
+
+      const request = objectStore.clear();
+
+      request.onsuccess = () => resolve();
+      request.onerror = (event) => reject((event.target as IDBRequest).error);
+    });
+  };
+
+  try {
+    await truncateObjectStore(Thread.ThreadObjectStore);
+    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
+
+    await truncateObjectStore(Comment.CommentObjectStore);
+    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+  } catch (error) {
+    console.error('Error truncating data:', error);
+  }
+};
 
 // Example usage:
 const exampleUsage = async (db: IDBDatabase) => {

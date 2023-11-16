@@ -272,3 +272,45 @@ export const getThreads = async (db: IDBDatabase): Promise<ThreadData[]> =>
 
     getAllRequest.onerror = () => reject(transaction.error);
   });
+
+
+  // unhilight in real time...
+// za realtime ovde treba addOrUpdate // ETO, db baca exception
+// ne treba da pokusava da doda comment sa istim id, baca exception
+// puca baza ovde, to je problem
+const commentData = await addComment(db, {
+  threadId,
+  commentId,
+  sessionCreatedAt: thread.updatedAt,
+});
+
+// jedina fora ovde, mora baza da se instancira jer se prva zatvori
+setTimeout(async () => {
+  const db = await openDatabase(); 
+
+  const commentData = await addComment(db, {
+    threadId,
+    commentId,
+    sessionCreatedAt: thread.updatedAt,
+  });
+
+  console.log('commentId', commentId, 'commentData', commentData);
+}, 5000);
+
+// na kraju ovo je bacalo exception?
+commentData.id umesto commentData.commentId
+
+export const addOrUpdateComment = async (
+  db: IDBDatabase,
+  commentData: CommentData
+): Promise<CommentData> => {
+  const existingComment = await getComment(db, commentData.commentId);
+
+  if (existingComment) {
+    const updatedComment = await updateComment(db, commentData);
+    return updatedComment;
+  }
+
+  const newComment = await addComment(db, commentData);
+  return newComment;
+};

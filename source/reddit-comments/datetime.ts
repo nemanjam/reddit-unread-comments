@@ -2,6 +2,7 @@ import { add } from 'date-fns';
 import { MyUnparsableDateException } from './exceptions';
 
 type TimeUnit =
+  | 'now'
   | 'sec.'
   | 'min.'
   | 'hr.'
@@ -19,6 +20,10 @@ export const relativeTimeStringToDate = (relativeTime: string): Date => {
   let date: Date;
 
   switch (unit as TimeUnit) {
+    // 'just now'
+    case 'now':
+      date = add(new Date(), { seconds: 1 });
+      break;
     case 'sec.':
       date = add(new Date(), { seconds: -parseInt(value, 10) });
       break;
@@ -45,7 +50,9 @@ export const relativeTimeStringToDate = (relativeTime: string): Date => {
       date = add(new Date(), { years: -parseInt(value, 10) });
       break;
     default:
-      throw new MyUnparsableDateException('Invalid unit in relative time string');
+      throw new MyUnparsableDateException(
+        `Invalid unit: ${unit} in relative time string`
+      );
   }
 
   return date;

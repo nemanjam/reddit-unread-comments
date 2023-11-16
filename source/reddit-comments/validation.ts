@@ -8,6 +8,7 @@ export const validateThreadId = (threadId: string): boolean =>
 export const validateCommentId = (commentId: string): boolean =>
   commentIdRegexValidate.test(commentId);
 
+/** Returns id or throws. */
 export const validateThreadElementIdOrThrow = (threadElement: HTMLElement): string => {
   if (!validateThreadId(threadElement.id))
     throw new MyElementIdNotValidDOMException(`Invalid Thread.id: ${threadElement.id}`);
@@ -19,5 +20,3 @@ export const validateCommentElementIdOrThrow = (commentElement: HTMLElement): st
     throw new MyElementIdNotValidDOMException(`Invalid Comment.id: ${commentElement.id}`);
   return commentElement.id;
 };
-
-// Error: Invalid Comment.id: t1_k9bfuvf

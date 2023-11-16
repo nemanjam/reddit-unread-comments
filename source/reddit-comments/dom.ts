@@ -6,7 +6,10 @@ import {
 import {
   commentSelector,
   currentSessionCreatedAt,
+  defaultRealtimeUnHighlightMode,
   highlightedCommentClass,
+  highlightedCommentReadClass,
+  markAsReadDelay,
   modalScrollContainerSelector,
   threadPostSelector,
   timestampIdModalSuffix,
@@ -23,13 +26,15 @@ import {
   updateCommentsSessionCreatedAtForThread,
   CommentData,
   getCommentsForThreadForCurrentSession,
+  getAllCommentsForThread,
+  truncateDatabase,
 } from './database';
 import { relativeTimeStringToDate } from './datetime';
 import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
 } from './validation';
-import { isActiveTab } from './utils';
+import { delayExecution, isActiveTab } from './utils';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => {
@@ -98,6 +103,7 @@ const isElementInViewport = (element: HTMLElement) => {
 /**
  * Highlights all comments except from current session.
  *
+ * if session:
  * onUrlChange - creates session
  * onScroll - doesn't create session
  */
@@ -105,6 +111,7 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
 
+  // works for both realtime and onUrlChange un-highlight, no need for getAllCommentsForThread()
   const readComments = await getCommentsForThreadWithoutCurrentSession(
     db,
     threadIdFromDom
@@ -113,18 +120,23 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 
   commentElements.forEach(async (commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
+    // disjunction between all comments and read comments in db
     const isReadComment = readCommentsIds.includes(commentId);
 
     const hasClassAlready = commentElement.classList.contains(highlightedCommentClass);
 
-    // disjunction between all comments and read comments in db
     if (!hasClassAlready && !isReadComment) {
+      console.log('adding highlight class');
       commentElement.classList.add(highlightedCommentClass);
     }
 
     // remove highlight // if needed
     if (hasClassAlready && isReadComment) {
-      commentElement.classList.remove(highlightedCommentClass);
+      console.log('replacing with read highlight class');
+      commentElement.classList.replace(
+        highlightedCommentClass,
+        highlightedCommentReadClass
+      );
     }
   });
 };
@@ -137,15 +149,17 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const { threadId } = thread;
 
   // already marked comments as read in db
-  const currentSessionComments = await getCommentsForThreadForCurrentSession(
-    db,
-    threadId
-  );
+  // prevent adding already added comments, same id will throw
+  // realtime unHighlight vs onUrlChange, first difference
+  const currentSessionComments = defaultRealtimeUnHighlightMode
+    ? await getAllCommentsForThread(db, threadId)
+    : await getCommentsForThreadForCurrentSession(db, threadId);
+
   const currentSessionCommentsIds = currentSessionComments.map(
     (comment) => comment.commentId
   );
 
-  // unfiltered comments here, for entire session
+  // unfiltered comments here, for entire session, only new are fine?
   const initialCommentId = validateCommentElementIdOrThrow(commentElements[0]);
   const latestCommentUpdater = createLatestCommentUpdater(
     initialCommentId,
@@ -158,34 +172,18 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
 
     if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
 
-    console.log(
-      'Marking comment as read for current session. commentId:',
-      commentId,
-      'threadId:',
-      threadId,
-      'sessionCreatedAt:',
-      currentSessionCreatedAt
-    );
-
     // check time...
 
-    // add comment id in db
+    // second difference
+    const sessionCreatedAt = defaultRealtimeUnHighlightMode
+      ? thread.updatedAt
+      : currentSessionCreatedAt;
+
     await addComment(db, {
       threadId,
       commentId,
-      sessionCreatedAt: currentSessionCreatedAt,
+      sessionCreatedAt,
     });
-
-    // unhilight in real time...
-    // setTimeout(
-    //   () =>
-    //     addComment(db, {
-    //       threadId,
-    //       commentId,
-    //       sessionCreatedAt: thread.updatedAt,
-    //     }),
-    //   5000
-    // );
 
     // get latest comment
     latestCommentUpdater.updateLatestComment(commentId, index);
@@ -201,7 +199,7 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   });
 };
 
-// todo: compare comments from database too
+// todo: compare comments from database too, no they are older
 const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date) => {
   let latestCommentId = initialCommentId;
   let latestCommentDate = initialDate;
@@ -288,13 +286,17 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
 
 /** onScroll - markAsRead, highlight */
 export const handleScrollDom = async () => {
-  if (!isActiveTab()) return; // disable handlers, and not attaching only
+  // disable handlers too, and not attaching only
+  if (!isActiveTab()) return;
 
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
 
   try {
-    await markAsRead(commentElements);
+    if (defaultRealtimeUnHighlightMode)
+      await delayExecution(markAsRead, markAsReadDelay, commentElements);
+    else await markAsRead(commentElements);
+
     await highlight(commentElements);
   } catch (error) {
     console.error('Error handling comments onScroll:', error);
@@ -309,6 +311,8 @@ export const handleUrlChangeDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
+    await truncateDatabase();
+
     await updateCommentsFromPreviousSessionOrCreateThread();
     await highlight(commentElements);
   } catch (error) {

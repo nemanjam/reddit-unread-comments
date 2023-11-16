@@ -41,3 +41,17 @@ filter un-highlight only from last session, detect, na url change, in memory cop
 create custom exception classes // to
 db function to update comment.sessionCreatedAt to thread.updatedAt
 
+--------------
+
+// unhilight in real time...
+// za realtime ovde treba addOrUpdate // ETO, db baca exception
+const commentData = await addComment(db, {
+  threadId,
+  commentId,
+  sessionCreatedAt: thread.updatedAt,
+});
+-----
+database, reset, readAll, exceptioni logovanje, jer devtools outdated data
+----------
+zadrzi highlight na hover mode // to
+
