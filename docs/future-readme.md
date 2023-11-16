@@ -23,6 +23,8 @@
 - error handling - try/catch, what can break, no return null, undefined, no optional args, custom exceptions
 - framework vs custom project, architecture decisions
 
+- transition on remove class only, you need to redefine transition prop too
+https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 
 
 
