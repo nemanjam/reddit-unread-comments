@@ -55,3 +55,17 @@ database, reset, readAll, exceptioni logovanje, jer devtools outdated data
 ----------
 zadrzi highlight na hover mode // to
 
+---------------
+// ui:
+time range control i highlight
+unhighlight mode: scroll, url-change
+clear database, clear thread
+github url
+---------------
+database size limit
+log level debug, lib neki
+chrome
+----------
+// future:
+realtime popup notifications, background script
+
