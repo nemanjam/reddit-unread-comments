@@ -314,3 +314,17 @@ export const addOrUpdateComment = async (
   const newComment = await addComment(db, commentData);
   return newComment;
 };
+
+const hasArrivedToThreadNotSortedByNew =
+isRedditThread(currentUrl) &&
+hasArrivedToRedditThread(previousUrl, currentUrl) &&
+!hasSortByNewQueryParam(currentUrl);
+
+console.log('hasArrivedToThreadNotSOrtedByNew', hasArrivedToThreadNotSortedByNew);
+
+if (hasArrivedToThreadNotSortedByNew) {
+// sort comments by new
+history.replaceState({}, '', getSortByNewUrl(currentUrl));
+// trigger next change
+// return;
+}

@@ -1,4 +1,10 @@
-import { currentSessionCreatedAt, databaseName } from './constants';
+import {
+  currentSessionCreatedAt,
+  databaseName,
+  dbSizeLimit,
+  dbTargetSize,
+} from './constants';
+import { sizeInMBString } from './utils';
 
 export interface ThreadData {
   id?: number;
@@ -398,33 +404,151 @@ export const truncateDatabase = async () => {
   }
 };
 
-// Example usage:
-const exampleUsage = async (db: IDBDatabase) => {
-  const threadId = 'yourThreadId';
-  const commentId = 'yourCommentId';
+export const deleteCommentsForThread = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<void> => {
+  const threadTransaction: IDBTransaction = db.transaction(
+    [Comment.CommentObjectStore],
+    'readwrite'
+  );
+  const commentObjectStore: IDBObjectStore = threadTransaction.objectStore(
+    Comment.CommentObjectStore
+  );
 
-  // Adding a thread
-  const newThreadId = await addThread(db, {
-    threadId,
-    updatedAt: new Date().getTime(),
-    latestCommentId: commentId,
-    latestCommentTimestamp: new Date().getTime(),
+  // Delete all comments with the matching threadId
+  const commentIndex = commentObjectStore.index(Comment.ThreadIdIndex);
+  const commentCursorRequest = commentIndex.openCursor(IDBKeyRange.only(threadId));
+
+  commentCursorRequest.onsuccess = (cursorEvent: Event) => {
+    const cursor: IDBCursorWithValue = (cursorEvent.target as IDBRequest).result;
+
+    if (cursor) {
+      const commentId: string = cursor.value.commentId;
+      console.log(`Deleting comment with commentId: ${commentId}`);
+
+      cursor.delete();
+      cursor.continue();
+    }
+  };
+
+  return new Promise<void>((resolve, reject) => {
+    threadTransaction.oncomplete = () => {
+      console.log(`Deleted comments for thread with threadId: ${threadId}`);
+      resolve();
+    };
+
+    threadTransaction.onerror = (event: Event) => {
+      console.error('Error deleting comments:', (event.target as IDBRequest).error);
+      reject();
+    };
   });
-
-  // Retrieving a thread
-  const retrievedThread = await getThread(db, threadId);
-  console.log('Retrieved Thread:', retrievedThread);
-
-  // Adding a comment
-  const newCommentId = await addComment(db, {
-    commentId,
-    threadId,
-    sessionCreatedAt: new Date().getTime(),
-  });
-
-  // Retrieving a comment
-  const retrievedComment = await getComment(db, commentId);
-  console.log('Retrieved Comment:', retrievedComment);
 };
 
-// 1 699 867 623 577 // 2066
+export const deleteThreadWithComments = async (
+  db: IDBDatabase,
+  threadId: string
+): Promise<void> => {
+  // Delete comments for the thread
+  await deleteCommentsForThread(db, threadId);
+
+  const deleteTransaction: IDBTransaction = db.transaction(
+    [Thread.ThreadObjectStore],
+    'readwrite'
+  );
+  const deleteObjectStore: IDBObjectStore = deleteTransaction.objectStore(
+    Thread.ThreadObjectStore
+  );
+
+  // Delete the thread
+  const deleteRequest = deleteObjectStore.delete(threadId);
+
+  return new Promise<void>((resolve, reject) => {
+    deleteRequest.onsuccess = () => {
+      console.log(`Deleted thread with threadId: ${threadId}`);
+      resolve();
+    };
+
+    deleteRequest.onerror = (event: Event) => {
+      console.error('Error deleting thread:', (event.target as IDBRequest).error);
+      reject();
+    };
+  });
+};
+
+export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =>
+  new Promise<number>((resolve, reject) => {
+    const transaction = db.transaction(
+      [Thread.ThreadObjectStore, Comment.CommentObjectStore],
+      'readonly'
+    );
+    const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
+
+    const getAllThreads = threadObjectStore.getAll();
+    const getAllComments = commentObjectStore.getAll();
+
+    Promise.all([getAllThreads, getAllComments])
+      .then(([threadResults, commentResults]) => {
+        const currentSizeThreads: number = JSON.stringify(threadResults).length;
+        const currentSizeComments: number = JSON.stringify(commentResults).length;
+
+        const totalSize: number = currentSizeThreads + currentSizeComments;
+
+        resolve(totalSize);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+
+export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
+  let currentSize = await getCurrentDatabaseSize(db);
+
+  console.log('Reducing database size, checking...');
+
+  if (currentSize <= dbSizeLimit) {
+    const message = `Database reducing size is not needed, \
+currentSize: ${sizeInMBString(currentSize)} MB, \
+dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB. Exiting.`;
+
+    console.log(message);
+    return;
+  }
+
+  const transaction: IDBTransaction = db.transaction(
+    [Thread.ThreadObjectStore],
+    'readonly'
+  );
+  const threadObjectStore: IDBObjectStore = transaction.objectStore(
+    Thread.ThreadObjectStore
+  );
+
+  threadObjectStore.getAll().onsuccess = async (event: Event) => {
+    const threads: ThreadData[] = (event.target as IDBRequest).result;
+
+    // Create a sorted copy of threads by the updatedAt column in ascending order
+    const sortedThreads: ThreadData[] = threads
+      .slice()
+      .sort((a, b) => a.updatedAt - b.updatedAt);
+
+    for (const thread of sortedThreads) {
+      // Delete the thread
+      await deleteThreadWithComments(db, thread.threadId);
+
+      // Check the current size of the database after each deletion
+      currentSize = await getCurrentDatabaseSize(db);
+
+      console.log(`Deleting threads, currentSize: ${sizeInMBString(currentSize)} MB.`);
+
+      if (currentSize < dbTargetSize) {
+        const message = `Database size reducing finished, \
+currentSize: ${sizeInMBString(currentSize)} MB \
+dbTargetSize: ${sizeInMBString(dbTargetSize)} MB.`;
+
+        console.log(message);
+        break;
+      }
+    }
+  };
+};

@@ -66,6 +66,8 @@ sort by new by default
 database size limit
 log level debug, lib neki
 chrome
+popup number of new comments
+ctrl space scroll to next comment
 ----------
 // future:
 realtime popup notifications, background script

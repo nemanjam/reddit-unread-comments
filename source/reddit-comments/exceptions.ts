@@ -51,3 +51,7 @@ export class MyModelNotFoundDBException extends MyBaseException {}
 /*---------------------------- Datetime Exceptions --------------------------*/
 
 export class MyUnparsableDateException extends MyBaseException {}
+
+/*---------------------------- Url Exceptions --------------------------*/
+
+export class MyInvalidRedditThreadUrlException extends MyBaseException {}

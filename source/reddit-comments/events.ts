@@ -42,12 +42,13 @@ let previousUrl = '';
 const observer = new MutationObserver(async () => {
   // string is primitive type, create backup
   const previousUrlCopy = previousUrl;
+  const currentUrl = location.href;
 
-  if (location.href !== previousUrl) {
-    previousUrl = location.href;
+  if (currentUrl !== previousUrl) {
+    previousUrl = currentUrl;
 
     // run on all pages to attach and detach scroll listeners
-    await debouncedUrlChangeHandler(previousUrlCopy, location.href);
+    await debouncedUrlChangeHandler(previousUrlCopy, currentUrl);
   }
 });
 
@@ -61,7 +62,7 @@ const onUrlChange = () => {
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
 
-  await truncateDatabase();
+  // await truncateDatabase();
 
   onUrlChange();
 };

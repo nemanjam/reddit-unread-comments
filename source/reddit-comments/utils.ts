@@ -52,3 +52,33 @@ export const hasArrivedToRedditThread = (
 
 export const hasLeftRedditThread = (previousUrl: string, currentUrl: string): boolean =>
   isRedditThread(previousUrl) && !isRedditThread(currentUrl);
+
+export const sizeInMBString = (sizeInBytes: number): string =>
+  (sizeInBytes / (1024 * 1024)).toFixed(6);
+
+/** Sort comments by new. */
+export const getSortByNewUrl = (url: string): string => {
+  if (!isRedditThread(url)) return url;
+
+  const urlObject = new URL(url);
+  const queryParams = new URLSearchParams(urlObject.search);
+
+  if (queryParams.has('sort')) {
+    if (queryParams.get('sort') === 'new') return url;
+
+    queryParams.set('sort', 'new');
+  } else {
+    queryParams.append('sort', 'new');
+  }
+
+  urlObject.search = queryParams.toString();
+
+  return urlObject.toString();
+};
+
+export const hasSortByNewQueryParam = (url: string): boolean => {
+  const urlObject = new URL(url);
+  const queryParams = new URLSearchParams(urlObject.search);
+
+  return queryParams.has('sort') && queryParams.get('sort') === 'new';
+};

@@ -21,6 +21,9 @@ export const timestampIdModalSuffix = 'inOverlay';
 
 // thread, id="t3_17mmb4o" data-testid="post-container"
 export const threadPostSelector = '[data-testid="post-container"]';
+/** thread post in modal thread, unused */
+export const threadPostModalSelector =
+  '#overlayScrollContainer [data-testid="post-container"]';
 export const threadPostIdRegexReplace = /^t3_/; // Only to get url id from element.id
 export const threadPostIdRegexValidate = /^t3_[a-z0-9]+$/;
 
@@ -31,7 +34,7 @@ export const modalScrollContainerSelector = '#overlayScrollContainer';
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
-export const defaultUnHighlightMode: 'scroll' | 'url-change' = 'url-change';
+export const defaultUnHighlightMode: 'scroll' | 'url-change' = 'scroll';
 
 /** Must reduce number of triggers on scroll */
 export const scrollDebounceWait = 1000;
@@ -50,7 +53,17 @@ export const databaseName = 'reddit-unread-comments-db';
 /** 2 * 10**12 */
 export const currentSessionCreatedAt = 2e12 as const;
 
+// export const dbSizeLimit: number = 6 * 1024 * 1024; // 6MB limit
+// export const dbTargetSize: number = 5 * 1024 * 1024; // 5MB target size
+
+export const dbSizeLimit: number = 400;
+export const dbTargetSize: number = 300;
+
 /*------------------------------ test code, remove later ----------------------------*/
+
+//0.000434 MB, dbSizeLimit: 6.000000 MB.
+
+// 1 699 867 623 577 // 2066
 
 // document
 //   .querySelectorAll('[data-testid="comment_timestamp"]')

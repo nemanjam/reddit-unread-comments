@@ -28,6 +28,7 @@ import {
   getCommentsForThreadForCurrentSession,
   getAllCommentsForThread,
   truncateDatabase,
+  limitIndexedDBSize,
 } from './database';
 import { relativeTimeStringToDate } from './datetime';
 import {
@@ -77,7 +78,9 @@ export const getScrollElement = () => {
 
 /** Throws DOM exceptions. */
 export const getThreadIdFromDom = (): string => {
-  const threadElement = document.querySelector<HTMLElement>(threadPostSelector);
+  // handle thread post on page and on modal, modalContainer or document
+  const scrollElement = getScrollElement();
+  const threadElement = scrollElement.querySelector<HTMLElement>(threadPostSelector);
 
   if (!threadElement)
     throw new MyElementNotFoundDOMException(
@@ -217,7 +220,7 @@ const createLatestCommentUpdater = (initialCommentId: string, initialDate: Date)
   let latestCommentDate = initialDate;
 
   const updateLatestComment = (commentId: string, index: number) => {
-    const currentDate = getDateFromCommentId(commentId);
+    const currentDate = getDateFromCommentId(commentId); // throws on return to subreddit
 
     if (index === 0) return;
 
@@ -254,7 +257,6 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
 }> => {
   const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
-
   const existingThread = await getThread(db, threadIdFromDom);
 
   if (existingThread) {
@@ -278,6 +280,9 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
     };
     return result;
   }
+
+  // reduce db size here, before adding new thread
+  await limitIndexedDBSize(db);
 
   // add new thread if it doesn't exist
   const newThread = await addThread(db, {
