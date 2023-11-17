@@ -329,15 +329,23 @@ history.replaceState({}, '', getSortByNewUrl(currentUrl));
 // return;
 }
 
-let currentIndex = 0;
-export const scrollNextCommentIntoView = () => {
-  const commentElements = document.querySelectorAll<HTMLElement>(
-    allHighlightedCommentsSelector
-  );
+// scroll comment to top in modal and in window
+const headerHeight = getHeaderHeight();
 
-  if (currentIndex >= commentElements.length) currentIndex = 0;
+if (modalScrollContainer) {
+  const commentOffsetTop = commentElement.getBoundingClientRect().top;
+  const modalOffsetTop = modalScrollContainer.getBoundingClientRect().top;
 
-  const commentElement = commentElements[currentIndex];
-  commentElement.scrollIntoView({ behavior: 'smooth' });
-  currentIndex++;
-};
+  const targetScrollTop =
+    modalScrollContainer.scrollTop + commentOffsetTop - modalOffsetTop - headerHeight;
+
+  modalScrollContainer.scrollTo({
+    top: targetScrollTop,
+    behavior: 'smooth',
+  });
+} else {
+  window.scrollTo({
+    top: commentRect.top + window.scrollY - headerHeight,
+    behavior: 'smooth',
+  });
+}

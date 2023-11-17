@@ -11,7 +11,9 @@ import {
   highlightedCommentClass,
   highlightedCommentReadClass,
   markAsReadDelay,
+  modalHeaderSelector,
   modalScrollContainerSelector,
+  pageHeaderSelector,
   threadPostSelector,
   timestampIdModalSuffix,
   timestampIdPrefix,
@@ -302,32 +304,61 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
   return result;
 };
 
-let currentIndex = 0;
-export const scrollNextCommentIntoView = (scrollToFirstComment = false) => {
-  const headerElement = document.querySelector('header');
+export const getHeaderHeight = () => {
+  if (hasModalScrollContainer()) {
+    const modalHeaderElement = document.querySelector(modalHeaderSelector);
+    if (!modalHeaderElement)
+      throw new MyElementNotFoundDOMException('Modal header element not found.');
+
+    const headerHeight = modalHeaderElement.getBoundingClientRect().height;
+    return headerHeight;
+  }
+
+  const headerElement = document.querySelector(pageHeaderSelector);
   if (!headerElement)
     throw new MyElementNotFoundDOMException('Header element not found.');
 
-  // write selector for page and modal headers for height
-
   const headerHeight = headerElement.getBoundingClientRect().height;
+  return headerHeight;
+};
 
+let currentIndex = 0;
+export const scrollNextCommentIntoView = (scrollToFirstComment = false) => {
   const commentElements = document.querySelectorAll<HTMLElement>(
     allHighlightedCommentsSelector
   );
+
+  if (!(commentElements.length > 0)) return;
 
   if (scrollToFirstComment || currentIndex >= commentElements.length) currentIndex = 0;
 
   const commentElement = commentElements[currentIndex];
   const commentRect = commentElement.getBoundingClientRect();
-  const scrollElement = (
-    hasModalScrollContainer() ? getScrollElement() : window
-  ) as HTMLElement;
 
-  scrollElement.scrollTo({
-    top: commentRect.top + window.scrollY - headerHeight,
-    behavior: 'smooth',
-  });
+  const modalScrollContainer = document.querySelector<HTMLElement>(
+    modalScrollContainerSelector
+  );
+
+  const headerHeight = getHeaderHeight();
+
+  if (modalScrollContainer) {
+    const commentOffsetTop = commentElement.getBoundingClientRect().top;
+    const modalOffsetTop = modalScrollContainer.getBoundingClientRect().top;
+
+    const targetScrollTop =
+      modalScrollContainer.scrollTop + commentOffsetTop - modalOffsetTop - headerHeight;
+
+    modalScrollContainer.scrollTo({
+      top: targetScrollTop,
+      behavior: 'smooth',
+    });
+  } else {
+    window.scrollTo({
+      top: commentRect.top + window.scrollY - headerHeight,
+      behavior: 'smooth',
+    });
+  }
+
   currentIndex++;
 };
 
