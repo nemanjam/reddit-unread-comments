@@ -28,3 +28,5 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 
 - keep all state (read comments) in database, no state in dom, windowing, unmount redirect
 - promisify moze da konvertuje indexdb callbacks u async await promises
+
+- modify url ?sort=new query param without triggering new change or extension manifest
