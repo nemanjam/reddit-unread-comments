@@ -34,7 +34,7 @@ export const modalScrollContainerSelector = '#overlayScrollContainer';
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
-export const defaultUnHighlightMode: 'scroll' | 'url-change' = 'scroll';
+export const defaultUnHighlightMode: 'scroll' | 'url-change' = 'url-change';
 
 /** Must reduce number of triggers on scroll */
 export const scrollDebounceWait = 1000;
@@ -47,6 +47,8 @@ export const markAsReadDelay = 5 * 1000;
 
 export const highlightedCommentClass = 'ruc-highlight-comment';
 export const highlightedCommentReadClass = 'ruc-highlight-comment-read';
+/** Both read and unread. */
+export const allHighlightedCommentsSelector = `.${highlightedCommentClass}, .${highlightedCommentReadClass}`;
 
 export const databaseName = 'reddit-unread-comments-db';
 

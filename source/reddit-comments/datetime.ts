@@ -10,6 +10,7 @@ type TimeUnit =
   | 'days'
   | 'week'
   | 'weeks'
+  | 'mo.'
   | 'month'
   | 'months'
   | 'year'
@@ -41,6 +42,7 @@ export const relativeTimeStringToDate = (relativeTime: string): Date => {
     case 'weeks':
       date = add(new Date(), { weeks: -parseInt(value, 10) });
       break;
+    case 'mo.':
     case 'month':
     case 'months':
       date = add(new Date(), { months: -parseInt(value, 10) });

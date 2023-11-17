@@ -4,13 +4,27 @@ import {
   hasLeftRedditThread,
   isActiveTab,
 } from './utils';
-import { getScrollElement, handleScrollDom, handleUrlChangeDom } from './dom';
+import {
+  getScrollElement,
+  handleScrollDom,
+  handleUrlChangeDom,
+  scrollNextCommentIntoView,
+} from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import { truncateDatabase } from './database';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
  *------------------------------------------------------------------------**/
+
+/*------------------------------- onKeyDown -----------------------------*/
+
+const handleCtrlSpaceKeyDown = (event: KeyboardEvent) => {
+  if (event.ctrlKey && event.code === 'Space') scrollNextCommentIntoView();
+
+  if (event.ctrlKey && event.shiftKey && event.code === 'Space')
+    scrollNextCommentIntoView(true);
+};
 
 /*-------------------------------- onScroll ------------------------------*/
 
@@ -23,6 +37,9 @@ const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
 
   if (hasArrivedToRedditThread(previousUrl, currentUrl)) {
     scrollElement.addEventListener('scroll', debouncedScrollHandler);
+
+    // listen keys on document
+    document.addEventListener('keydown', handleCtrlSpaceKeyDown);
 
     // test onUrlChange and onScroll independently
     await handleUrlChangeDom();

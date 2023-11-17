@@ -4,6 +4,7 @@ import {
   MyModelNotFoundDBException,
 } from './exceptions';
 import {
+  allHighlightedCommentsSelector,
   commentSelector,
   currentSessionCreatedAt,
   defaultUnHighlightMode,
@@ -299,6 +300,35 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
     thread: newThread,
   };
   return result;
+};
+
+let currentIndex = 0;
+export const scrollNextCommentIntoView = (scrollToFirstComment = false) => {
+  const headerElement = document.querySelector('header');
+  if (!headerElement)
+    throw new MyElementNotFoundDOMException('Header element not found.');
+
+  // write selector for page and modal headers for height
+
+  const headerHeight = headerElement.getBoundingClientRect().height;
+
+  const commentElements = document.querySelectorAll<HTMLElement>(
+    allHighlightedCommentsSelector
+  );
+
+  if (scrollToFirstComment || currentIndex >= commentElements.length) currentIndex = 0;
+
+  const commentElement = commentElements[currentIndex];
+  const commentRect = commentElement.getBoundingClientRect();
+  const scrollElement = (
+    hasModalScrollContainer() ? getScrollElement() : window
+  ) as HTMLElement;
+
+  scrollElement.scrollTo({
+    top: commentRect.top + window.scrollY - headerHeight,
+    behavior: 'smooth',
+  });
+  currentIndex++;
 };
 
 /** onScroll - markAsRead, highlight */

@@ -328,3 +328,16 @@ history.replaceState({}, '', getSortByNewUrl(currentUrl));
 // trigger next change
 // return;
 }
+
+let currentIndex = 0;
+export const scrollNextCommentIntoView = () => {
+  const commentElements = document.querySelectorAll<HTMLElement>(
+    allHighlightedCommentsSelector
+  );
+
+  if (currentIndex >= commentElements.length) currentIndex = 0;
+
+  const commentElement = commentElements[currentIndex];
+  commentElement.scrollIntoView({ behavior: 'smooth' });
+  currentIndex++;
+};
