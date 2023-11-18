@@ -107,11 +107,24 @@ const isElementInViewport = (element: HTMLElement) => {
   );
 };
 
-// app uses Date, database uses timestamp
+const getFilteredNewerCommentsByDate = (
+  commentElements: HTMLElement[],
+  newerThan: Date
+): HTMLElement[] => {
+  const filteredComments = commentElements.filter((commentElement) => {
+    const commentId = validateCommentElementIdOrThrow(commentElement);
+    const commentDate = getDateFromCommentId(commentId);
+    return commentDate.getTime() > newerThan.getTime();
+  });
+
+  return filteredComments;
+};
+
+/** Works only with DOM elements, no database. */
 const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Date) => {
-  const filteredComments =
-    sortedCommentsByDateUpdater.getFilteredNewerCommentsByDate(newerThan);
-  const filteredCommentsIds = filteredComments.map((comment) => comment.commentId);
+  const commentsArray = Array.from(commentElements);
+  const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
+  const filteredCommentsIds = filteredComments.map((commentElement) => commentElement.id);
 
   commentElements.forEach((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
@@ -139,8 +152,6 @@ const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Da
 };
 
 /**
- * Highlights all comments except from current session.
- *
  * if session:
  * onUrlChange - creates session
  * onScroll - doesn't create session
@@ -217,26 +228,22 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   const allSessionsCommentsIds = allSessionsComments.map((comment) => comment.commentId);
 
   // unfiltered comments here, for entire session, only new are fine?
-  sortedCommentsByDateUpdater.reset(commentElements[0]);
+  const latestCommentUpdater = createLatestCommentUpdater(commentElements[0]);
 
-  commentElements.forEach(async (commentElement, index) => {
+  commentElements.forEach(async (commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
     const isAlreadyMarkedComment = allSessionsCommentsIds.includes(commentId); // all checks in one loop
 
     if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
 
-    // check time...
-
     const sessionCreatedAt = currentSessionCreatedAt;
     await addComment(db, { threadId, commentId, sessionCreatedAt });
 
     // update sorted comments
-    sortedCommentsByDateUpdater.updateSortedComments(commentId);
+    latestCommentUpdater.updateLatestComment(commentElement);
   });
 
-  const { latestComment } = sortedCommentsByDateUpdater.getSortedComments();
-
-  const { commentId: latestCommentId, date: latestCommentDate } = latestComment;
+  const { latestCommentId, latestCommentDate } = latestCommentUpdater.getLatestComment();
 
   // update thread bellow forEach
   await updateThread(db, {
@@ -246,70 +253,28 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
   });
 };
 
-interface CommentWithDate {
-  commentId: string;
-  /** Date object, Timestamp in db. */
-  date: Date;
-}
-interface SortedResult {
-  latestComment: CommentWithDate;
-  sortedComments: CommentWithDate[];
-}
+/** Used only for max elem for Thread.latestCommentId in db. */
+const createLatestCommentUpdater = (initialCommentElement: HTMLElement) => {
+  const initialCommentId = validateCommentElementIdOrThrow(initialCommentElement);
 
-// todo: compare comments from database too, no they are older
-const createSortedCommentsByDateUpdater = () => {
-  let comments: CommentWithDate[] = [];
-  let latestComment: CommentWithDate | null = null;
+  let latestCommentId = initialCommentId;
+  let latestCommentDate = getDateFromCommentId(initialCommentId);
 
-  const updateSortedComments = (commentId: string) => {
-    const newComment = { commentId, date: getDateFromCommentId(commentId) };
-    comments.push(newComment);
+  const updateLatestComment = (commentElement: HTMLElement) => {
+    const commentId = validateCommentElementIdOrThrow(commentElement);
+    const currentDate = getDateFromCommentId(commentId);
 
-    comments.sort((a, b) => b.date.getTime() - a.date.getTime());
-    latestComment = comments[0];
-  };
-
-  const reset = (commentElement: HTMLElement) => {
-    const initialCommentId = validateCommentElementIdOrThrow(commentElement);
-    const initialComment: CommentWithDate = {
-      commentId: initialCommentId,
-      date: getDateFromCommentId(initialCommentId),
-    };
-
-    comments = [initialComment];
-    latestComment = initialComment;
-  };
-
-  const getFilteredNewerCommentsByDate = (date: Date): CommentWithDate[] => {
-    checkIfEmptyCommentsArray('getFilteredNewerCommentsByDate');
-
-    return comments.filter((comment) => comment.date.getTime() > date.getTime());
-  };
-
-  const getSortedComments = (): SortedResult => {
-    checkIfEmptyCommentsArray('getSortedComments');
-
-    const sortedResult = { latestComment, sortedComments: comments } as SortedResult;
-    return sortedResult;
-  };
-
-  const checkIfEmptyCommentsArray = (fnName: string) => {
-    if (!latestComment || !(comments.length > 0))
-      throw new MyElementNotFoundDOMException(
-        `sortedCommentsByDateUpdater.${fnName} called with empty comments array.`
-      );
+    if (currentDate > latestCommentDate) {
+      latestCommentId = commentId;
+      latestCommentDate = currentDate;
+    }
   };
 
   return {
-    reset,
-    updateSortedComments,
-    getSortedComments,
-    getFilteredNewerCommentsByDate,
+    updateLatestComment,
+    getLatestComment: () => ({ latestCommentId, latestCommentDate }),
   };
 };
-
-/** Global. */
-const sortedCommentsByDateUpdater = createSortedCommentsByDateUpdater();
 
 const getCurrentThread = async (): Promise<ThreadData> => {
   const db = await openDatabase();
@@ -437,7 +402,7 @@ export const scrollNextCommentIntoView = (scrollToFirstComment = false) => {
 /** onScroll - markAsRead, highlight */
 export const handleScrollDom = async () => {
   // disable handlers too, and not attaching only
-  if (!isActiveTab() || true) return;
+  if (!isActiveTab()) return;
 
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
@@ -448,6 +413,7 @@ export const handleScrollDom = async () => {
     else await markAsRead(commentElements);
 
     await highlight(commentElements);
+    highlightByDate(commentElements, getDateHoursAgo(5));
   } catch (error) {
     console.error('Error handling comments onScroll:', error);
   }
@@ -462,11 +428,11 @@ export const handleUrlChangeDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    // await updateCommentsFromPreviousSessionOrCreateThread();
-    // await highlight(commentElements);
+    await updateCommentsFromPreviousSessionOrCreateThread();
+    await highlight(commentElements);
 
-    // must disable other highlighting
-    highlightByDate(commentElements, getDateHoursAgo(3 * 24));
+    // completely independent from db highlighting, can run in parallel
+    highlightByDate(commentElements, getDateHoursAgo(5));
   } catch (error) {
     console.error('Error handling comments onUrlChange:', error);
   }

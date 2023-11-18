@@ -16,7 +16,8 @@
 
 /*------------------------------ from dom, by date ----------------------------*/
 
-.ruc-highlight-comment-by-date [data-testid='comment'] {
+// maybe just border around timestamp?
+.ruc-highlight-comment-by-date [data-testid='comment_timestamp'] {
   @apply bg-yellow-100;
   @apply border border-solid rounded border-yellow-300;
 }

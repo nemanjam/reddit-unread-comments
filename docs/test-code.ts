@@ -349,3 +349,70 @@ if (modalScrollContainer) {
     behavior: 'smooth',
   });
 }
+//----------------
+
+interface CommentWithDate {
+  commentId: string;
+  /** Date object, Timestamp in db. */
+  date: Date;
+}
+interface SortedResult {
+  latestComment: CommentWithDate;
+  sortedComments: CommentWithDate[];
+}
+
+// todo: compare comments from database too, no they are older
+/** Used only for max elem for Thread.latestCommentId in db. */
+const createSortedCommentsByDateUpdater = () => {
+  let comments: CommentWithDate[] = [];
+  let latestComment: CommentWithDate | null = null;
+
+  const updateSortedComments = (commentId: string) => {
+    const newComment = { commentId, date: getDateFromCommentId(commentId) };
+    comments.push(newComment);
+
+    comments.sort((a, b) => b.date.getTime() - a.date.getTime());
+    latestComment = comments[0];
+  };
+
+  const reset = (commentElement: HTMLElement) => {
+    const initialCommentId = validateCommentElementIdOrThrow(commentElement);
+    const initialComment: CommentWithDate = {
+      commentId: initialCommentId,
+      date: getDateFromCommentId(initialCommentId),
+    };
+
+    comments = [initialComment];
+    latestComment = initialComment;
+  };
+
+  const getFilteredNewerCommentsByDate = (date: Date): CommentWithDate[] => {
+    checkIfEmptyCommentsArray('getFilteredNewerCommentsByDate');
+
+    return comments.filter((comment) => comment.date.getTime() > date.getTime());
+  };
+
+  const getSortedComments = (): SortedResult => {
+    checkIfEmptyCommentsArray('getSortedComments');
+
+    const sortedResult = { latestComment, sortedComments: comments } as SortedResult;
+    return sortedResult;
+  };
+
+  const checkIfEmptyCommentsArray = (fnName: string) => {
+    if (!latestComment || !(comments.length > 0))
+      throw new MyElementNotFoundDOMException(
+        `sortedCommentsByDateUpdater.${fnName} called with empty comments array.`
+      );
+  };
+
+  return {
+    reset,
+    updateSortedComments,
+    getSortedComments,
+    getFilteredNewerCommentsByDate,
+  };
+};
+
+/** Global. */
+const sortedCommentsByDateUpdater = createSortedCommentsByDateUpdater();

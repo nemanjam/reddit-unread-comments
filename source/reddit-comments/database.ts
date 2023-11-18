@@ -11,7 +11,7 @@ export interface ThreadData {
   threadId: string;
   updatedAt: number;
   latestCommentId?: string;
-  /** In db store as numeric timestamp. Work with Date. */
+  /** In db store as numeric timestamp. App works with Date. */
   latestCommentTimestamp?: number;
 }
 
