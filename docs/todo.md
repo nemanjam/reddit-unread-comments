@@ -58,16 +58,16 @@ zadrzi highlight na hover mode // to
 ---------------
 // ui:
 time range control i highlight
-   unhighlight mode: scroll, url-change
-   clear database, clear thread
+    unhighlight mode: scroll, url-change
+    clear database, clear thread
 github url
 sort by new by default
 ---------------
-   database size limit
+    database size limit   
 log level debug, lib neki
 chrome
 popup number of new comments
-ctrl space scroll to next comment
+    ctrl space scroll to next comment
 ----------
 // future:
 realtime popup notifications, background script
