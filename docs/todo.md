@@ -61,9 +61,10 @@ time range control i highlight
     unhighlight mode: scroll, url-change
     clear database, clear thread
 github url
-sort by new by default, url change teze
+sort by new by default, url change teze, global default sort by any
+checkboxes: scroll to unread, scroll to by date, scroll to both
 ---------------
-timestampIsOlderThan
+    highlight by date
     database size limit   
 log level debug, lib neki
 chrome
