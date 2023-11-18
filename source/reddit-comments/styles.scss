@@ -1,5 +1,7 @@
 @import '../styles/tailwind';
 
+/*-------------------------------- from database ------------------------------*/
+
 .ruc-highlight-comment [data-testid='comment'] {
   @apply bg-red-100;
   @apply border border-solid rounded border-red-300;
@@ -10,6 +12,13 @@
   @apply bg-transparent;
   @apply transition duration-1000 ease-linear;
   @apply hover:bg-red-100 hover:transition-none;
+}
+
+/*------------------------------ from dom, by date ----------------------------*/
+
+.ruc-highlight-comment-by-date [data-testid='comment'] {
+  @apply bg-yellow-100;
+  @apply border border-solid rounded border-yellow-300;
 }
 
 // #{!important}

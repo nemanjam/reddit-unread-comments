@@ -53,6 +53,8 @@ export const highlightedCommentReadClass = 'ruc-highlight-comment-read';
 /** Both read and unread. */
 export const allHighlightedCommentsSelector = `.${highlightedCommentClass}, .${highlightedCommentReadClass}`;
 
+export const highlightedCommentByDateClass = 'ruc-highlight-comment-by-date';
+
 export const databaseName = 'reddit-unread-comments-db';
 
 /** 2 * 10**12 */
