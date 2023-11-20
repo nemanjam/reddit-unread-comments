@@ -1,7 +1,14 @@
+const { blackA, violet } = require('@radix-ui/colors');
+
 module.exports = {
   content: ['./source/**/*.{html,js,jsx,ts,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        ...blackA,
+        ...violet,
+      },
+    },
   },
   plugins: [],
 };

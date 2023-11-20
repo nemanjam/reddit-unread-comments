@@ -100,6 +100,11 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.mjs/, // for radixui mjs
+        include: /node_modules/,
+        type: 'javascript/auto',
+      },
+      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
