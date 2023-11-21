@@ -1,0 +1,6 @@
+@import '../../styles/tailwind'; // can have both tailwind and radix themes
+@import '@radix-ui/themes/styles.css';
+
+.my-border {
+  @apply border border-solid border-red-500;
+}

@@ -69,6 +69,9 @@ HeadlessUI and RadixUI
 use this https://www.radix-ui.com/themes/playground
 create logo icon
 react hook form
+https://www.radix-ui.com/primitives/docs/components/form
+move contentScript to radix theme maybe
+save popup state in indexdb database
 ---------------
     highlight by date
     database size limit   
