@@ -32,4 +32,4 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 - modify url ?sort=new query param without triggering new change or extension manifest
 - scroll element to top in modal and in window calculation
 
-
+- fix peer dependency with yarn why postcss and optimize-css-assets-webpack-plugin

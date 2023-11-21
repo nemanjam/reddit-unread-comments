@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import * as Slider from '@radix-ui/react-slider';
+import { Theme, Flex, Text, Button, Slider } from '@radix-ui/themes';
 
 import './popup.scss';
 
@@ -7,25 +7,23 @@ const repoUrl = 'https://github.com/nemanjam/reddit-unread-comments';
 
 const Popup: FC = () => {
   return (
-    <section id="popup-container" className="p-4">
-      <form>
-        <Slider.Root
-          className="relative flex items-center select-none touch-none w-[200px] h-5"
-          defaultValue={[50]}
-          max={100}
-          step={1}
-        >
-          <Slider.Track className="bg-blackA7 relative grow rounded-full h-[3px]">
-            <Slider.Range className="absolute bg-white rounded-full h-full" />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block w-5 h-5 bg-white shadow-[0_2px_10px] shadow-blackA4 rounded-[10px] hover:bg-violet3 focus:outline-none focus:shadow-[0_0_0_5px] focus:shadow-blackA5"
-            aria-label="Volume"
-          />
-        </Slider.Root>
-        <a href={repoUrl}>{repoUrl}</a>
-      </form>
-    </section>
+    <Theme>
+      <main id="popup" className="p-4">
+        <section className="w-fit h-fit bg-gray-300 border border-solid border-red-500 ">
+          <form>
+            <h1 className="bg-red-400">my content</h1>
+            <h1>my content 2</h1>
+            <h1>my content 3</h1>
+            <Slider defaultValue={[50]} />
+          </form>
+          <a href={repoUrl}>{repoUrl}</a>
+          <Flex direction="column" gap="2">
+            <Text>Hello from Radix Themes :)</Text>
+            <Button>Let's go</Button>
+          </Flex>
+        </section>
+      </main>
+    </Theme>
   );
 };
 
