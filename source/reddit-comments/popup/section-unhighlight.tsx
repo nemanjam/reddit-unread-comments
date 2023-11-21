@@ -12,7 +12,7 @@ const SectionUnHighlight: FC = () => {
           <Flex gap="2">
             <Text as="label" size="2">
               <Flex gap="2">
-                <RadioGroup.Item value="on-scroll_" /> On scroll
+                <RadioGroup.Item value="on-scroll" /> On scroll
               </Flex>
             </Text>
             <Text as="label" size="2">

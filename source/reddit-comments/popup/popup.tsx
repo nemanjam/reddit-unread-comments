@@ -40,5 +40,3 @@ export default Popup;
 // radio scroll to unread, scroll to by date, scroll to both
 // radio sort by new
 // github url
-
-// fix checked radio style

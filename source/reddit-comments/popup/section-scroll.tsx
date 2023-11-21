@@ -5,7 +5,7 @@ const SectionScroll: FC = () => {
   return (
     <Flex direction="column" gap="4">
       <Text as="label" size="2">
-        Scroll to:
+        Scroll to (Ctrl+Space):
       </Text>
       <RadioGroup.Root defaultValue="both">
         <Flex gap="2">
