@@ -67,7 +67,7 @@ checkboxes: scroll to unread, scroll to by date, scroll to both
 https://www.reddit.com/r/reactjs/comments/17vd9v5/what_component_library_do_you_use_with_tailwindcss/?sort=new
 HeadlessUI and RadixUI
 use this https://www.radix-ui.com/themes/playground
-create logo icon
+create logo icon // this
 react hook form
 https://www.radix-ui.com/primitives/docs/components/form
 move contentScript to radix theme maybe
@@ -79,6 +79,9 @@ log level debug, lib neki
 chrome
 popup number of new comments
     ctrl space scroll to next comment
+----------
+set my name in package.json and manifest.json
+write readme, make video, publish to ffox store
 ----------
 // future:
 realtime popup notifications, background script
