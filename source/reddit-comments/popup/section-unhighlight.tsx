@@ -6,7 +6,7 @@ const SectionUnHighlight: FC = () => {
     <Box>
       <Flex direction="column" gap="4">
         <Text as="label" size="2">
-          Un-highlight comments on
+          Un-highlight comments:
         </Text>
         <RadioGroup.Root defaultValue="on-scroll">
           <Flex gap="2">

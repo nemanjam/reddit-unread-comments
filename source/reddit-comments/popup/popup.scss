@@ -1,4 +1,4 @@
-@import '../../styles/tailwind'; // can have both tailwind and radix themes
+// @import '../../styles/tailwind'; // breaks radio default checked
 @import '@radix-ui/themes/styles.css';
 
 .my-border {
