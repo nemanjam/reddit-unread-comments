@@ -1,16 +1,32 @@
 import React, { FC } from 'react';
+import { UseFormRegister } from 'react-hook-form';
 import { Flex, Text, Slider, Switch, RadioGroup } from '@radix-ui/themes';
 
-const SectionTime: FC = () => {
+import { SettingsFormData } from './popup';
+
+type Props = {
+  register: UseFormRegister<SettingsFormData>;
+};
+
+const SectionTime: FC<Props> = ({ register }) => {
+  console.error('my rerender 1');
+
+  const { max, min, ...timeSliderRegister } = register('timeSlider', {
+    onChange: (e) => {
+      // console.error('e', e);
+    },
+  });
+
   return (
     <Flex direction="column" gap="4">
       <Text as="label" size="2">
         <Flex gap="2">
-          <Switch defaultChecked /> Highlight based on time
+          <Switch {...register('isHighlightOnTime')} defaultChecked /> Highlight based on
+          time
         </Flex>
       </Text>
-      <Slider defaultValue={[50]} />
-      <RadioGroup.Root defaultValue="6h">
+      <Slider {...timeSliderRegister} defaultValue={[50]} />
+      <RadioGroup.Root {...register('timeScale')} defaultValue="6h">
         <Flex gap="2">
           <Text as="label" size="2">
             <Flex gap="2">

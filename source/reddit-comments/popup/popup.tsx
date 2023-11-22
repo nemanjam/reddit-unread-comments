@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useForm } from 'react-hook-form';
 import { Theme, Container, Separator } from '@radix-ui/themes';
 
 import SectionTime from './section-time';
@@ -10,12 +11,41 @@ import SectionLink from './section-link';
 
 import './popup.scss';
 
+export type TimeScaleType =
+  | '1h'
+  | '6h'
+  | '1 day'
+  | '1 week'
+  | '1 month'
+  | '1 year'
+  | '5 years';
+
+export interface SettingsFormData {
+  isHighlightOnTime: boolean;
+  timeSlider: number;
+  timeScale: TimeScaleType;
+}
+
+const defaultValues = {
+  isHighlightOnTime: false,
+  timeSlider: 0,
+  timeScale: '6h' as const,
+};
+
 const Popup: FC = () => {
+  const methods = useForm<SettingsFormData>({
+    mode: 'onChange',
+    defaultValues,
+  });
+  const { register, formState, handleSubmit, getValues } = methods;
+
+  console.error('getValues', getValues());
+
   return (
     <Theme radius="medium">
       <Container id="popup" p="4">
         <form>
-          <SectionTime />
+          <SectionTime register={register} />
           <Separator size="4" my="4" />
           <SectionUnHighlight />
           <Separator size="4" my="4" />
