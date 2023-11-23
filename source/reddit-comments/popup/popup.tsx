@@ -37,15 +37,15 @@ const Popup: FC = () => {
     mode: 'onChange',
     defaultValues,
   });
-  const { register, formState, handleSubmit, getValues } = methods;
+  const { register, control, formState, handleSubmit, getValues, watch } = methods;
 
-  console.error('getValues', getValues());
+  console.error('getValues', getValues(), 'watch', watch());
 
   return (
     <Theme radius="medium">
       <Container id="popup" p="4">
         <form>
-          <SectionTime register={register} />
+          <SectionTime control={control} />
           <Separator size="4" my="4" />
           <SectionUnHighlight />
           <Separator size="4" my="4" />

@@ -33,3 +33,4 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 - scroll element to top in modal and in window calculation
 
 - fix peer dependency with yarn why postcss and optimize-css-assets-webpack-plugin
+- integrate radix themes controls with react-hook-form - Controller component, v7 typescript bug, v8 ok
