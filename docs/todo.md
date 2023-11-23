@@ -85,4 +85,6 @@ write readme, make video, publish to ffox store
 ----------
 // future:
 realtime popup notifications, background script
-
+----------
+print slider value, print scale
+click set sort by new and delay

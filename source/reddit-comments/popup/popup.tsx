@@ -18,7 +18,7 @@ export type TimeScaleType =
   | '1 week'
   | '1 month'
   | '1 year'
-  | '5 years';
+  | '10 years';
 
 export interface SettingsFormData {
   isHighlightOnTime: boolean;
@@ -26,18 +26,18 @@ export interface SettingsFormData {
   timeScale: TimeScaleType;
 }
 
-const defaultValues = {
+export const defaultValues = {
   isHighlightOnTime: false,
   timeSlider: 0,
   timeScale: '6h' as const,
 };
 
 const Popup: FC = () => {
-  const methods = useForm<SettingsFormData>({
+  const form = useForm<SettingsFormData>({
     mode: 'onChange',
     defaultValues,
   });
-  const { register, control, formState, handleSubmit, getValues, watch } = methods;
+  const { control, getValues, watch } = form;
 
   console.error('getValues', getValues(), 'watch', watch());
 
@@ -45,7 +45,7 @@ const Popup: FC = () => {
     <Theme radius="medium">
       <Container id="popup" p="4">
         <form>
-          <SectionTime control={control} />
+          <SectionTime form={form} />
           <Separator size="4" my="4" />
           <SectionUnHighlight />
           <Separator size="4" my="4" />

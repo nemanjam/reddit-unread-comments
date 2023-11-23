@@ -34,3 +34,6 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 
 - fix peer dependency with yarn why postcss and optimize-css-assets-webpack-plugin
 - integrate radix themes controls with react-hook-form - Controller component, v7 typescript bug, v8 ok
+
+- console.log in firefox browser extension, ctrl + shift + j, console.error
+- use setValue() instead of reset({...getState(), ... }) to set fields and trigger rerender
