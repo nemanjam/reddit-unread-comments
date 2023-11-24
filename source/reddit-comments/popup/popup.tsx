@@ -37,7 +37,7 @@ const Popup: FC = () => {
     mode: 'onChange',
     defaultValues,
   });
-  const { control, getValues, watch } = form;
+  const { getValues, watch } = form;
 
   console.error('getValues', getValues(), 'watch', watch());
 
