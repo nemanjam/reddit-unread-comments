@@ -91,3 +91,4 @@ click set sort by new and delay
 prepopulate form from db settings
 db settings schema
 debounce slider onChange
+send messages from popup to contentScript
