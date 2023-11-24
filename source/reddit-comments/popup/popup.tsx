@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useForm } from 'react-hook-form';
-import { Theme, Container, Separator } from '@radix-ui/themes';
+import { Theme, Container, Separator, Flex } from '@radix-ui/themes';
 
 import SectionTime from './section-time';
 import SectionUnHighlight from './section-unhighlight';
@@ -20,17 +20,29 @@ export type TimeScaleType =
   | '1 year'
   | '10 years';
 
+export type UnHighlightOnType = 'on-scroll' | 'on-url-change';
+export type ScrollToType = 'unread' | 'by-date' | 'both';
+export type ResetDbType = '' | 'thread' | 'all-threads' | 'user-settings';
+
 export interface SettingsFormData {
   isHighlightOnTime: boolean;
   timeSlider: number;
   timeScale: TimeScaleType;
+  unHighlightOn: UnHighlightOnType;
+  scrollTo: ScrollToType;
+  sortAllByNew: boolean;
+  resetDb: ResetDbType;
 }
 
 export const defaultValues = {
   isHighlightOnTime: false,
   timeSlider: 0,
-  timeScale: '6h' as const,
-};
+  timeScale: '6h',
+  unHighlightOn: 'on-scroll',
+  scrollTo: 'both',
+  sortAllByNew: false,
+  resetDb: '',
+} as const;
 
 const Popup: FC = () => {
   const form = useForm<SettingsFormData>({
@@ -39,7 +51,15 @@ const Popup: FC = () => {
   });
   const { getValues, watch } = form;
 
+  // todo: prepopulate form from db settings
+
   console.error('getValues', getValues(), 'watch', watch());
+
+  const handleResetDb = () => {
+    // todo
+    const radioValue = getValues('resetDb');
+    console.error('radioValue', radioValue);
+  };
 
   return (
     <Theme radius="medium">
@@ -47,13 +67,15 @@ const Popup: FC = () => {
         <form>
           <SectionTime form={form} />
           <Separator size="4" my="4" />
-          <SectionUnHighlight />
+          <Flex>
+            <SectionUnHighlight form={form} />
+            <Separator orientation="vertical" size="3" mx="4" />
+            <SectionScroll form={form} />
+          </Flex>
           <Separator size="4" my="4" />
-          <SectionDatabase />
+          <SectionSort form={form} />
           <Separator size="4" my="4" />
-          <SectionScroll />
-          <Separator size="4" my="4" />
-          <SectionSort />
+          <SectionDatabase form={form} onResetClick={handleResetDb} />
         </form>
         <Separator size="4" my="4" />
         <SectionLink />

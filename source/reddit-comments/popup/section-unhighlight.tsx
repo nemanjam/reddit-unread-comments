@@ -1,27 +1,42 @@
 import React, { FC } from 'react';
+import { Controller, UseFormReturn } from 'react-hook-form';
 import { Flex, Text, Box, RadioGroup } from '@radix-ui/themes';
 
-const SectionUnHighlight: FC = () => {
+import { SettingsFormData } from './popup';
+
+type Props = {
+  form: UseFormReturn<SettingsFormData>;
+};
+
+const SectionUnHighlight: FC<Props> = ({ form }) => {
+  const { control } = form;
+
   return (
     <Box>
       <Flex direction="column" gap="4">
         <Text as="label" size="2">
           Un-highlight comments:
         </Text>
-        <RadioGroup.Root defaultValue="on-scroll">
-          <Flex gap="2">
-            <Text as="label" size="2">
+        <Controller
+          name="unHighlightOn"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <RadioGroup.Root onValueChange={onChange} value={value} defaultValue={value}>
               <Flex gap="2">
-                <RadioGroup.Item value="on-scroll" /> On scroll
+                <Text as="label" size="2">
+                  <Flex gap="2">
+                    <RadioGroup.Item value="on-scroll" /> On scroll
+                  </Flex>
+                </Text>
+                <Text as="label" size="2">
+                  <Flex gap="2">
+                    <RadioGroup.Item value="on-url-change" /> On url change
+                  </Flex>
+                </Text>
               </Flex>
-            </Text>
-            <Text as="label" size="2">
-              <Flex gap="2">
-                <RadioGroup.Item value="on-url-change" /> On url change
-              </Flex>
-            </Text>
-          </Flex>
-        </RadioGroup.Root>
+            </RadioGroup.Root>
+          )}
+        />
       </Flex>
     </Box>
   );

@@ -88,3 +88,6 @@ realtime popup notifications, background script
 ----------
 print slider value, print scale
 click set sort by new and delay
+prepopulate form from db settings
+db settings schema
+debounce slider onChange
