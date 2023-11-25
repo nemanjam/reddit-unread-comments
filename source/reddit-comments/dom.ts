@@ -19,21 +19,20 @@ import {
   timestampIdModalSuffix,
   timestampIdPrefix,
 } from './constants';
+
+import { openDatabase, ThreadData, CommentData } from './database/schema';
 import {
   addThread,
   getThread,
-  openDatabase,
-  addComment,
   updateThread,
-  ThreadData,
   getCommentsForThreadWithoutCurrentSession,
   updateCommentsSessionCreatedAtForThread,
-  CommentData,
   getCommentsForThreadForCurrentSession,
   getAllCommentsForThread,
-  truncateDatabase,
-  limitIndexedDBSize,
-} from './database';
+} from './database/models/thread';
+import { addComment } from './database/models/comment';
+import { limitIndexedDBSize } from './database/limit-size';
+
 import { getDateHoursAgo, relativeTimeStringToDate } from './datetime';
 import {
   validateCommentElementIdOrThrow,

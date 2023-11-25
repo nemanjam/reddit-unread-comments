@@ -11,7 +11,7 @@ import {
   scrollNextCommentIntoView,
 } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
-import { truncateDatabase } from './database';
+import { truncateDatabase } from './database/limit-size';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
