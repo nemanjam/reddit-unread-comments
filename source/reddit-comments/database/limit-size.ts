@@ -1,6 +1,6 @@
 import { dbSizeLimit, dbTargetSize } from '../constants';
 import { sizeInMBString } from '../utils';
-import { openDatabase, Thread, Comment, ThreadData } from './schema';
+import { openDatabase, Thread, Comment, ThreadData, Settings } from './schema';
 
 export const truncateDatabase = async () => {
   const db = await openDatabase();
@@ -23,6 +23,9 @@ export const truncateDatabase = async () => {
 
     await truncateObjectStore(Comment.CommentObjectStore);
     console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+
+    await truncateObjectStore(Settings.SettingsObjectStore);
+    console.log(`Data truncated in ${Settings.SettingsObjectStore} successfully.`);
   } catch (error) {
     console.error('Error truncating data:', error);
   }
@@ -108,16 +111,20 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
     );
     const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
     const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
+    const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
 
     const getAllThreads = threadObjectStore.getAll();
     const getAllComments = commentObjectStore.getAll();
+    const getAllSettings = settingsObjectStore.getAll();
 
     Promise.all([getAllThreads, getAllComments])
       .then(([threadResults, commentResults]) => {
         const currentSizeThreads: number = JSON.stringify(threadResults).length;
         const currentSizeComments: number = JSON.stringify(commentResults).length;
+        const currentSizeSettings: number = JSON.stringify(getAllSettings).length;
 
-        const totalSize: number = currentSizeThreads + currentSizeComments;
+        const totalSize: number =
+          currentSizeThreads + currentSizeComments + currentSizeSettings;
 
         resolve(totalSize);
       })

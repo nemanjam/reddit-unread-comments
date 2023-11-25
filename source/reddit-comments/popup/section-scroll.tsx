@@ -1,10 +1,11 @@
 import React, { FC } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { Flex, Text, RadioGroup } from '@radix-ui/themes';
-import { SettingsFormData } from './popup';
+
+import { SettingsData } from '../database/schema';
 
 type Props = {
-  form: UseFormReturn<SettingsFormData>;
+  form: UseFormReturn<SettingsData>;
 };
 
 const SectionScroll: FC<Props> = ({ form }) => {

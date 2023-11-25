@@ -10,42 +10,11 @@ import SectionSort from './section-sort';
 import SectionLink from './section-link';
 
 import './popup.scss';
-
-export type TimeScaleType =
-  | '1h'
-  | '6h'
-  | '1 day'
-  | '1 week'
-  | '1 month'
-  | '1 year'
-  | '10 years';
-
-export type UnHighlightOnType = 'on-scroll' | 'on-url-change';
-export type ScrollToType = 'unread' | 'by-date' | 'both';
-export type ResetDbType = '' | 'thread' | 'all-threads' | 'user-settings';
-
-export interface SettingsFormData {
-  isHighlightOnTime: boolean;
-  timeSlider: number;
-  timeScale: TimeScaleType;
-  unHighlightOn: UnHighlightOnType;
-  scrollTo: ScrollToType;
-  sortAllByNew: boolean;
-  resetDb: ResetDbType;
-}
-
-export const defaultValues = {
-  isHighlightOnTime: false,
-  timeSlider: 0,
-  timeScale: '6h',
-  unHighlightOn: 'on-scroll',
-  scrollTo: 'both',
-  sortAllByNew: false,
-  resetDb: '',
-} as const;
+import { SettingsData } from '../database/schema';
+import { defaultValues } from '../database/models/settings';
 
 const Popup: FC = () => {
-  const form = useForm<SettingsFormData>({
+  const form = useForm<SettingsData>({
     mode: 'onChange',
     defaultValues,
   });

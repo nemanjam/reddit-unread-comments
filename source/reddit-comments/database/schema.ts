@@ -1,10 +1,4 @@
-import {
-  currentSessionCreatedAt,
-  databaseName,
-  dbSizeLimit,
-  dbTargetSize,
-} from '../constants';
-import { sizeInMBString } from '../utils';
+import { databaseName } from '../constants';
 
 export interface ThreadData {
   id?: number;
@@ -20,6 +14,29 @@ export interface CommentData {
   threadId: string;
   sessionCreatedAt: number;
   commentId: string;
+}
+
+export type TimeScaleType =
+  | '1h'
+  | '6h'
+  | '1 day'
+  | '1 week'
+  | '1 month'
+  | '1 year'
+  | '10 years';
+
+export type UnHighlightOnType = 'on-scroll' | 'on-url-change';
+export type ScrollToType = 'unread' | 'by-date' | 'both';
+export type ResetDbType = '' | 'thread' | 'all-threads' | 'user-settings';
+
+export interface SettingsData {
+  isHighlightOnTime: boolean;
+  timeSlider: number;
+  timeScale: TimeScaleType;
+  unHighlightOn: UnHighlightOnType;
+  scrollTo: ScrollToType;
+  sortAllByNew: boolean;
+  resetDb: ResetDbType;
 }
 
 /** Don't use globalDb, use db = await openDatabase(). */
@@ -60,6 +77,18 @@ export const Comment = {
   ThreadIdIndex: 'ThreadIdIndex',
   SessionCreatedAtIndex: 'SessionCreatedAtIndex',
   CommentIdThreadIdIndex: 'CommentIdThreadIdIndex',
+} as const;
+
+export const Settings = {
+  SettingsObjectStore: 'Settings',
+  SettingsIdIndex: 'SettingsIdIndex',
+  IsHighlightOnTimeIndex: 'IsHighlightOnTimeIndex',
+  TimeSliderIndex: 'TimeSliderIndex',
+  TimeScaleIndex: 'TimeScaleIndex',
+  UnHighlightOnIndex: 'UnHighlightOnIndex',
+  ScrollToIndex: 'ScrollToIndex',
+  SortAllByNewIndex: 'SortAllByNewIndex',
+  ResetDbIndex: 'ResetDbIndex',
 } as const;
 
 // Create schema
@@ -103,6 +132,23 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
       unique: true,
     }
   );
+
+  // Create Settings object store - table
+  const objectStore = db.createObjectStore(Settings.SettingsObjectStore, {
+    keyPath: 'id',
+    autoIncrement: true,
+  });
+  objectStore.createIndex(Settings.IsHighlightOnTimeIndex, 'isHighlightOnTime', {
+    unique: false,
+  });
+  objectStore.createIndex(Settings.TimeSliderIndex, 'timeSlider', { unique: false });
+  objectStore.createIndex(Settings.TimeScaleIndex, 'timeScale', { unique: false });
+  objectStore.createIndex(Settings.UnHighlightOnIndex, 'unHighlightOn', {
+    unique: false,
+  });
+  objectStore.createIndex(Settings.ScrollToIndex, 'scrollTo', { unique: false });
+  objectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', { unique: false });
+  objectStore.createIndex(Settings.ResetDbIndex, 'resetDb', { unique: false });
 };
 
 const onSuccess = (

@@ -2,7 +2,8 @@ import React, { FC, useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { Flex, Text, Slider, Switch, RadioGroup } from '@radix-ui/themes';
 
-import { defaultValues, SettingsFormData, TimeScaleType } from './popup';
+import { SettingsData, TimeScaleType } from '../database/schema';
+import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
 
 export interface SliderProps {
@@ -12,7 +13,7 @@ export interface SliderProps {
 }
 
 type Props = {
-  form: UseFormReturn<SettingsFormData>;
+  form: UseFormReturn<SettingsData>;
 };
 
 const SectionTime: FC<Props> = ({ form }) => {
