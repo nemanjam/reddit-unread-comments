@@ -93,3 +93,4 @@ db settings schema
 debounce slider onChange
 send messages from popup to contentScript
 limit db size is not tested
+db operacije sa settings tabelom pucaju - limit-size Promise.all([...]) and settingsObjectStore.get(settingsId) in getSettings

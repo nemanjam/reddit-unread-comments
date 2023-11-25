@@ -117,11 +117,11 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
     const getAllComments = commentObjectStore.getAll();
     const getAllSettings = settingsObjectStore.getAll();
 
-    Promise.all([getAllThreads, getAllComments])
-      .then(([threadResults, commentResults]) => {
+    Promise.all([getAllThreads, getAllComments, getAllSettings])
+      .then(([threadResults, commentResults, settingsResults]) => {
         const currentSizeThreads: number = JSON.stringify(threadResults).length;
         const currentSizeComments: number = JSON.stringify(commentResults).length;
-        const currentSizeSettings: number = JSON.stringify(getAllSettings).length;
+        const currentSizeSettings: number = JSON.stringify(settingsResults).length;
 
         const totalSize: number =
           currentSizeThreads + currentSizeComments + currentSizeSettings;

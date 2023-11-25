@@ -55,13 +55,12 @@ export const initializeSettings = async (db: IDBDatabase) => {
   });
 };
 
+// get or create here should be
 export const getSettings = async (db: IDBDatabase): Promise<SettingsData | undefined> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readonly');
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
-    const getRequest = settingsObjectStore
-      .index(Settings.SettingsIdIndex)
-      .get(settingsId);
+    const getRequest = settingsObjectStore.get(settingsId);
 
     getRequest.onsuccess = () => {
       // omit id
