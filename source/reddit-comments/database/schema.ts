@@ -1,4 +1,5 @@
 import { databaseName } from '../constants';
+import { initializeSettings } from './models/settings';
 
 export interface ThreadData {
   id?: number;
@@ -56,6 +57,8 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
 
   try {
     const db = await openDatabaseLocal();
+    await initializeSettings(db);
+
     return db;
   } catch (error) {
     console.error('Error opening database:', error);
@@ -134,21 +137,26 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   );
 
   // Create Settings object store - table
-  const objectStore = db.createObjectStore(Settings.SettingsObjectStore, {
+  const settingsObjectStore = db.createObjectStore(Settings.SettingsObjectStore, {
     keyPath: 'id',
-    autoIncrement: true,
   });
-  objectStore.createIndex(Settings.IsHighlightOnTimeIndex, 'isHighlightOnTime', {
+  settingsObjectStore.createIndex(Settings.IsHighlightOnTimeIndex, 'isHighlightOnTime', {
     unique: false,
   });
-  objectStore.createIndex(Settings.TimeSliderIndex, 'timeSlider', { unique: false });
-  objectStore.createIndex(Settings.TimeScaleIndex, 'timeScale', { unique: false });
-  objectStore.createIndex(Settings.UnHighlightOnIndex, 'unHighlightOn', {
+  settingsObjectStore.createIndex(Settings.TimeSliderIndex, 'timeSlider', {
     unique: false,
   });
-  objectStore.createIndex(Settings.ScrollToIndex, 'scrollTo', { unique: false });
-  objectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', { unique: false });
-  objectStore.createIndex(Settings.ResetDbIndex, 'resetDb', { unique: false });
+  settingsObjectStore.createIndex(Settings.TimeScaleIndex, 'timeScale', {
+    unique: false,
+  });
+  settingsObjectStore.createIndex(Settings.UnHighlightOnIndex, 'unHighlightOn', {
+    unique: false,
+  });
+  settingsObjectStore.createIndex(Settings.ScrollToIndex, 'scrollTo', { unique: false });
+  settingsObjectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', {
+    unique: false,
+  });
+  settingsObjectStore.createIndex(Settings.ResetDbIndex, 'resetDb', { unique: false });
 };
 
 const onSuccess = (

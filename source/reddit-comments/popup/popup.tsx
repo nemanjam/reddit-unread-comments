@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Theme, Container, Separator, Flex } from '@radix-ui/themes';
 
@@ -10,19 +10,33 @@ import SectionSort from './section-sort';
 import SectionLink from './section-link';
 
 import './popup.scss';
-import { SettingsData } from '../database/schema';
-import { defaultValues } from '../database/models/settings';
+import { openDatabase, SettingsData } from '../database/schema';
+import { defaultValues, getSettings } from '../database/models/settings';
 
 const Popup: FC = () => {
   const form = useForm<SettingsData>({
     mode: 'onChange',
     defaultValues,
   });
-  const { getValues, watch } = form;
+  const { reset, getValues, watch } = form;
 
   // todo: prepopulate form from db settings
 
   console.error('getValues', getValues(), 'watch', watch());
+
+  useEffect(() => {
+    const populateFormFromDb = async () => {
+      const db = await openDatabase();
+      const settings = await getSettings(db);
+
+      if (settings) {
+        console.error('populated settings', settings);
+        reset(settings);
+      }
+    };
+
+    populateFormFromDb();
+  }, []);
 
   const handleResetDb = () => {
     // todo
