@@ -90,12 +90,12 @@ realtime popup notifications, background script
 click set sort by new and delay
     prepopulate form from db settings
     db settings schema
-  debounce slider onChange
+    debounce slider onChange
 send messages from popup to contentScript
 limit db size is not tested
 db operacije sa settings tabelom pucaju - limit-size Promise.all([...]) and settingsObjectStore.get(settingsId) in getSettings
-loader skeleton for popup
+    loader skeleton for popup
 remove reddit toast
 -------------
 fix limitIndexedDBSize()
-remove reset radios from db
+    remove reset radios from db

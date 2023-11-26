@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Theme, Container, Separator, Flex } from '@radix-ui/themes';
+import { Theme, Container, Separator, Flex, Text } from '@radix-ui/themes';
 
 import SectionTime from './section-time';
 import SectionUnHighlight from './section-unhighlight';
@@ -23,6 +23,8 @@ import { debounce } from '../utils';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
   const { isMounting } = useIsMounting();
 
   const form = useForm<SettingsData>({
@@ -44,6 +46,8 @@ const Popup: FC = () => {
         // resetDb is not persisted in db
         reset({ ...settings, resetDb: defaultValues.resetDb });
       }
+
+      setIsLoading(false);
     };
 
     populateFormFromDb();
@@ -77,6 +81,8 @@ const Popup: FC = () => {
         break;
     }
   };
+
+  if (isLoading) return <Text as="div">Loading...</Text>;
 
   return (
     <Theme radius="medium">
