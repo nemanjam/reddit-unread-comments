@@ -1,5 +1,4 @@
 import { databaseName } from '../constants';
-import { initializeSettings } from './models/settings';
 
 export interface ThreadData {
   id?: number;
@@ -31,6 +30,7 @@ export type ScrollToType = 'unread' | 'by-date' | 'both';
 export type ResetDbType = '' | 'thread' | 'all-threads' | 'user-settings';
 
 export interface SettingsData {
+  id?: number;
   isHighlightOnTime: boolean;
   timeSlider: number;
   timeScale: TimeScaleType;
@@ -57,7 +57,6 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
 
   try {
     const db = await openDatabaseLocal();
-    await initializeSettings(db);
 
     return db;
   } catch (error) {

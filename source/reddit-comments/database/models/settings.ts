@@ -12,8 +12,8 @@ export const defaultValues: SettingsData = {
 
 export const settingsId = 1 as const;
 
-export const initializeSettings = async (db: IDBDatabase) => {
-  return new Promise<void>((resolve, reject) => {
+export const getOrCreateSettings = async (db: IDBDatabase) => {
+  return new Promise<SettingsData>((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readwrite');
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
 
@@ -23,12 +23,14 @@ export const initializeSettings = async (db: IDBDatabase) => {
       const existingSettings = getRequest.result;
 
       if (!existingSettings) {
+        // create
         // If no settings with ID 1 exists, add a new one
         const addRequest = settingsObjectStore.add({ id: settingsId, ...defaultValues });
 
-        addRequest.onsuccess = () => {
-          console.log('Settings initialized successfully.');
-          resolve();
+        addRequest.onsuccess = (event) => {
+          console.log('Created single Settings instance.');
+          const addedSettings = (event.target as IDBRequest).result as SettingsData;
+          resolve(addedSettings);
         };
 
         addRequest.onerror = (event) => {
@@ -39,9 +41,8 @@ export const initializeSettings = async (db: IDBDatabase) => {
           reject((event.target as IDBRequest).error);
         };
       } else {
-        // Settings with ID 1 already exist, no need to initialize
-        console.log('Settings instance already exists.');
-        resolve();
+        // get
+        resolve(existingSettings as SettingsData);
       }
     };
 
@@ -55,7 +56,57 @@ export const initializeSettings = async (db: IDBDatabase) => {
   });
 };
 
-// get or create here should be
+export const updateSettings = async (
+  db: IDBDatabase,
+  updatedSettings: Partial<SettingsData>
+): Promise<SettingsData> => {
+  return new Promise<SettingsData>((resolve, reject) => {
+    const transaction = db.transaction(Settings.SettingsObjectStore, 'readwrite');
+    const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
+
+    const getRequest = settingsObjectStore.get(settingsId);
+
+    getRequest.onsuccess = () => {
+      const existingSettings = getRequest.result;
+
+      if (existingSettings) {
+        // update
+        const updatedObject = { ...existingSettings, ...updatedSettings };
+
+        const updateRequest = settingsObjectStore.put(updatedObject);
+
+        updateRequest.onsuccess = (event) => {
+          console.log('Updated Settings instance.');
+          const updatedSettings = (event.target as IDBRequest).result as SettingsData;
+          resolve(updatedSettings);
+        };
+
+        updateRequest.onerror = (event) => {
+          console.error('Error updating settings:', (event.target as IDBRequest).error);
+          reject((event.target as IDBRequest).error);
+        };
+      } else {
+        // If no settings with ID 1 exists, you can choose to reject or create a new one
+        console.error('Settings not found for update.');
+        reject(new Error('Settings not found for update.'));
+      }
+    };
+
+    getRequest.onerror = (event) => {
+      console.error(
+        'Error checking existing settings:',
+        (event.target as IDBRequest).error
+      );
+      reject((event.target as IDBRequest).error);
+    };
+  });
+};
+
+export const resetSettings = async (db: IDBDatabase): Promise<SettingsData> => {
+  const resetSettings = await updateSettings(db, defaultValues);
+  return resetSettings;
+};
+
 export const getSettings = async (db: IDBDatabase): Promise<SettingsData | undefined> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readonly');

@@ -416,3 +416,39 @@ const createSortedCommentsByDateUpdater = () => {
 
 /** Global. */
 const sortedCommentsByDateUpdater = createSortedCommentsByDateUpdater();
+
+  // reset slider and radio on switch false
+  useEffect(() => {
+    const populateFormFromDb = async () => {
+      const db = await openDatabase();
+      const settings = await getSettings(db);
+
+      if (settings) {
+        setValue('timeSlider', settings.timeSlider); // with values from db
+        setValue('timeScale', settings.timeScale);
+      }
+    };
+
+    // on transition only
+    if (isDisabledSection && prevIsDisabledSection !== isDisabledSection) {
+      populateFormFromDb();
+    }
+  }, [isDisabledSection, prevIsDisabledSection]);
+
+  // reset slider on radio change
+  useEffect(() => {
+    const populateFormFromDb = async () => {
+      const db = await openDatabase();
+      const settings = await getSettings(db);
+
+      if (settings) {
+        setValue(
+          'timeSlider',
+          settings.timeSlider // with value from db
+        );
+      }
+    };
+
+    populateFormFromDb();
+    if (prevTimeScale !== timeScale) populateFormFromDb();
+  }, [timeScale, prevTimeScale]);

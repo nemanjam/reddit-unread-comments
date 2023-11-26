@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Theme, Container, Separator, Flex } from '@radix-ui/themes';
 
@@ -11,23 +11,29 @@ import SectionLink from './section-link';
 
 import './popup.scss';
 import { openDatabase, SettingsData } from '../database/schema';
-import { defaultValues, getSettings } from '../database/models/settings';
+import {
+  defaultValues,
+  getOrCreateSettings,
+  resetSettings,
+  updateSettings,
+} from '../database/models/settings';
 
 const Popup: FC = () => {
+  const [reloadFormIndex, setReloadFormIndex] = useState(0);
+
   const form = useForm<SettingsData>({
     mode: 'onChange',
     defaultValues,
   });
-  const { reset, getValues, watch } = form;
+  const { reset, getValues, watch, handleSubmit } = form;
 
-  // todo: prepopulate form from db settings
+  // console.error('getValues', getValues(), 'watch', watch());
 
-  console.error('getValues', getValues(), 'watch', watch());
-
+  // pre-populate form from db
   useEffect(() => {
     const populateFormFromDb = async () => {
       const db = await openDatabase();
-      const settings = await getSettings(db);
+      const settings = await getOrCreateSettings(db);
 
       if (settings) {
         console.error('populated settings', settings);
@@ -36,19 +42,37 @@ const Popup: FC = () => {
     };
 
     populateFormFromDb();
-  }, []);
+  }, [reloadFormIndex]);
 
-  const handleResetDb = () => {
-    // todo
+  const onSubmit = async (settingsData: SettingsData) => {
+    const db = await openDatabase();
+    await updateSettings(db, settingsData);
+  };
+
+  const handleResetDb = async () => {
     const radioValue = getValues('resetDb');
-    console.error('radioValue', radioValue);
+
+    switch (radioValue) {
+      case 'thread':
+        break;
+      case 'all-threads':
+        break;
+      case 'user-settings':
+        const db = await openDatabase();
+        await resetSettings(db);
+        setReloadFormIndex((prev) => prev + 1); // trigger useEffect
+        break;
+
+      default:
+        break;
+    }
   };
 
   return (
     <Theme radius="medium">
       <Container id="popup" p="4">
-        <form>
-          <SectionTime form={form} />
+        <form onChange={handleSubmit(onSubmit)}>
+          <SectionTime form={form} onSubmit={onSubmit} />
           <Separator size="4" my="4" />
           <Flex>
             <SectionUnHighlight form={form} />

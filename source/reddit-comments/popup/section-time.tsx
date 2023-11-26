@@ -5,6 +5,7 @@ import { Flex, Text, Slider, Switch, RadioGroup } from '@radix-ui/themes';
 import { SettingsData, TimeScaleType } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
+import useIsMounting from './useIsMounting';
 
 export interface SliderProps {
   max: number;
@@ -14,12 +15,11 @@ export interface SliderProps {
 
 type Props = {
   form: UseFormReturn<SettingsData>;
+  onSubmit: (settingsData: SettingsData) => Promise<void>;
 };
 
-const SectionTime: FC<Props> = ({ form }) => {
-  console.error('my rerender 1');
-
-  const { control, watch, setValue } = form;
+const SectionTime: FC<Props> = ({ form, onSubmit }) => {
+  const { control, watch, setValue, handleSubmit } = form;
 
   const timeScale = watch('timeScale');
   const timeSlider = watch('timeSlider');
@@ -29,23 +29,32 @@ const SectionTime: FC<Props> = ({ form }) => {
   const prevIsDisabledSection = usePrevious(isDisabledSection);
   const prevTimeScale = usePrevious(timeScale);
 
+  const { isMounting } = useIsMounting();
+
   // reset slider and radio on switch false
   useEffect(() => {
     // on transition only
-    if (isDisabledSection && prevIsDisabledSection !== isDisabledSection) {
+    if (!isMounting && isDisabledSection && prevIsDisabledSection !== isDisabledSection) {
       setValue('timeSlider', defaultValues.timeSlider);
       setValue('timeScale', defaultValues.timeScale);
+      // persist to db
+      handleSubmit(onSubmit)();
     }
-  }, [isDisabledSection, prevIsDisabledSection]);
+  }, [isMounting, isDisabledSection, prevIsDisabledSection]);
 
   // reset slider on radio change
+  // todo: triggered onMount too and overrides db
+  // todo: skip on popup close
+  // this resets, has transition, needs additional check condition
   useEffect(() => {
-    if (prevTimeScale !== timeScale)
+    if (!isMounting && prevTimeScale !== timeScale)
       setValue(
         'timeSlider',
-        defaultValues.timeSlider // 0
+        defaultValues.timeSlider // should set to 0 and save to db
       );
-  }, [timeScale, prevTimeScale]);
+    // persist to db
+    handleSubmit(onSubmit)();
+  }, [isMounting, timeScale, prevTimeScale]);
 
   const getSliderPropsFromScale = (timeScale: TimeScaleType): SliderProps => {
     const sliderPropsMap = {
@@ -89,7 +98,7 @@ const SectionTime: FC<Props> = ({ form }) => {
             onValueChange={(chValue) => onChange(chValue[0])}
             value={[value]}
             defaultValue={[value]}
-            max={max} // needs to change with radio
+            max={max} // needs to change with radio, defaultMax too
             step={step}
             disabled={isDisabledSection}
           />
