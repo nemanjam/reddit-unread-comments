@@ -1,4 +1,5 @@
 import { sub } from 'date-fns';
+import { SettingsData } from './database/schema';
 import { MyUnparsableDateException } from './exceptions';
 
 type TimeUnit =
@@ -62,3 +63,12 @@ export const relativeTimeStringToDate = (relativeTime: string): Date => {
 
 /** for testing */
 export const getDateHoursAgo = (hours: number) => sub(new Date(), { hours });
+
+export type SettingsDataHighlight = Pick<SettingsData, 'timeScale' | 'timeSlider'>;
+
+export const radioAndSliderToDate = (
+  settingsDataHighlight: SettingsDataHighlight
+): Date => {
+  // todo: implement this
+  return new Date();
+};

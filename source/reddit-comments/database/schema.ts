@@ -40,6 +40,7 @@ export interface SettingsData {
   /** not persisted in db */
   resetDb?: ResetDbType;
 }
+export type SettingsDataKeys = keyof SettingsData;
 
 /** Don't use globalDb, use db = await openDatabase(). */
 export let globalDb: IDBDatabase | null = null;

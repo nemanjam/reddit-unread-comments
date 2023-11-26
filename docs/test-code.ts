@@ -477,6 +477,39 @@ const sortedCommentsByDateUpdater = createSortedCommentsByDateUpdater();
   
     return debouncedFunction;
   };
+//-----------------------
+import { browser } from 'webextension-polyfill-ts';
+
+export interface MyMessageType {
+  type: string;
+  payload: any;
+}
+
+const sendMessageToContentScript = (message: MyMessageType) => {
+  browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+    const activeTab = tabs[0];
+
+    if (activeTab?.id) {
+      browser.tabs
+        .sendMessage(activeTab.id, message)
+        .then((response: any) => {
+          // Handle the response if needed
+          console.log('Response from content script:', response);
+        })
+        .catch((error: Error) => {
+          console.error('Error sending message to content script:', error);
+        });
+    } else {
+      console.error('No active tab found.');
+    }
+  });
+};
+
+// Example usage:
+const myState = {
+  /* your state data */
+};
+sendMessageToContentScript({ type: 'UPDATE_STATE', payload: myState });
 
 
   

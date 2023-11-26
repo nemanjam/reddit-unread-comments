@@ -1,3 +1,5 @@
+import { browser } from 'webextension-polyfill-ts';
+
 import {
   debounce,
   hasArrivedToRedditThread,
@@ -12,6 +14,7 @@ import {
 } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import { truncateDatabase } from './database/limit-size';
+import { MyMessageType } from './message';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -83,3 +86,9 @@ export const attachAllEventHandlers = async () => {
 
   onUrlChange();
 };
+
+/*-------------------------- Listen to messages in contentScript ------------------------*/
+
+browser.runtime.onMessage.addListener((message: MyMessageType) => {
+  console.log('Content script received message:', message);
+});

@@ -86,3 +86,11 @@ export const hasSortByNewQueryParam = (url: string): boolean => {
 
   return queryParams.has('sort') && queryParams.get('sort') === 'new';
 };
+
+export const pickShallow = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
+  const picked: Partial<Pick<T, K>> = {};
+  keys.forEach((key) => {
+    picked[key] = obj[key];
+  });
+  return picked as Pick<T, K>;
+};

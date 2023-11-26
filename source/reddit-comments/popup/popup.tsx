@@ -20,6 +20,7 @@ import {
 import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
+import { callHighlightByDate } from '../message';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -54,6 +55,9 @@ const Popup: FC = () => {
   }, [reloadFormIndex]);
 
   const onSubmit = async (settingsData: SettingsData) => {
+    // apply changes
+    await callHighlightByDate(settingsData);
+
     const db = await openDatabase();
     await updateSettings(db, settingsData);
   };
