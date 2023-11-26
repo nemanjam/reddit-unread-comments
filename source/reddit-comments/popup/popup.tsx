@@ -41,7 +41,8 @@ const Popup: FC = () => {
 
       if (settings) {
         console.error('populated settings', settings);
-        reset(settings);
+        // resetDb is not persisted in db
+        reset({ ...settings, resetDb: defaultValues.resetDb });
       }
     };
 

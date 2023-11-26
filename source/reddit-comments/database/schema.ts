@@ -37,7 +37,8 @@ export interface SettingsData {
   unHighlightOn: UnHighlightOnType;
   scrollTo: ScrollToType;
   sortAllByNew: boolean;
-  resetDb: ResetDbType;
+  /** not persisted in db */
+  resetDb?: ResetDbType;
 }
 
 /** Don't use globalDb, use db = await openDatabase(). */
@@ -90,7 +91,6 @@ export const Settings = {
   UnHighlightOnIndex: 'UnHighlightOnIndex',
   ScrollToIndex: 'ScrollToIndex',
   SortAllByNewIndex: 'SortAllByNewIndex',
-  ResetDbIndex: 'ResetDbIndex',
 } as const;
 
 // Create schema
@@ -155,7 +155,6 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   settingsObjectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', {
     unique: false,
   });
-  settingsObjectStore.createIndex(Settings.ResetDbIndex, 'resetDb', { unique: false });
 };
 
 const onSuccess = (
