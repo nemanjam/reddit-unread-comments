@@ -4,20 +4,24 @@ export const debug = (...args: any[]) => {
   if (isDebug) console.log(...args);
 };
 
-export const debounce = <T extends (...args: any[]) => Promise<void>>(
-  func: T,
-  wait: number
-) => {
+export type AnyFunction = (...args: any[]) => any;
+
+export const debounce = (func: AnyFunction, wait: number) => {
   let timeout: NodeJS.Timeout;
   let resolveFn: (() => void) | null = null;
 
-  const debouncedFunction = async function (...args: Parameters<T>) {
+  const debouncedFunction: AnyFunction = function (...args: any[]) {
     clearTimeout(timeout);
 
     return new Promise<void>((resolve) => {
       resolveFn = resolve;
       timeout = setTimeout(async () => {
-        await func.apply(window, args);
+        const result = func.apply(window, args);
+
+        if (result instanceof Promise) {
+          await result;
+        }
+
         if (resolveFn) {
           resolveFn();
           resolveFn = null;

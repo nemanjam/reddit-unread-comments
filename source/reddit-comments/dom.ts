@@ -321,7 +321,8 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
   }
 
   // reduce db size here, before adding new thread
-  // await limitIndexedDBSize(db);
+  // todo: fix this
+  await limitIndexedDBSize(db);
 
   // add new thread if it doesn't exist
   const newThread = await addThread(db, {

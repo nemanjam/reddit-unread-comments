@@ -45,6 +45,9 @@ export const scrollDebounceWait = 1000;
 /** Must wait for routing (change page), and load content */
 export const urlChangeDebounceWait = 2000;
 
+/** Debounce only slider onChange in form. */
+export const formSubmitDebounceWait = 300;
+
 /** In realtime mode, delay to mark as read and un-highlight comments. */
 export const markAsReadDelay = 5 * 1000;
 

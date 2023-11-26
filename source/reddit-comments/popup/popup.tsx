@@ -17,9 +17,13 @@ import {
   resetSettings,
   updateSettings,
 } from '../database/models/settings';
+import useIsMounting from './useIsMounting';
+import { formSubmitDebounceWait } from '../constants';
+import { debounce } from '../utils';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
+  const { isMounting } = useIsMounting();
 
   const form = useForm<SettingsData>({
     mode: 'onChange',
@@ -49,6 +53,11 @@ const Popup: FC = () => {
     await updateSettings(db, settingsData);
   };
 
+  const debouncedHandleSubmit = debounce(
+    () => handleSubmit(onSubmit)(),
+    formSubmitDebounceWait
+  );
+
   const handleResetDb = async () => {
     const radioValue = getValues('resetDb');
 
@@ -71,8 +80,12 @@ const Popup: FC = () => {
   return (
     <Theme radius="medium">
       <Container id="popup" p="4">
-        <form onChange={handleSubmit(onSubmit)}>
-          <SectionTime form={form} onSubmit={onSubmit} />
+        <form onChange={debouncedHandleSubmit}>
+          <SectionTime
+            form={form}
+            handleSubmit={debouncedHandleSubmit}
+            isPopupMounting={isMounting}
+          />
           <Separator size="4" my="4" />
           <Flex>
             <SectionUnHighlight form={form} />

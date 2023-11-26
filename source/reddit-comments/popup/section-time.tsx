@@ -6,6 +6,7 @@ import { SettingsData, TimeScaleType } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
 import useIsMounting from './useIsMounting';
+import { AnyFunction } from '../utils';
 
 export interface SliderProps {
   max: number;
@@ -15,11 +16,12 @@ export interface SliderProps {
 
 type Props = {
   form: UseFormReturn<SettingsData>;
-  onSubmit: (settingsData: SettingsData) => Promise<void>;
+  handleSubmit: AnyFunction;
+  isPopupMounting: boolean;
 };
 
-const SectionTime: FC<Props> = ({ form, onSubmit }) => {
-  const { control, watch, setValue, handleSubmit } = form;
+const SectionTime: FC<Props> = ({ form, handleSubmit, isPopupMounting }) => {
+  const { control, watch, setValue } = form;
 
   const timeScale = watch('timeScale');
   const timeSlider = watch('timeSlider');
@@ -29,32 +31,34 @@ const SectionTime: FC<Props> = ({ form, onSubmit }) => {
   const prevIsDisabledSection = usePrevious(isDisabledSection);
   const prevTimeScale = usePrevious(timeScale);
 
-  const { isMounting } = useIsMounting();
-
   // reset slider and radio on switch false
   useEffect(() => {
     // on transition only
-    if (!isMounting && isDisabledSection && prevIsDisabledSection !== isDisabledSection) {
+    if (
+      !isPopupMounting &&
+      isDisabledSection &&
+      prevIsDisabledSection !== isDisabledSection
+    ) {
       setValue('timeSlider', defaultValues.timeSlider);
       setValue('timeScale', defaultValues.timeScale);
       // persist to db
-      handleSubmit(onSubmit)();
+      handleSubmit();
     }
-  }, [isMounting, isDisabledSection, prevIsDisabledSection]);
+  }, [isPopupMounting, isDisabledSection, prevIsDisabledSection]);
 
   // reset slider on radio change
   // todo: triggered onMount too and overrides db
   // todo: skip on popup close
   // this resets, has transition, needs additional check condition
   useEffect(() => {
-    if (!isMounting && prevTimeScale !== timeScale)
+    if (!isPopupMounting && prevTimeScale !== timeScale)
       setValue(
         'timeSlider',
         defaultValues.timeSlider // should set to 0 and save to db
       );
     // persist to db
-    handleSubmit(onSubmit)();
-  }, [isMounting, timeScale, prevTimeScale]);
+    handleSubmit();
+  }, [isPopupMounting, timeScale, prevTimeScale]);
 
   const getSliderPropsFromScale = (timeScale: TimeScaleType): SliderProps => {
     const sliderPropsMap = {
