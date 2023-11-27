@@ -120,7 +120,10 @@ const getFilteredNewerCommentsByDate = (
 };
 
 /** Works only with DOM elements, no database. */
-const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Date) => {
+export const highlightByDate = (
+  commentElements: NodeListOf<HTMLElement>,
+  newerThan: Date
+) => {
   const commentsArray = Array.from(commentElements);
   const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
   const filteredCommentsIds = filteredComments.map((commentElement) => commentElement.id);

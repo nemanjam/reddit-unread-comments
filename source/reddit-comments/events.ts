@@ -14,7 +14,8 @@ import {
 } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import { truncateDatabase } from './database/limit-size';
-import { MyMessageType } from './message';
+import { messageTypes, MyMessageType } from './message';
+import { radioAndSliderToDate } from './datetime';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -91,4 +92,17 @@ export const attachAllEventHandlers = async () => {
 
 browser.runtime.onMessage.addListener((message: MyMessageType) => {
   console.log('Content script received message:', message);
+
+  const { type, payload } = message;
+
+  switch (type) {
+    case messageTypes.HIGHLIGHT_ON_TIME:
+      const dateInPast = radioAndSliderToDate(payload);
+      // trigger url change with arg
+
+      break;
+
+    default:
+      break;
+  }
 });

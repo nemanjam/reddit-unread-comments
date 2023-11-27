@@ -1,5 +1,6 @@
-import { sub } from 'date-fns';
-import { SettingsData } from './database/schema';
+import { sub, isToday, startOfDay } from 'date-fns';
+
+import { SettingsData, TimeScaleType } from './database/schema';
 import { MyUnparsableDateException } from './exceptions';
 
 type TimeUnit =
@@ -66,9 +67,40 @@ export const getDateHoursAgo = (hours: number) => sub(new Date(), { hours });
 
 export type SettingsDataHighlight = Pick<SettingsData, 'timeScale' | 'timeSlider'>;
 
-export const radioAndSliderToDate = (
+export const radioAndSliderToDate1 = (
   settingsDataHighlight: SettingsDataHighlight
 ): Date => {
   // todo: implement this
   return new Date();
+};
+
+export interface SliderProps {
+  max: number;
+  step: number;
+  unit: string;
+}
+
+export const getSliderPropsFromScale = (timeScale: TimeScaleType): SliderProps => {
+  const sliderPropsMap = {
+    '1h': { max: 60, step: 1, unit: 'min' },
+    '6h': { max: 6, step: 1, unit: 'h' },
+    '1 day': { max: 24, step: 1, unit: 'h' },
+    '1 week': { max: 7, step: 1, unit: 'days' },
+    '1 month': { max: 30, step: 1, unit: 'days' },
+    '1 year': { max: 12, step: 1, unit: 'months' },
+    '10 years': { max: 10, step: 1, unit: 'years' },
+  } as const;
+
+  return sliderPropsMap[timeScale];
+};
+
+export const radioAndSliderToDate = (
+  settingsDataHighlight: SettingsDataHighlight
+): Date => {
+  const { timeScale, timeSlider } = settingsDataHighlight;
+  const { unit } = getSliderPropsFromScale(timeScale);
+
+  const pastDate = sub(new Date(), { [unit]: timeSlider });
+
+  return pastDate;
 };

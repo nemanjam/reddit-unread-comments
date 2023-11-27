@@ -7,12 +7,7 @@ import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
 import useIsMounting from './useIsMounting';
 import { AnyFunction } from '../utils';
-
-export interface SliderProps {
-  max: number;
-  step: number;
-  unit: string;
-}
+import { getSliderPropsFromScale } from '../datetime';
 
 type Props = {
   form: UseFormReturn<SettingsData>;
@@ -59,19 +54,6 @@ const SectionTime: FC<Props> = ({ form, handleSubmit, isPopupMounting }) => {
     // persist to db
     handleSubmit();
   }, [isPopupMounting, timeScale, prevTimeScale]);
-
-  const getSliderPropsFromScale = (timeScale: TimeScaleType): SliderProps => {
-    const sliderPropsMap = {
-      '1h': { max: 60, step: 1, unit: 'min' },
-      '6h': { max: 6, step: 1, unit: 'h' },
-      '1 day': { max: 24, step: 1, unit: 'h' },
-      '1 week': { max: 7, step: 1, unit: 'days' },
-      '1 month': { max: 30, step: 1, unit: 'days' },
-      '1 year': { max: 12, step: 1, unit: 'months' },
-      '10 years': { max: 10, step: 1, unit: 'years' },
-    };
-    return sliderPropsMap[timeScale];
-  };
 
   const { max, step, unit } = getSliderPropsFromScale(timeScale);
 
