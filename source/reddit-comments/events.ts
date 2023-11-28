@@ -99,7 +99,7 @@ browser.runtime.onMessage.addListener((message: MyMessageType) => {
     case messageTypes.HIGHLIGHT_ON_TIME:
       const dateInPast = radioAndSliderToDate(payload);
       // trigger url change with arg
-
+      // read settings data from database
       break;
 
     default:
