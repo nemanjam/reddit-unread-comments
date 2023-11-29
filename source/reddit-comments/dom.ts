@@ -345,7 +345,12 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
   const threadIdFromDom = getThreadIdFromDom();
 
   const db = await openDatabase();
-  const existingThread = await getThread(db, threadIdFromDom);
+  const existingThread = await getThread(db, threadIdFromDom).catch((error) =>
+    console.log(
+      `First run, thread with threadIdFromDom:${threadIdFromDom} not found.`,
+      error
+    )
+  );
 
   if (existingThread) {
     const { threadId, updatedAt } = existingThread;

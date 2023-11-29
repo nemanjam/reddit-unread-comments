@@ -1,42 +1,14 @@
 import { dbSizeLimit, dbTargetSize } from '../constants';
+import { MyDeleteModelFailedDBException } from '../exceptions';
 import { sizeInMBString } from '../utils';
 import { openDatabase, Thread, Comment, ThreadData, Settings } from './schema';
-
-export const truncateDatabase = async () => {
-  const db = await openDatabase();
-
-  const truncateObjectStore = (storeName: string) => {
-    return new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(storeName, 'readwrite');
-      const objectStore = transaction.objectStore(storeName);
-
-      const request = objectStore.clear();
-
-      request.onsuccess = () => resolve();
-      request.onerror = (event) => reject((event.target as IDBRequest).error);
-    });
-  };
-
-  try {
-    await truncateObjectStore(Thread.ThreadObjectStore);
-    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
-
-    await truncateObjectStore(Comment.CommentObjectStore);
-    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
-
-    await truncateObjectStore(Settings.SettingsObjectStore);
-    console.log(`Data truncated in ${Settings.SettingsObjectStore} successfully.`);
-  } catch (error) {
-    console.error('Error truncating data:', error);
-  }
-};
 
 export const deleteCommentsForThread = async (
   db: IDBDatabase,
   threadId: string
 ): Promise<void> => {
   const threadTransaction: IDBTransaction = db.transaction(
-    [Comment.CommentObjectStore],
+    Comment.CommentObjectStore,
     'readwrite'
   );
   const commentObjectStore: IDBObjectStore = threadTransaction.objectStore(
@@ -75,12 +47,12 @@ export const deleteCommentsForThread = async (
 export const deleteThreadWithComments = async (
   db: IDBDatabase,
   threadId: string
-): Promise<void> => {
+): Promise<string> => {
   // Delete comments for the thread
   await deleteCommentsForThread(db, threadId);
 
   const deleteTransaction: IDBTransaction = db.transaction(
-    [Thread.ThreadObjectStore],
+    Thread.ThreadObjectStore,
     'readwrite'
   );
   const deleteObjectStore: IDBObjectStore = deleteTransaction.objectStore(
@@ -90,10 +62,10 @@ export const deleteThreadWithComments = async (
   // Delete the thread
   const deleteRequest = deleteObjectStore.delete(threadId);
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     deleteRequest.onsuccess = () => {
       console.log(`Deleted thread with threadId: ${threadId}`);
-      resolve();
+      resolve(threadId);
     };
 
     deleteRequest.onerror = (event: Event) => {
@@ -106,7 +78,11 @@ export const deleteThreadWithComments = async (
 export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =>
   new Promise<number>((resolve, reject) => {
     const transaction = db.transaction(
-      [Thread.ThreadObjectStore, Comment.CommentObjectStore],
+      [
+        Thread.ThreadObjectStore,
+        Comment.CommentObjectStore,
+        Settings.SettingsObjectStore,
+      ],
       'readonly'
     );
     const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
@@ -148,7 +124,7 @@ export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
   }
 
   const transaction: IDBTransaction = db.transaction(
-    [Thread.ThreadObjectStore],
+    Thread.ThreadObjectStore,
     'readonly'
   );
   const threadObjectStore: IDBObjectStore = transaction.objectStore(
@@ -182,4 +158,50 @@ export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
       }
     }
   };
+};
+
+const truncateObjectStore = (db: IDBDatabase, storeName: string) => {
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(storeName, 'readwrite');
+    const objectStore = transaction.objectStore(storeName);
+
+    const request = objectStore.clear();
+
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => reject((event.target as IDBRequest).error);
+  });
+};
+
+export const truncateDatabase = async () => {
+  const db = await openDatabase();
+
+  try {
+    await truncateObjectStore(db, Thread.ThreadObjectStore);
+    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
+
+    await truncateObjectStore(db, Comment.CommentObjectStore);
+    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+
+    await truncateObjectStore(db, Settings.SettingsObjectStore);
+    console.log(`Data truncated in ${Settings.SettingsObjectStore} successfully.`);
+  } catch (error) {
+    console.error('Error truncating data:', error);
+  }
+};
+
+export const deleteAllThreadsWithComments = async (db: IDBDatabase): Promise<boolean> => {
+  try {
+    await truncateObjectStore(db, Comment.CommentObjectStore);
+    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+
+    await truncateObjectStore(db, Thread.ThreadObjectStore);
+    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
+
+    // Success
+    return true;
+  } catch (error) {
+    throw new MyDeleteModelFailedDBException(
+      `Failed to delete all threads with comments: ${error.message}`
+    );
+  }
 };

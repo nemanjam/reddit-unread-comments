@@ -42,7 +42,11 @@ export const getThread = async (db: IDBDatabase, threadId: string): Promise<Thre
       const result = getRequest.result as ThreadData;
 
       if (!result)
-        reject(new MyModelNotFoundDBException(`Thread with id:${threadId} not found.`));
+        reject(
+          new MyModelNotFoundDBException(
+            `getThread(), Thread with threadId:${threadId} not found.`
+          )
+        );
 
       resolve(result);
     };
@@ -84,7 +88,7 @@ export const updateThread = async (
           reject((event.target as IDBRequest).error);
         };
       } else {
-        const message = `Thread with threadId: ${updatedThreadData.threadId} not found.`;
+        const message = `updateThread(), Thread with threadId: ${updatedThreadData.threadId} not found.`;
         console.error(message);
         reject(message);
       }

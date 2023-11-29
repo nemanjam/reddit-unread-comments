@@ -51,6 +51,7 @@ export class MyModelNotFoundDBException extends MyBaseException {
     super(message, 'MyModelNotFoundDBException');
   }
 }
+export class MyDeleteModelFailedDBException extends MyBaseException {}
 
 /*---------------------------- Datetime Exceptions --------------------------*/
 

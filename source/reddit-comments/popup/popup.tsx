@@ -21,6 +21,7 @@ import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
 import { applyFormToDom } from '../message';
+import { deleteAllThreadsWithComments } from '../database/limit-size';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -73,14 +74,19 @@ const Popup: FC = () => {
 
   const handleResetDb = async () => {
     const radioValue = getValues('resetDb');
+    const db = await openDatabase();
 
     switch (radioValue) {
       case 'thread':
+        // must send message for threadId
+        // deleteThreadWithComments(threadId)
         break;
       case 'all-threads':
+        const success = await deleteAllThreadsWithComments(db);
+        console.error('success', success);
+        setReloadFormIndex((prev) => prev + 1); // reset for from db
         break;
       case 'user-settings':
-        const db = await openDatabase();
         await resetSettings(db);
         setReloadFormIndex((prev) => prev + 1); // trigger useEffect
         break;
