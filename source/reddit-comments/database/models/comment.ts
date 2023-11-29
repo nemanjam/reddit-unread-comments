@@ -3,7 +3,7 @@ import { CommentData, Comment } from '../schema';
 export const getComment = async (
   db: IDBDatabase,
   commentId: string
-): Promise<CommentData | undefined> =>
+): Promise<CommentData> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(Comment.CommentObjectStore, 'readonly');
     const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);

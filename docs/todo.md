@@ -100,4 +100,4 @@ remove reddit toast
 fix limitIndexedDBSize()
     remove reset radios from db
 reset current thread and all threads
-implement radioAndSliderToDate()
+    implement radioAndSliderToDate()

@@ -1,4 +1,4 @@
-import { sub, isToday, startOfDay } from 'date-fns';
+import { sub, isToday, startOfDay, format } from 'date-fns';
 
 import { SettingsData, TimeScaleType } from './database/schema';
 import { MyUnparsableDateException } from './exceptions';
@@ -67,12 +67,8 @@ export const getDateHoursAgo = (hours: number) => sub(new Date(), { hours });
 
 export type SettingsDataHighlight = Pick<SettingsData, 'timeScale' | 'timeSlider'>;
 
-export const radioAndSliderToDate1 = (
-  settingsDataHighlight: SettingsDataHighlight
-): Date => {
-  // todo: implement this
-  return new Date();
-};
+export const formatDateEU = (date: Date): string =>
+  format(date, 'HH:mm:ss d, MMMM, yyyy.');
 
 export interface SliderProps {
   max: number;

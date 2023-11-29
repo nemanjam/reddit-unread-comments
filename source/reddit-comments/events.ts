@@ -10,12 +10,15 @@ import {
   getScrollElement,
   handleScrollDom,
   handleUrlChangeDom,
+  highlightByDateWithSettingsData,
   scrollNextCommentIntoView,
 } from './dom';
-import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
+import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import { truncateDatabase } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
 import { radioAndSliderToDate } from './datetime';
+import { openDatabase } from './database/schema';
+import { getOrCreateSettings } from './database/models/settings';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -80,26 +83,35 @@ const onUrlChange = () => {
 
 // alert('global');
 
+/** Entry point. */
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
+
+  // create database
+  const db = await openDatabase();
+  // insert default settings row
+  await getOrCreateSettings(db);
 
   // await truncateDatabase();
 
   onUrlChange();
 };
 
-/*-------------------------- Listen to messages in contentScript ------------------------*/
+/*---------------------- Listen to messages in contentScript --------------------*/
 
+//! calls db once at attach time
 browser.runtime.onMessage.addListener((message: MyMessageType) => {
   console.log('Content script received message:', message);
 
+  // payload is only useful for what is changed, data is already in db
   const { type, payload } = message;
 
   switch (type) {
     case messageTypes.HIGHLIGHT_ON_TIME:
-      const dateInPast = radioAndSliderToDate(payload);
-      // trigger url change with arg
-      // read settings data from database
+      const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+      if (!(commentElements.length > 0)) return;
+
+      highlightByDateWithSettingsData(commentElements);
       break;
 
     default:

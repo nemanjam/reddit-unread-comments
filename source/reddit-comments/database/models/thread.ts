@@ -31,10 +31,7 @@ export const addThread = async (
       console.log(`Thread with threadId: ${threadData.threadId} added successfully.`);
   });
 
-export const getThread = async (
-  db: IDBDatabase,
-  threadId: string
-): Promise<ThreadData | undefined> =>
+export const getThread = async (db: IDBDatabase, threadId: string): Promise<ThreadData> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(Thread.ThreadObjectStore, 'readonly');
     const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);

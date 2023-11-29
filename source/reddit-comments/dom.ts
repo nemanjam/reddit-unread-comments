@@ -20,7 +20,7 @@ import {
   timestampIdPrefix,
 } from './constants';
 
-import { openDatabase, ThreadData, CommentData } from './database/schema';
+import { openDatabase, ThreadData, CommentData, SettingsData } from './database/schema';
 import {
   addThread,
   getThread,
@@ -33,12 +33,18 @@ import {
 import { addComment } from './database/models/comment';
 import { limitIndexedDBSize } from './database/limit-size';
 
-import { getDateHoursAgo, relativeTimeStringToDate } from './datetime';
+import {
+  formatDateEU,
+  getDateHoursAgo,
+  radioAndSliderToDate,
+  relativeTimeStringToDate,
+} from './datetime';
 import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
 } from './validation';
 import { delayExecution, isActiveTab } from './utils';
+import { getSettings } from './database/models/settings';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => {
@@ -151,6 +157,45 @@ export const highlightByDate = (
       commentElement.classList.remove(highlightedCommentByDateClass);
     }
   });
+};
+
+export const unHighlightAllByDate = (commentElements: NodeListOf<HTMLElement>) => {
+  const highlightedElements = document.querySelectorAll<HTMLElement>(
+    `.${highlightedCommentByDateClass}`
+  );
+  if (!(highlightedElements.length > 0)) return;
+
+  commentElements.forEach((commentElement) => {
+    const hasHighlightedByDateClassAlready = commentElement.classList.contains(
+      highlightedCommentByDateClass
+    );
+
+    // un-highlighting
+    if (hasHighlightedByDateClassAlready) {
+      console.log('Removing highlight by date class.');
+      commentElement.classList.remove(highlightedCommentByDateClass);
+    }
+  });
+};
+
+export const highlightByDateWithSettingsData = async (
+  commentElements: NodeListOf<HTMLElement>
+) => {
+  const db = await openDatabase();
+  const settings = await getSettings(db);
+
+  // ! defaultSettings not updated here
+  console.log('highlightByDateWithSettingsData settings', settings);
+
+  const { isHighlightOnTime, timeScale, timeSlider } = settings;
+  if (isHighlightOnTime) {
+    const dateInPast = radioAndSliderToDate({ timeScale, timeSlider });
+    console.log('dateInPast', formatDateEU(dateInPast));
+
+    highlightByDate(commentElements, dateInPast);
+  } else {
+    unHighlightAllByDate(commentElements);
+  }
 };
 
 /**
@@ -279,9 +324,9 @@ const createLatestCommentUpdater = (initialCommentElement: HTMLElement) => {
 };
 
 const getCurrentThread = async (): Promise<ThreadData> => {
-  const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
 
+  const db = await openDatabase();
   const thread = await getThread(db, threadIdFromDom);
 
   if (!thread)
@@ -297,8 +342,9 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
   updatedComments: CommentData[];
   thread: ThreadData;
 }> => {
-  const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
+
+  const db = await openDatabase();
   const existingThread = await getThread(db, threadIdFromDom);
 
   if (existingThread) {
@@ -435,7 +481,7 @@ export const handleUrlChangeDom = async () => {
     await highlight(commentElements);
 
     // completely independent from db highlighting, can run in parallel
-    highlightByDate(commentElements, getDateHoursAgo(5));
+    highlightByDateWithSettingsData(commentElements);
   } catch (error) {
     console.error('Error handling comments onUrlChange:', error);
   }

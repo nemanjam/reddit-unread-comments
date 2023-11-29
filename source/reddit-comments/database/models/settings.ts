@@ -1,7 +1,7 @@
 import { Settings, SettingsData } from '../schema';
 
 export const defaultValues: SettingsData = {
-  isHighlightOnTime: false,
+  isHighlightOnTime: true,
   timeSlider: 0,
   timeScale: '6h',
   unHighlightOn: 'on-scroll',
@@ -107,7 +107,7 @@ export const resetSettings = async (db: IDBDatabase): Promise<SettingsData> => {
   return resetSettings;
 };
 
-export const getSettings = async (db: IDBDatabase): Promise<SettingsData | undefined> =>
+export const getSettings = async (db: IDBDatabase): Promise<SettingsData> =>
   new Promise((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readonly');
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);

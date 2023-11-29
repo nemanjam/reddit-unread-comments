@@ -13,14 +13,14 @@ import './popup.scss';
 import { openDatabase, SettingsData } from '../database/schema';
 import {
   defaultValues,
-  getOrCreateSettings,
+  getSettings,
   resetSettings,
   updateSettings,
 } from '../database/models/settings';
 import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
-import { callHighlightByDate } from '../message';
+import { applyFormToDom } from '../message';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -38,14 +38,17 @@ const Popup: FC = () => {
 
   // pre-populate form from db
   useEffect(() => {
+    //! has more bugs
     const populateFormFromDb = async () => {
-      const db = await openDatabase();
-      const settings = await getOrCreateSettings(db);
+      try {
+        const db = await openDatabase();
+        const settings = await getSettings(db);
 
-      if (settings) {
         console.error('populated settings', settings);
         // resetDb is not persisted in db
         reset({ ...settings, resetDb: defaultValues.resetDb });
+      } catch (error) {
+        console.error('Populating settings failed, error:', error);
       }
 
       setIsLoading(false);
@@ -55,11 +58,14 @@ const Popup: FC = () => {
   }, [reloadFormIndex]);
 
   const onSubmit = async (settingsData: SettingsData) => {
-    // apply changes
-    await callHighlightByDate(settingsData);
-
+    // first update db so others can read
     const db = await openDatabase();
+    const previousSettingsData = await getSettings(db); // only correct place to get prev settings
+
     await updateSettings(db, settingsData);
+
+    // apply changes
+    await applyFormToDom(previousSettingsData, settingsData);
   };
 
   const debouncedHandleSubmit = debounce(
@@ -94,7 +100,8 @@ const Popup: FC = () => {
         <form onChange={debouncedHandleSubmit}>
           <SectionTime
             form={form}
-            handleSubmit={debouncedHandleSubmit}
+            // this causes race, fix it
+            handleSubmit={handleSubmit(onSubmit)}
             isPopupMounting={isMounting}
           />
           <Separator size="4" my="4" />

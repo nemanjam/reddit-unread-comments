@@ -44,12 +44,12 @@ export const detectChanges = (object1: SettingsData, object2: SettingsData): str
   return changes;
 };
 
-let previousSettingsData: SettingsData = defaultValues; // from db
-
 // all must run only on transitions
-// applyFormToDom
-export const callHighlightByDate = async (settingsData: SettingsData) => {
-  const changedKeys = detectChanges(settingsData, previousSettingsData);
+export const applyFormToDom = async (
+  previousSettingsData: SettingsData,
+  settingsData: SettingsData
+) => {
+  const changedKeys = detectChanges(previousSettingsData, settingsData);
 
   const sectionTimeKeys: SettingsDataKeys[] = [
     'isHighlightOnTime',
@@ -62,10 +62,6 @@ export const callHighlightByDate = async (settingsData: SettingsData) => {
     const changedProps = pickShallow(settingsData, sectionTimeKeys);
     previousSettingsData = { ...previousSettingsData, ...changedProps };
 
-    // send message, highlight on time
-    // pass radio and slider values as payload
-    // calc Date from radio and slider
-    // highlightByDate(commentElements, getDateHoursAgo(5));
     sendMessageToContentScript({
       type: messageTypes.HIGHLIGHT_ON_TIME,
       payload: changedProps,
