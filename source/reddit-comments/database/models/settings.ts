@@ -1,17 +1,24 @@
+import { MyModelNotFoundDBException } from '../../exceptions';
 import { Settings, SettingsData } from '../schema';
 
-export const defaultValues: SettingsData = {
+export const settingsId = 1 as const;
+
+export const defaultDbValues: SettingsData = {
+  id: settingsId,
   isHighlightOnTime: true,
   timeSlider: 0,
   timeScale: '6h',
   unHighlightOn: 'on-scroll',
   scrollTo: 'both',
   sortAllByNew: false,
+} as const;
+
+export const defaultValues: SettingsData = {
+  ...defaultDbValues,
   resetDb: '',
 } as const;
 
-export const settingsId = 1 as const;
-
+// todo: delete this function
 export const getOrCreateSettings = async (db: IDBDatabase) => {
   return new Promise<SettingsData>((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readwrite');
@@ -25,7 +32,7 @@ export const getOrCreateSettings = async (db: IDBDatabase) => {
       if (!existingSettings) {
         // create
         // If no settings with ID 1 exists, add a new one
-        const addRequest = settingsObjectStore.add({ id: settingsId, ...defaultValues });
+        const addRequest = settingsObjectStore.add(defaultDbValues);
 
         addRequest.onsuccess = (event) => {
           console.log('Created single Settings instance.');
@@ -113,10 +120,16 @@ export const getSettings = async (db: IDBDatabase): Promise<SettingsData> =>
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
     const getRequest = settingsObjectStore.get(settingsId);
 
+    //! error is that row isn't inserted in correct entry point
     getRequest.onsuccess = () => {
-      // omit id
-      const { id, ...settingsData } = getRequest.result;
-      resolve(settingsData as SettingsData);
+      const result = getRequest.result as SettingsData;
+      if (!result)
+        reject(
+          new MyModelNotFoundDBException(`SettingsData with id:${settingsId} not found.`)
+        );
+
+      resolve(result);
     };
+
     getRequest.onerror = () => reject(transaction.error);
   });

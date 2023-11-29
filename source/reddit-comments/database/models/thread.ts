@@ -1,4 +1,5 @@
 import { currentSessionCreatedAt } from '../../constants';
+import { MyModelNotFoundDBException } from '../../exceptions';
 import { ThreadData, Thread, CommentData, Comment } from '../schema';
 import { updateComment } from './comment';
 
@@ -37,7 +38,15 @@ export const getThread = async (db: IDBDatabase, threadId: string): Promise<Thre
     const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
     const getRequest = threadObjectStore.index(Thread.ThreadIdIndex).get(threadId);
 
-    getRequest.onsuccess = () => resolve(getRequest.result as ThreadData);
+    getRequest.onsuccess = () => {
+      const result = getRequest.result as ThreadData;
+
+      if (!result)
+        reject(new MyModelNotFoundDBException(`Thread with id:${threadId} not found.`));
+
+      resolve(result);
+    };
+
     getRequest.onerror = () => reject(transaction.error);
   });
 

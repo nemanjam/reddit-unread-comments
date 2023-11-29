@@ -48,3 +48,23 @@ id // number, autoincrement
 postId // string, unique, Post.postId and Post.threadId compose primary key
 threadId // references Thread.threadId
 
+----------
+load settings in popup exception
+```ts
+// this fails
+getRequest.onsuccess = () => {
+    resolve(getRequest.result as SettingsData);
+};
+
+// this works, actually this fails too, works only for getAll()
+//! MUST use event and not getRequest
+getRequest.onsuccess = (event) => {
+    const result = (event.target as IDBRequest).result as SettingsData;
+    resolve(result);
+};
+```
+get(id) fails always, use index(objectStore).get(id) even for id 
+zapravo sve gore je netacno, glavno je da nisam insert SettingsData row na db create
+solution:
+run settingsObjectStore.add(defaultDbValues); in schema.onupgradeneeded, runs only on schema change
+

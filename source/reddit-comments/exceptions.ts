@@ -16,9 +16,9 @@ class MyBaseDOMException extends DOMException {
 }
 
 class MyBaseException extends Error {
-  constructor(message?: string, name?: string) {
+  constructor(message = '', name = 'MyBaseError') {
     super(message);
-    this.name = name ?? 'MyBaseError';
+    this.name = name;
 
     // Check if captureStackTrace is available (Node.js)
     if (Error.captureStackTrace) {
@@ -46,7 +46,11 @@ export class MyOpenIndexedDBException extends MyBaseException {}
 
 export class MyCreateModelFailedDBException extends MyBaseException {}
 
-export class MyModelNotFoundDBException extends MyBaseException {}
+export class MyModelNotFoundDBException extends MyBaseException {
+  constructor(message = '') {
+    super(message, 'MyModelNotFoundDBException');
+  }
+}
 
 /*---------------------------- Datetime Exceptions --------------------------*/
 

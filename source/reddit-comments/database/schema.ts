@@ -1,4 +1,5 @@
 import { databaseName } from '../constants';
+import { defaultDbValues } from './models/settings';
 
 export interface ThreadData {
   id?: number;
@@ -140,6 +141,9 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   const settingsObjectStore = db.createObjectStore(Settings.SettingsObjectStore, {
     keyPath: 'id',
   });
+  //! add index for failing get(id), use index().get(id)
+  settingsObjectStore.createIndex(Settings.SettingsIdIndex, 'id', { unique: true });
+
   settingsObjectStore.createIndex(Settings.IsHighlightOnTimeIndex, 'isHighlightOnTime', {
     unique: false,
   });
@@ -156,6 +160,9 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   settingsObjectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', {
     unique: false,
   });
+
+  // insert it here, once on db create
+  settingsObjectStore.add(defaultDbValues);
 };
 
 const onSuccess = (

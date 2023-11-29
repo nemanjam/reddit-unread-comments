@@ -38,19 +38,17 @@ const Popup: FC = () => {
 
   // pre-populate form from db
   useEffect(() => {
-    //! has more bugs
     const populateFormFromDb = async () => {
       try {
         const db = await openDatabase();
         const settings = await getSettings(db);
-
         console.error('populated settings', settings);
+
         // resetDb is not persisted in db
         reset({ ...settings, resetDb: defaultValues.resetDb });
       } catch (error) {
         console.error('Populating settings failed, error:', error);
       }
-
       setIsLoading(false);
     };
 
@@ -101,7 +99,6 @@ const Popup: FC = () => {
           <SectionTime
             form={form}
             // this causes race, fix it
-            handleSubmit={handleSubmit(onSubmit)}
             isPopupMounting={isMounting}
           />
           <Separator size="4" my="4" />

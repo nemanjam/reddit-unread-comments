@@ -1,3 +1,4 @@
+import { MyModelNotFoundDBException } from '../../exceptions';
 import { CommentData, Comment } from '../schema';
 
 export const getComment = async (
@@ -9,7 +10,15 @@ export const getComment = async (
     const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
     const getRequest = commentObjectStore.index(Comment.CommentIdIndex).get(commentId);
 
-    getRequest.onsuccess = () => resolve(getRequest.result as CommentData);
+    getRequest.onsuccess = () => {
+      const result = getRequest.result as CommentData;
+
+      if (!result)
+        reject(new MyModelNotFoundDBException(`Comment with id:${commentId} not found.`));
+
+      resolve(result);
+    };
+
     getRequest.onerror = () => reject(transaction.error);
   });
 

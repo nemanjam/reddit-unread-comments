@@ -2,20 +2,17 @@ import React, { FC, useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { Flex, Text, Slider, Switch, RadioGroup } from '@radix-ui/themes';
 
-import { SettingsData, TimeScaleType } from '../database/schema';
+import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
-import useIsMounting from './useIsMounting';
-import { AnyFunction } from '../utils';
 import { getSliderPropsFromScale } from '../datetime';
 
 type Props = {
   form: UseFormReturn<SettingsData>;
-  handleSubmit: AnyFunction;
   isPopupMounting: boolean;
 };
 
-const SectionTime: FC<Props> = ({ form, handleSubmit, isPopupMounting }) => {
+const SectionTime: FC<Props> = ({ form, isPopupMounting }) => {
   const { control, watch, setValue } = form;
 
   const timeScale = watch('timeScale');
@@ -36,8 +33,6 @@ const SectionTime: FC<Props> = ({ form, handleSubmit, isPopupMounting }) => {
     ) {
       setValue('timeSlider', defaultValues.timeSlider);
       setValue('timeScale', defaultValues.timeScale);
-      // persist to db
-      handleSubmit();
     }
   }, [isPopupMounting, isDisabledSection, prevIsDisabledSection]);
 
@@ -51,8 +46,6 @@ const SectionTime: FC<Props> = ({ form, handleSubmit, isPopupMounting }) => {
         'timeSlider',
         defaultValues.timeSlider // should set to 0 and save to db
       );
-    // persist to db
-    handleSubmit();
   }, [isPopupMounting, timeScale, prevTimeScale]);
 
   const { max, step, unit } = getSliderPropsFromScale(timeScale);
