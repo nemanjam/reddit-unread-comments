@@ -20,12 +20,7 @@ import {
 import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
-import {
-  applyFormToDom,
-  messageTypes,
-  MyMessageType,
-  sendMessageFromPopupToContentScript,
-} from '../message';
+import { applyFormToDom, messageTypes, MyMessageType, sendMessage } from '../message';
 import { deleteAllThreadsWithComments, getAllDbData } from '../database/limit-size';
 
 const Popup: FC = () => {
@@ -49,9 +44,7 @@ const Popup: FC = () => {
     const populateFormFromDb = async () => {
       try {
         const message: MyMessageType = { type: messageTypes.GET_SETTINGS_DATA_FROM_DB };
-        const response: MyMessageType = await sendMessageFromPopupToContentScript(
-          message
-        );
+        const response: MyMessageType = await sendMessage(message);
 
         const settings: SettingsData = response.payload;
         reset({ ...settings, resetDb: defaultValues.resetDb });

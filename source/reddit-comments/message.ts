@@ -15,9 +15,7 @@ export const messageTypes = {
 
 export type MessageTypes = (typeof messageTypes)[keyof typeof messageTypes];
 
-export const sendMessageFromPopupToContentScript = async (
-  message: MyMessageType
-): Promise<any> => {
+export const sendMessage = async (message: MyMessageType): Promise<any> => {
   try {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true });
     const activeTab = tabs[0];
@@ -53,7 +51,7 @@ export const applyFormToDom = async (
     const changedProps = pickShallow(settingsData, sectionTimeKeys);
     previousSettingsData = { ...previousSettingsData, ...changedProps };
 
-    sendMessageFromPopupToContentScript({
+    sendMessage({
       type: messageTypes.HIGHLIGHT_ON_TIME,
       payload: changedProps,
     });
