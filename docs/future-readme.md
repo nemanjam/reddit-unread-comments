@@ -39,7 +39,7 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 - use setValue() instead of reset({...getState(), ... }) to set fields and trigger rerender
 
 ---
-- big point, indexdb scoped for domain, IndexedDB follows the same-origin policy
+- big point, indexdb scoped for domain, IndexedDB follows the same-origin policy // to, messages
 
 ```ts
 // sendResponse arg to return db data back to popup
@@ -59,3 +59,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 ```
+- indexdb wrapper https://github.com/dexie/Dexie.js
