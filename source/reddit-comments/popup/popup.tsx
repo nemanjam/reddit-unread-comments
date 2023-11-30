@@ -20,7 +20,12 @@ import {
 import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
-import { applyFormToDom } from '../message';
+import {
+  applyFormToDom,
+  messageTypes,
+  MyMessageType,
+  sendMessageFromPopupToContentScript,
+} from '../message';
 import { deleteAllThreadsWithComments, getAllDbData } from '../database/limit-size';
 
 const Popup: FC = () => {
@@ -43,11 +48,12 @@ const Popup: FC = () => {
   useEffect(() => {
     const populateFormFromDb = async () => {
       try {
-        const db = await openDatabase();
-        const settings = await getSettings(db);
-        console.error('populated settings', settings);
+        const message: MyMessageType = { type: messageTypes.GET_SETTINGS_DATA_FROM_DB };
+        const response: MyMessageType = await sendMessageFromPopupToContentScript(
+          message
+        );
 
-        // resetDb is not persisted in db
+        const settings: SettingsData = response.payload;
         reset({ ...settings, resetDb: defaultValues.resetDb });
       } catch (error) {
         console.error('Populating settings failed, error:', error);

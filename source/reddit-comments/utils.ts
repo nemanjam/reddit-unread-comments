@@ -1,4 +1,5 @@
 import { isDebug, redditThreadUrlRegex } from './constants';
+import { SettingsData, SettingsDataKeys } from './database/schema';
 
 export const debug = (...args: any[]) => {
   if (isDebug) console.log(...args);
@@ -93,4 +94,18 @@ export const pickShallow = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K>
     picked[key] = obj[key];
   });
   return picked as Pick<T, K>;
+};
+
+export const detectChanges = (object1: SettingsData, object2: SettingsData): string[] => {
+  const changes: string[] = [];
+
+  for (const _key in object1) {
+    const key = _key as SettingsDataKeys;
+
+    if (object1.hasOwnProperty(key) && object1[key] !== object2[key]) {
+      changes.push(key);
+    }
+  }
+
+  return changes;
 };

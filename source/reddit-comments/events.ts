@@ -17,6 +17,7 @@ import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './co
 import { truncateDatabase } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
 import { openDatabase } from './database/schema';
+import { getSettings } from './database/models/settings';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -95,17 +96,31 @@ export const attachAllEventHandlers = async () => {
 
 /*---------------------- Listen to messages in contentScript --------------------*/
 
-const handleMessageFromPopup = (
+const handleMessageFromPopup = async (
   request: MyMessageType,
   sender: Runtime.MessageSender,
   sendResponse: (response?: any) => void
-): Promise<any> | true | void => {
+): Promise<any> => {
   console.log('Content script received message:', request);
 
   // payload is only useful for what is changed, data is already in db
   const { type, payload } = request;
 
+  // todo: wrap with try catch
   switch (type) {
+    case messageTypes.GET_SETTINGS_DATA_FROM_DB:
+      const db = await openDatabase();
+      const settings = await getSettings(db);
+
+      const response: MyMessageType = {
+        type: messageTypes.GET_SETTINGS_DATA_FROM_DB,
+        payload: settings,
+      };
+
+      sendResponse(response); // this doesn't
+      return response; // this works
+      break;
+
     case messageTypes.HIGHLIGHT_ON_TIME:
       const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
       if (!(commentElements.length > 0)) return;
@@ -113,11 +128,16 @@ const handleMessageFromPopup = (
       highlightByDateWithSettingsData(commentElements);
       break;
 
+    case messageTypes.EXAMPLE:
+      // send back data to popup
+      sendResponse({ type: 'databaseInitialized' });
+
+      return true;
+      break;
+
     default:
       break;
   }
-
-  return true;
 };
 
 browser.runtime.onMessage.addListener(handleMessageFromPopup);
