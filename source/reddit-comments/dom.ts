@@ -352,6 +352,9 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
     )
   );
 
+  const dbData = await getAllDbData(db);
+  console.log('dbData', dbData);
+
   if (existingThread) {
     const { threadId, updatedAt } = existingThread;
     const updatedComments = await updateCommentsSessionCreatedAtForThread(
@@ -372,10 +375,6 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
       thread: existingThread,
     };
     console.log('result', result);
-
-    const dbData = await getAllDbData(db);
-    console.log('dbData', dbData);
-    console.log(`Database Name: ${db.name}, Version: ${db.version}`);
 
     return result;
   }

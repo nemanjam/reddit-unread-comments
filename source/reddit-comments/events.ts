@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser, { Runtime } from 'webextension-polyfill';
 
 import {
   debounce,
@@ -17,7 +17,6 @@ import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './co
 import { truncateDatabase } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
 import { openDatabase } from './database/schema';
-import { getOrCreateSettings } from './database/models/settings';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -88,22 +87,23 @@ export const attachAllEventHandlers = async () => {
 
   // create database
   const db = await openDatabase();
-  // insert default settings row
-  await getOrCreateSettings(db);
 
-  await truncateDatabase();
+  // await truncateDatabase();
 
   onUrlChange();
 };
 
 /*---------------------- Listen to messages in contentScript --------------------*/
 
-//! calls db once at attach time
-browser.runtime.onMessage.addListener((message: MyMessageType) => {
-  console.log('Content script received message:', message);
+const handleMessageFromPopup = (
+  request: MyMessageType,
+  sender: Runtime.MessageSender,
+  sendResponse: (response?: any) => void
+): Promise<any> | true | void => {
+  console.log('Content script received message:', request);
 
   // payload is only useful for what is changed, data is already in db
-  const { type, payload } = message;
+  const { type, payload } = request;
 
   switch (type) {
     case messageTypes.HIGHLIGHT_ON_TIME:
@@ -116,4 +116,8 @@ browser.runtime.onMessage.addListener((message: MyMessageType) => {
     default:
       break;
   }
-});
+
+  return true;
+};
+
+browser.runtime.onMessage.addListener(handleMessageFromPopup);

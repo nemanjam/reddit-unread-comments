@@ -88,10 +88,10 @@ const Popup: FC = () => {
         console.error('dbData1', JSON.stringify(dbData1, null, 2));
         console.error(`Database Name: ${db.name}, Version: ${db.version}`);
 
-        const success = await deleteAllThreadsWithComments(db);
+        // const success = await deleteAllThreadsWithComments(db);
 
-        const dbData2 = await getAllDbData(db);
-        console.error('dbData2', JSON.stringify(dbData2, null, 2));
+        // const dbData2 = await getAllDbData(db);
+        // console.error('dbData2', JSON.stringify(dbData2, null, 2));
 
         setReloadFormIndex((prev) => prev + 1); // reset for from db
         break;

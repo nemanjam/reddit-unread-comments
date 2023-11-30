@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { defaultValues } from './database/models/settings';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 import { pickShallow } from './utils';
