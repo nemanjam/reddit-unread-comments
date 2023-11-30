@@ -1,7 +1,15 @@
 import { dbSizeLimit, dbTargetSize } from '../constants';
 import { MyDeleteModelFailedDBException } from '../exceptions';
 import { sizeInMBString } from '../utils';
-import { openDatabase, Thread, Comment, ThreadData, Settings } from './schema';
+import {
+  openDatabase,
+  Thread,
+  Comment,
+  ThreadData,
+  Settings,
+  CommentData,
+  SettingsData,
+} from './schema';
 
 export const deleteCommentsForThread = async (
   db: IDBDatabase,
@@ -205,3 +213,63 @@ export const deleteAllThreadsWithComments = async (db: IDBDatabase): Promise<boo
     );
   }
 };
+
+export type DbDataType = {
+  [Thread.ThreadObjectStore]: ThreadData[];
+  [Comment.CommentObjectStore]: CommentData[];
+  [Settings.SettingsObjectStore]: SettingsData[];
+};
+
+/** Used only for debugging. */
+export const getAllDbData = (db: IDBDatabase): Promise<DbDataType> =>
+  new Promise((resolve, reject) => {
+    const allData: DbDataType = {
+      [Thread.ThreadObjectStore]: [],
+      [Comment.CommentObjectStore]: [],
+      [Settings.SettingsObjectStore]: [],
+    };
+
+    const transaction = db.transaction(
+      [
+        Thread.ThreadObjectStore,
+        Comment.CommentObjectStore,
+        Settings.SettingsObjectStore,
+      ],
+      'readonly'
+    );
+
+    // Helper function to handle cursor events
+    const handleCursor = (storeName: keyof DbDataType) => (event: Event) => {
+      const cursor: IDBCursorWithValue = (event.target as IDBRequest).result;
+      if (cursor) {
+        allData[storeName].push(cursor.value);
+        cursor.continue();
+      }
+    };
+
+    // Open cursors for Thread, Comment, and Settings object stores
+    const threadObjectStore = transaction.objectStore(Thread.ThreadObjectStore);
+    threadObjectStore.openCursor().onsuccess = handleCursor(Thread.ThreadObjectStore);
+
+    const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
+    commentObjectStore.openCursor().onsuccess = handleCursor(Comment.CommentObjectStore);
+
+    const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
+    settingsObjectStore.openCursor().onsuccess = handleCursor(
+      Settings.SettingsObjectStore
+    );
+
+    transaction.oncomplete = () => {
+      // db.close();
+      resolve(allData);
+    };
+
+    transaction.onerror = (event) => {
+      reject(
+        new Error(
+          'Error reading data from object stores: ' +
+            (event.target as IDBOpenDBRequest).error
+        )
+      );
+    };
+  });

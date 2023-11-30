@@ -101,3 +101,7 @@ fix limitIndexedDBSize()
     remove reset radios from db
 reset current thread and all threads
     implement radioAndSliderToDate()
+----
+get all db data for debug
+----
+not same db in popup and contentScript? manifest?

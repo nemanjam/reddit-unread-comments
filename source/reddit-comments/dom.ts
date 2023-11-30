@@ -31,7 +31,7 @@ import {
   getAllCommentsForThread,
 } from './database/models/thread';
 import { addComment } from './database/models/comment';
-import { limitIndexedDBSize } from './database/limit-size';
+import { getAllDbData, limitIndexedDBSize } from './database/limit-size';
 
 import {
   formatDateEU,
@@ -371,6 +371,12 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
       updatedComments,
       thread: existingThread,
     };
+    console.log('result', result);
+
+    const dbData = await getAllDbData(db);
+    console.log('dbData', dbData);
+    console.log(`Database Name: ${db.name}, Version: ${db.version}`);
+
     return result;
   }
 

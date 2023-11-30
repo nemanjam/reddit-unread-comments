@@ -21,7 +21,7 @@ import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
 import { applyFormToDom } from '../message';
-import { deleteAllThreadsWithComments } from '../database/limit-size';
+import { deleteAllThreadsWithComments, getAllDbData } from '../database/limit-size';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -36,6 +36,8 @@ const Popup: FC = () => {
   const { reset, getValues, watch, handleSubmit } = form;
 
   // console.error('getValues', getValues(), 'watch', watch());
+
+  //! CANT USE DB, write generic function to get db data
 
   // pre-populate form from db
   useEffect(() => {
@@ -82,8 +84,15 @@ const Popup: FC = () => {
         // deleteThreadWithComments(threadId)
         break;
       case 'all-threads':
+        const dbData1 = await getAllDbData(db);
+        console.error('dbData1', JSON.stringify(dbData1, null, 2));
+        console.error(`Database Name: ${db.name}, Version: ${db.version}`);
+
         const success = await deleteAllThreadsWithComments(db);
-        console.error('success', success);
+
+        const dbData2 = await getAllDbData(db);
+        console.error('dbData2', JSON.stringify(dbData2, null, 2));
+
         setReloadFormIndex((prev) => prev + 1); // reset for from db
         break;
       case 'user-settings':

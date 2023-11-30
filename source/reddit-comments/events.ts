@@ -16,7 +16,6 @@ import {
 import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import { truncateDatabase } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
-import { radioAndSliderToDate } from './datetime';
 import { openDatabase } from './database/schema';
 import { getOrCreateSettings } from './database/models/settings';
 
@@ -92,7 +91,7 @@ export const attachAllEventHandlers = async () => {
   // insert default settings row
   await getOrCreateSettings(db);
 
-  // await truncateDatabase();
+  await truncateDatabase();
 
   onUrlChange();
 };

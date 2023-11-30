@@ -37,3 +37,25 @@ https://stackoverflow.com/questions/9509002/css-transition-when-class-removed
 
 - console.log in firefox browser extension, ctrl + shift + j, console.error
 - use setValue() instead of reset({...getState(), ... }) to set fields and trigger rerender
+
+---
+- big point, indexdb scoped for domain, IndexedDB follows the same-origin policy
+
+```ts
+// sendResponse arg to return db data back to popup
+
+// contentScript.js
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getData') {
+    // Assume you have an IndexedDB instance named 'db'
+    // Perform IndexedDB operations and send the data back to the popup
+    getDataFromIndexedDB((data) => {
+      sendResponse({ data });
+    });
+
+    // Return true to indicate that you will send the response asynchronously
+    return true;
+  }
+});
+
+```
