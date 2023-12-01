@@ -24,7 +24,12 @@ import {
 } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
 import { openDatabase, SettingsDataKeys } from './database/schema';
-import { getSettings, resetSettings, updateSettings } from './database/models/settings';
+import {
+  getSettings,
+  initSettings,
+  resetSettings,
+  updateSettings,
+} from './database/models/settings';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -141,6 +146,8 @@ const handleMessageFromPopup = async (
           )
           .map(([section]) => section);
 
+        console.log('changedSections', changedSections);
+
         // handle all form sections
         // can return response only once, all return void
         switch (true) {
@@ -208,10 +215,11 @@ const onReceiveMessage = () => {
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
 
+  // await truncateDatabase();
+
   // create database
   const db = await openDatabase();
-
-  // await truncateDatabase();
+  await initSettings(db);
 
   onReceiveMessage();
   onUrlChange();

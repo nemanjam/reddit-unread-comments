@@ -5,7 +5,7 @@ export const settingsId = 1 as const;
 
 export const defaultDbValues: SettingsData = {
   id: settingsId,
-  isHighlightOnTime: true,
+  isHighlightOnTime: false,
   timeSlider: 0,
   timeScale: '6h',
   unHighlightOn: 'on-scroll',
@@ -18,49 +18,47 @@ export const defaultValues: SettingsData = {
   resetDb: '',
 } as const;
 
-// todo: delete this function
-export const getOrCreateSettings = async (db: IDBDatabase) => {
-  return new Promise<SettingsData>((resolve, reject) => {
+export const addSettings = async (
+  db: IDBDatabase,
+  settingsData: SettingsData
+): Promise<SettingsData> =>
+  new Promise<SettingsData>((resolve, reject) => {
     const transaction = db.transaction(Settings.SettingsObjectStore, 'readwrite');
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
 
-    const getRequest = settingsObjectStore.get(settingsId);
+    const addObjectRequest = settingsObjectStore.add(settingsData);
 
-    getRequest.onsuccess = () => {
-      const existingSettings = getRequest.result;
+    addObjectRequest.onsuccess = (event) => {
+      const addedSettingsId = (event.target as IDBRequest).result as number;
 
-      if (!existingSettings) {
-        // create
-        // If no settings with ID 1 exists, add a new one
-        const addRequest = settingsObjectStore.add(defaultDbValues);
+      // Retrieve the added Settings using the ID
+      const getRequest = settingsObjectStore.get(addedSettingsId);
 
-        addRequest.onsuccess = (event) => {
-          console.log('Created single Settings instance.');
-          const addedSettings = (event.target as IDBRequest).result as SettingsData;
-          resolve(addedSettings);
-        };
+      getRequest.onsuccess = (event) => {
+        const addedSettings = (event.target as IDBRequest).result as SettingsData;
+        resolve(addedSettings);
+      };
 
-        addRequest.onerror = (event) => {
-          console.error(
-            'Error initializing settings:',
-            (event.target as IDBRequest).error
-          );
-          reject((event.target as IDBRequest).error);
-        };
-      } else {
-        // get
-        resolve(existingSettings as SettingsData);
-      }
+      getRequest.onerror = () => reject(transaction.error);
     };
 
-    getRequest.onerror = (event) => {
-      console.error(
-        'Error checking existing settings:',
-        (event.target as IDBRequest).error
-      );
-      reject((event.target as IDBRequest).error);
-    };
+    addObjectRequest.onerror = () => reject(transaction.error);
+
+    transaction.oncomplete = () =>
+      console.log(`Settings with id: ${settingsData.id} added successfully.`);
   });
+
+export const initSettings = async (db: IDBDatabase): Promise<void> => {
+  console.log('Checking defaultDbSettings...');
+
+  const existingSettings = await getSettings(db).catch((error) =>
+    console.log('defaultDbSettings not found, adding settings...')
+  );
+
+  if (!existingSettings) {
+    const settingsData = await addSettings(db, defaultDbValues);
+    console.log('added defaultDbSettings', settingsData);
+  }
 };
 
 export const updateSettings = async (

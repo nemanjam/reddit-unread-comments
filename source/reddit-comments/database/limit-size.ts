@@ -260,7 +260,6 @@ export const getAllDbData = (db: IDBDatabase): Promise<DbDataType> =>
     );
 
     transaction.oncomplete = () => {
-      // db.close();
       resolve(allData);
     };
 

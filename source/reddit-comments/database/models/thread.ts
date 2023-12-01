@@ -125,10 +125,6 @@ export const getAllCommentsForThread = async (
         resolve(comments);
       }
     };
-
-    transaction.oncomplete = () => {
-      db.close();
-    };
   });
 
 /** Returns all comments for thread except comments from current session. */

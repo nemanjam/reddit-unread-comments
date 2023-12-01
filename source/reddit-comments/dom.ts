@@ -181,14 +181,9 @@ export const highlightByDateWithSettingsData = async (
   const db = await openDatabase();
   const settings = await getSettings(db);
 
-  // ! defaultSettings not updated here
-  console.log('highlightByDateWithSettingsData settings', settings);
-
   const { isHighlightOnTime, timeScale, timeSlider } = settings;
   if (isHighlightOnTime) {
     const dateInPast = radioAndSliderToDate({ timeScale, timeSlider });
-    console.log('dateInPast', formatDateEU(dateInPast));
-
     highlightByDate(commentElements, dateInPast);
   } else {
     unHighlightAllByDate(commentElements);
@@ -335,11 +330,11 @@ const getCurrentThread = async (): Promise<ThreadData> => {
   return thread;
 };
 
-export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise<{
-  isExistingThread: boolean;
-  updatedComments: CommentData[];
-  thread: ThreadData;
-}> => {
+export const updateCommentsFromPreviousSessionOrCreateThread = async (
+  debug = false
+): Promise<void> => {
+  let result = {};
+
   const threadIdFromDom = getThreadIdFromDom();
 
   const db = await openDatabase();
@@ -349,9 +344,6 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
       error
     )
   );
-
-  const dbData = await getAllDbData(db);
-  console.log('dbData', dbData);
 
   if (existingThread) {
     const { threadId, updatedAt } = existingThread;
@@ -367,35 +359,38 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (): Promise
         : 'No pending comments to update from previous session.';
     console.log(message);
 
-    const result = {
+    result = {
       isExistingThread: true,
-      updatedComments,
       thread: existingThread,
+      updatedComments,
     };
-    console.log('result', result);
+  } else {
+    // reduce db size here, before adding new thread
+    // todo: fix this
+    // await limitIndexedDBSize(db);
 
-    return result;
+    // add new thread if it doesn't exist
+    const newThread = await addThread(db, {
+      threadId: threadIdFromDom,
+      updatedAt: new Date().getTime(), // first run creates session - comment.currentCreatedAt
+    });
+
+    if (!newThread)
+      throw new MyCreateModelFailedDBException('Failed to create new Thread.');
+
+    result = {
+      isExistingThread: false,
+      thread: newThread,
+      updatedComments: [],
+    };
   }
 
-  // reduce db size here, before adding new thread
-  // todo: fix this
-  // await limitIndexedDBSize(db);
+  if (debug) {
+    console.log('updateCommentsFromPreviousSessionOrCreateThread debug result:', result);
 
-  // add new thread if it doesn't exist
-  const newThread = await addThread(db, {
-    threadId: threadIdFromDom,
-    updatedAt: new Date().getTime(), // first run creates session - comment.currentCreatedAt
-  });
-
-  if (!newThread)
-    throw new MyCreateModelFailedDBException('Failed to create new Thread.');
-
-  const result = {
-    isExistingThread: false,
-    updatedComments: [],
-    thread: newThread,
-  };
-  return result;
+    const allDbData = await getAllDbData(db);
+    console.log('allDbData', allDbData);
+  }
 };
 
 export const getHeaderHeight = () => {
@@ -500,7 +495,7 @@ export const handleUrlChangeDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    await updateCommentsFromPreviousSessionOrCreateThread();
+    await updateCommentsFromPreviousSessionOrCreateThread(true);
     await highlight(commentElements);
 
     // completely independent from db highlighting, can run in parallel

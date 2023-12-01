@@ -105,3 +105,6 @@ reset current thread and all threads
 get all db data for debug
 ----
 not same db in popup and contentScript? manifest?
+-----
+scroll to first comment thats not in viewport
+reset all highlight on settings change

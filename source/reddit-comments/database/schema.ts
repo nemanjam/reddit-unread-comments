@@ -162,6 +162,7 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   });
 
   // insert it here, once on db create
+  // on truncate leaves db without settings
   settingsObjectStore.add(defaultDbValues);
 };
 
