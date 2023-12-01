@@ -338,11 +338,8 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (
   const threadIdFromDom = getThreadIdFromDom();
 
   const db = await openDatabase();
-  const existingThread = await getThread(db, threadIdFromDom).catch((error) =>
-    console.log(
-      `First run, thread with threadIdFromDom:${threadIdFromDom} not found.`,
-      error
-    )
+  const existingThread = await getThread(db, threadIdFromDom).catch((_error) =>
+    console.log(`First run, thread with threadIdFromDom:${threadIdFromDom} not found.`)
   );
 
   if (existingThread) {
@@ -367,7 +364,7 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (
   } else {
     // reduce db size here, before adding new thread
     // todo: fix this
-    // await limitIndexedDBSize(db);
+    await limitIndexedDBSize(db);
 
     // add new thread if it doesn't exist
     const newThread = await addThread(db, {

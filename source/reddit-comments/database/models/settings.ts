@@ -51,7 +51,7 @@ export const addSettings = async (
 export const initSettings = async (db: IDBDatabase): Promise<void> => {
   console.log('Checking defaultDbSettings...');
 
-  const existingSettings = await getSettings(db).catch((error) =>
+  const existingSettings = await getSettings(db).catch((_error) =>
     console.log('defaultDbSettings not found, adding settings...')
   );
 
