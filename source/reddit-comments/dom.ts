@@ -126,10 +126,7 @@ const getFilteredNewerCommentsByDate = (
 };
 
 /** Works only with DOM elements, no database. */
-export const highlightByDate = (
-  commentElements: NodeListOf<HTMLElement>,
-  newerThan: Date
-) => {
+const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Date) => {
   const commentsArray = Array.from(commentElements);
   const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
   const filteredCommentsIds = filteredComments.map((commentElement) => commentElement.id);
@@ -159,7 +156,7 @@ export const highlightByDate = (
   });
 };
 
-export const unHighlightAllByDate = (commentElements: NodeListOf<HTMLElement>) => {
+const unHighlightAllByDate = (commentElements: NodeListOf<HTMLElement>) => {
   const highlightedElements = document.querySelectorAll<HTMLElement>(
     `.${highlightedCommentByDateClass}`
   );
@@ -178,6 +175,7 @@ export const unHighlightAllByDate = (commentElements: NodeListOf<HTMLElement>) =
   });
 };
 
+/** Only this one should be used. */
 export const highlightByDateWithSettingsData = async (
   commentElements: NodeListOf<HTMLElement>
 ) => {
@@ -472,7 +470,7 @@ export const handleScrollDom = async () => {
     else await markAsRead(commentElements);
 
     await highlight(commentElements);
-    highlightByDate(commentElements, getDateHoursAgo(5));
+    await highlightByDateWithSettingsData(commentElements);
   } catch (error) {
     console.error('Error handling comments onScroll:', error);
   }
@@ -491,7 +489,7 @@ export const handleUrlChangeDom = async () => {
     await highlight(commentElements);
 
     // completely independent from db highlighting, can run in parallel
-    highlightByDateWithSettingsData(commentElements);
+    await highlightByDateWithSettingsData(commentElements);
   } catch (error) {
     console.error('Error handling comments onUrlChange:', error);
   }

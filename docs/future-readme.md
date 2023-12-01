@@ -59,4 +59,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 ```
-- indexdb wrapper https://github.com/dexie/Dexie.js
+- messaging system popup and contentScript, without backgroundScript, indexdb sandboxed
+- indexdb wrapper https://github.com/dexie/Dexie.js , https://github.com/jakearchibald/idb#examples

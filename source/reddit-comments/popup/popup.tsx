@@ -10,18 +10,12 @@ import SectionSort from './section-sort';
 import SectionLink from './section-link';
 
 import './popup.scss';
-import { openDatabase, SettingsData } from '../database/schema';
-import {
-  defaultValues,
-  getSettings,
-  resetSettings,
-  updateSettings,
-} from '../database/models/settings';
+import { SettingsData } from '../database/schema';
+import { defaultValues } from '../database/models/settings';
 import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
-import { applyFormToDom, messageTypes, MyMessageType, sendMessage } from '../message';
-import { deleteAllThreadsWithComments, getAllDbData } from '../database/limit-size';
+import { messageTypes, MyMessageType, sendMessage } from '../message';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -33,7 +27,7 @@ const Popup: FC = () => {
     mode: 'onChange',
     defaultValues,
   });
-  const { reset, getValues, watch, handleSubmit } = form;
+  const { reset, getValues, watch, handleSubmit, resetField } = form;
 
   // console.error('getValues', getValues(), 'watch', watch());
 
@@ -46,8 +40,8 @@ const Popup: FC = () => {
         const message: MyMessageType = { type: messageTypes.GET_SETTINGS_DATA_FROM_DB };
         const response: MyMessageType = await sendMessage(message);
 
-        const settings: SettingsData = response.payload;
-        reset({ ...settings, resetDb: defaultValues.resetDb });
+        const settingsData: SettingsData = response.payload;
+        reset({ ...settingsData, resetDb: defaultValues.resetDb });
       } catch (error) {
         console.error('Populating settings failed, error:', error);
       }
@@ -58,14 +52,11 @@ const Popup: FC = () => {
   }, [reloadFormIndex]);
 
   const onSubmit = async (settingsData: SettingsData) => {
-    // first update db so others can read
-    const db = await openDatabase();
-    const previousSettingsData = await getSettings(db); // only correct place to get prev settings
-
-    await updateSettings(db, settingsData);
-
-    // apply changes
-    await applyFormToDom(previousSettingsData, settingsData);
+    const message: MyMessageType = {
+      type: messageTypes.SUBMIT_SETTINGS_DATA,
+      payload: settingsData,
+    };
+    await sendMessage(message);
   };
 
   const debouncedHandleSubmit = debounce(
@@ -75,29 +66,32 @@ const Popup: FC = () => {
 
   const handleResetDb = async () => {
     const radioValue = getValues('resetDb');
-    const db = await openDatabase();
 
     switch (radioValue) {
-      case 'thread':
-        // must send message for threadId
-        // deleteThreadWithComments(threadId)
+      case 'thread': {
+        const message: MyMessageType = {
+          type: messageTypes.RESET_THREAD_DATA,
+        };
+        await sendMessage(message);
+        resetField('resetDb');
         break;
-      case 'all-threads':
-        const dbData1 = await getAllDbData(db);
-        console.error('dbData1', JSON.stringify(dbData1, null, 2));
-        console.error(`Database Name: ${db.name}, Version: ${db.version}`);
-
-        // const success = await deleteAllThreadsWithComments(db);
-
-        // const dbData2 = await getAllDbData(db);
-        // console.error('dbData2', JSON.stringify(dbData2, null, 2));
-
-        setReloadFormIndex((prev) => prev + 1); // reset for from db
+      }
+      case 'all-threads': {
+        const message: MyMessageType = {
+          type: messageTypes.RESET_ALL_THREADS_DATA,
+        };
+        await sendMessage(message);
+        resetField('resetDb'); // reset radio only
         break;
-      case 'user-settings':
-        await resetSettings(db);
+      }
+      case 'user-settings': {
+        const message: MyMessageType = {
+          type: messageTypes.RESET_SETTINGS_DATA,
+        };
+        await sendMessage(message);
         setReloadFormIndex((prev) => prev + 1); // trigger useEffect
         break;
+      }
 
       default:
         break;

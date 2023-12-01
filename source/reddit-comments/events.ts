@@ -2,22 +2,29 @@ import browser, { Runtime } from 'webextension-polyfill';
 
 import {
   debounce,
+  detectChanges,
   hasArrivedToRedditThread,
   hasLeftRedditThread,
   isActiveTab,
 } from './utils';
 import {
   getScrollElement,
+  getThreadIdFromDom,
   handleScrollDom,
   handleUrlChangeDom,
   highlightByDateWithSettingsData,
   scrollNextCommentIntoView,
 } from './dom';
 import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './constants';
-import { truncateDatabase } from './database/limit-size';
+import {
+  deleteAllThreadsWithComments,
+  deleteThreadWithComments,
+  getAllDbData,
+  truncateDatabase,
+} from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
-import { openDatabase } from './database/schema';
-import { getSettings } from './database/models/settings';
+import { openDatabase, SettingsDataKeys } from './database/schema';
+import { getSettings, resetSettings, updateSettings } from './database/models/settings';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -80,9 +87,100 @@ const onUrlChange = () => {
   document.addEventListener('beforeunload', () => observer.disconnect());
 };
 
-// alert('global');
+/*---------------------- Listen to messages in contentScript --------------------*/
 
-/** Entry point. */
+const handleMessageFromPopup = async (
+  request: MyMessageType,
+  _sender: Runtime.MessageSender,
+  /** deprecated, just return */
+  _sendResponse: (response?: any) => void
+): Promise<any> => {
+  console.log('Content script received message:', request);
+
+  const { type, payload } = request;
+
+  try {
+    switch (type) {
+      case messageTypes.GET_SETTINGS_DATA_FROM_DB: {
+        const db = await openDatabase();
+        const settingsData = await getSettings(db);
+
+        const response: MyMessageType = {
+          type: messageTypes.GET_SETTINGS_DATA_FROM_DB,
+          payload: settingsData,
+        };
+
+        return response; // return is a new way
+      }
+
+      case messageTypes.SUBMIT_SETTINGS_DATA: {
+        const settingsData = payload;
+
+        const db = await openDatabase();
+        // only correct place to get prev settings
+        const previousSettingsData = await getSettings(db);
+        await updateSettings(db, settingsData);
+
+        const changedKeys = detectChanges(previousSettingsData, settingsData);
+        const sectionTimeKeys: SettingsDataKeys[] = [
+          'isHighlightOnTime',
+          'timeSlider',
+          'timeScale',
+        ];
+
+        const isChangedSectionTime = sectionTimeKeys.some((key) =>
+          changedKeys.includes(key)
+        );
+
+        // detect which form section is changed
+        if (isChangedSectionTime) {
+          const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+          if (!(commentElements.length > 0)) return;
+
+          // highlight on form change
+          await highlightByDateWithSettingsData(commentElements);
+        }
+
+        break; // no need for response
+      }
+
+      case messageTypes.RESET_SETTINGS_DATA: {
+        const db = await openDatabase();
+        await resetSettings(db);
+        break;
+      }
+
+      case messageTypes.RESET_ALL_THREADS_DATA: {
+        const db = await openDatabase();
+        await deleteAllThreadsWithComments(db);
+        break;
+      }
+
+      case messageTypes.RESET_THREAD_DATA: {
+        const threadIdFromDom = getThreadIdFromDom();
+
+        const db = await openDatabase();
+        deleteThreadWithComments(db, threadIdFromDom);
+        break;
+      }
+
+      default:
+        break;
+    }
+  } catch (error) {
+    console.error(`Error handling a message: ${type}.`, request);
+  }
+
+  // default no response
+  return;
+};
+
+const onReceiveMessage = () => {
+  browser.runtime.onMessage.addListener(handleMessageFromPopup);
+};
+
+/*-------------------------------- Entry point ------------------------------*/
+
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
 
@@ -91,53 +189,6 @@ export const attachAllEventHandlers = async () => {
 
   // await truncateDatabase();
 
+  onReceiveMessage();
   onUrlChange();
 };
-
-/*---------------------- Listen to messages in contentScript --------------------*/
-
-const handleMessageFromPopup = async (
-  request: MyMessageType,
-  sender: Runtime.MessageSender,
-  sendResponse: (response?: any) => void
-): Promise<any> => {
-  console.log('Content script received message:', request);
-
-  // payload is only useful for what is changed, data is already in db
-  const { type, payload } = request;
-
-  // todo: wrap with try catch
-  switch (type) {
-    case messageTypes.GET_SETTINGS_DATA_FROM_DB:
-      const db = await openDatabase();
-      const settings = await getSettings(db);
-
-      const response: MyMessageType = {
-        type: messageTypes.GET_SETTINGS_DATA_FROM_DB,
-        payload: settings,
-      };
-
-      sendResponse(response); // this doesn't
-      return response; // this works
-      break;
-
-    case messageTypes.HIGHLIGHT_ON_TIME:
-      const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
-      if (!(commentElements.length > 0)) return;
-
-      highlightByDateWithSettingsData(commentElements);
-      break;
-
-    case messageTypes.EXAMPLE:
-      // send back data to popup
-      sendResponse({ type: 'databaseInitialized' });
-
-      return true;
-      break;
-
-    default:
-      break;
-  }
-};
-
-browser.runtime.onMessage.addListener(handleMessageFromPopup);
