@@ -413,22 +413,46 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
   const db = await openDatabase();
   const settingsData = await getSettings(db);
 
+  const highlightedCommentsSelector = `.${highlightedCommentClass}`;
   const highlightedCommentsByDateSelector = `.${highlightedCommentByDateClass}`;
 
   const commentsSelectorMap = {
-    unread: allHighlightedCommentsSelector,
+    unread: highlightedCommentsSelector,
     'by-date': highlightedCommentsByDateSelector,
-    both: `${allHighlightedCommentsSelector}, ${highlightedCommentsByDateSelector}`,
+    both: `${highlightedCommentsSelector}, ${highlightedCommentsByDateSelector}`,
   };
-  const commentsSelector = commentsSelectorMap[settingsData.scrollTo];
+  const chosenCommentsSelector = commentsSelectorMap[settingsData.scrollTo];
 
-  const commentElements = document.querySelectorAll<HTMLElement>(commentsSelector);
+  const commentElements = document.querySelectorAll<HTMLElement>(chosenCommentsSelector);
 
   if (!(commentElements.length > 0)) return;
 
-  if (scrollToFirstComment || currentIndex >= commentElements.length) currentIndex = 0;
+  let commentElement: HTMLElement;
+  if (scrollToFirstComment) {
+    const firstCommentElement = document.querySelector<HTMLElement>(commentSelector);
+    if (!firstCommentElement) return;
 
-  const commentElement = commentElements[currentIndex];
+    commentElement = firstCommentElement;
+    currentIndex = 0;
+  } else {
+    // find currentIndex for first element that is not in viewport
+    for (let index = currentIndex; index < commentElements.length; index++) {
+      if (!isElementInViewport(commentElements[index])) {
+        currentIndex = index;
+        break;
+      }
+
+      // last iteration
+      if (index > commentElements.length - 2) {
+        currentIndex = 0;
+      }
+    }
+
+    commentElement = commentElements[currentIndex];
+  }
+
+  console.log('currentIndex', currentIndex);
+
   const commentRect = commentElement.getBoundingClientRect();
 
   const modalScrollContainer = document.querySelector<HTMLElement>(
@@ -454,8 +478,6 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
       behavior: 'smooth',
     });
   }
-
-  currentIndex++;
 };
 
 /** onScroll - markAsRead, highlight */

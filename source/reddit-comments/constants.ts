@@ -51,7 +51,7 @@ export const markAsReadDelay = 5 * 1000;
 
 export const highlightedCommentClass = 'ruc-highlight-comment';
 export const highlightedCommentReadClass = 'ruc-highlight-comment-read';
-/** Both read and unread. */
+/** Both read and unread. Don't use.*/
 export const allHighlightedCommentsSelector = `.${highlightedCommentClass}, .${highlightedCommentReadClass}`;
 
 export const highlightedCommentByDateClass = 'ruc-highlight-comment-by-date';
