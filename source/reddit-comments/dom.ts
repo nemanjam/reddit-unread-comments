@@ -7,7 +7,6 @@ import {
   allHighlightedCommentsSelector,
   commentSelector,
   currentSessionCreatedAt,
-  defaultUnHighlightMode,
   highlightedCommentByDateClass,
   highlightedCommentClass,
   highlightedCommentReadClass,
@@ -214,6 +213,7 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     db,
     threadIdFromDom
   );
+  const settingsData = await getSettings(db);
 
   const readCommentsPreviousSessionsIds = readCommentsPreviousSessions.map(
     (comment) => comment.commentId
@@ -247,7 +247,7 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
       commentElement.classList.add(highlightedCommentClass);
     }
 
-    if (defaultUnHighlightMode !== 'scroll') return;
+    if (settingsData.unHighlightOn !== 'on-scroll') return;
 
     // un-highlighting
     if (hasHighlightedClassAlready && isReadCommentCurrentSession) {
@@ -417,10 +417,20 @@ export const getHeaderHeight = () => {
 };
 
 let currentIndex = 0;
-export const scrollNextCommentIntoView = (scrollToFirstComment = false) => {
-  const commentElements = document.querySelectorAll<HTMLElement>(
-    allHighlightedCommentsSelector
-  );
+export const scrollNextCommentIntoView = async (scrollToFirstComment = false) => {
+  const db = await openDatabase();
+  const settingsData = await getSettings(db);
+
+  const highlightedCommentsByDateSelector = `.${highlightedCommentByDateClass}`;
+
+  const commentsSelectorMap = {
+    unread: allHighlightedCommentsSelector,
+    'by-date': highlightedCommentsByDateSelector,
+    both: `${allHighlightedCommentsSelector}, ${highlightedCommentsByDateSelector}`,
+  };
+  const commentsSelector = commentsSelectorMap[settingsData.scrollTo];
+
+  const commentElements = document.querySelectorAll<HTMLElement>(commentsSelector);
 
   if (!(commentElements.length > 0)) return;
 
@@ -465,9 +475,14 @@ export const handleScrollDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    if (defaultUnHighlightMode === 'scroll')
+    const db = await openDatabase();
+    const settingsData = await getSettings(db);
+
+    if (settingsData.unHighlightOn === 'on-scroll') {
       await delayExecution(markAsRead, markAsReadDelay, commentElements);
-    else await markAsRead(commentElements);
+    } else {
+      await markAsRead(commentElements);
+    }
 
     await highlight(commentElements);
     await highlightByDateWithSettingsData(commentElements);

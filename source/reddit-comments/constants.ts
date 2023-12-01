@@ -37,8 +37,6 @@ export const modalHeaderSelector = '#overlayScrollContainer > :first-child';
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
 
-export const defaultUnHighlightMode: 'scroll' | 'url-change' = 'scroll';
-
 /** Must reduce number of triggers on scroll */
 export const scrollDebounceWait = 1000;
 

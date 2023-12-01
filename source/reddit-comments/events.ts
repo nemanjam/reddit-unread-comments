@@ -32,11 +32,14 @@ import { getSettings, resetSettings, updateSettings } from './database/models/se
 
 /*------------------------------- onKeyDown -----------------------------*/
 
-const handleCtrlSpaceKeyDown = (event: KeyboardEvent) => {
-  if (event.ctrlKey && event.code === 'Space') scrollNextCommentIntoView();
+const handleCtrlSpaceKeyDown = async (event: KeyboardEvent) => {
+  // ctrl + shift + space -> scroll to first
+  if (event.ctrlKey && event.shiftKey && event.code === 'Space') {
+    await scrollNextCommentIntoView(true);
+    return;
+  }
 
-  if (event.ctrlKey && event.shiftKey && event.code === 'Space')
-    scrollNextCommentIntoView(true);
+  if (event.ctrlKey && event.code === 'Space') await scrollNextCommentIntoView();
 };
 
 /*-------------------------------- onScroll ------------------------------*/
@@ -89,6 +92,15 @@ const onUrlChange = () => {
 
 /*---------------------- Listen to messages in contentScript --------------------*/
 
+export const formSectionsKeys = {
+  sectionTime: ['isHighlightOnTime', 'timeSlider', 'timeScale'],
+  sectionUnHighlight: ['unHighlightOn'],
+  sectionScroll: ['scrollTo'],
+  sectionSort: ['sortAllByNew'],
+} as const;
+
+export type formSectionsKeysType = keyof typeof formSectionsKeys;
+
 const handleMessageFromPopup = async (
   request: MyMessageType,
   _sender: Runtime.MessageSender,
@@ -122,23 +134,35 @@ const handleMessageFromPopup = async (
         await updateSettings(db, settingsData);
 
         const changedKeys = detectChanges(previousSettingsData, settingsData);
-        const sectionTimeKeys: SettingsDataKeys[] = [
-          'isHighlightOnTime',
-          'timeSlider',
-          'timeScale',
-        ];
 
-        const isChangedSectionTime = sectionTimeKeys.some((key) =>
-          changedKeys.includes(key)
-        );
+        const changedSections = Object.entries(formSectionsKeys)
+          .filter(([_section, sectionKeys]) =>
+            sectionKeys.some((key: SettingsDataKeys) => changedKeys.includes(key))
+          )
+          .map(([section]) => section);
 
-        // detect which form section is changed
-        if (isChangedSectionTime) {
-          const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
-          if (!(commentElements.length > 0)) return;
+        // handle all form sections
+        // can return response only once, all return void
+        switch (true) {
+          case changedSections.includes('sectionTime'):
+            const commentElements =
+              document.querySelectorAll<HTMLElement>(commentSelector);
+            if (!(commentElements.length > 0)) return;
 
-          // highlight on form change
-          await highlightByDateWithSettingsData(commentElements);
+            // highlight on form change
+            await highlightByDateWithSettingsData(commentElements);
+            break;
+
+          // nothing, settings db is updated already
+          case changedSections.includes('sectionUnHighlight'):
+            break;
+          case changedSections.includes('sectionScroll'):
+            break;
+          case changedSections.includes('sectionSort'):
+            break;
+
+          default:
+            break;
         }
 
         break; // no need for response
