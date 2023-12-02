@@ -8,6 +8,7 @@ import {
   isActiveTab,
 } from './utils';
 import {
+  currentIndex,
   getAllComments,
   getScrollElement,
   getThreadIdFromDom,
@@ -18,7 +19,6 @@ import {
   removeHighlightByDateClass,
   removeHighlightReadClass,
   scrollNextCommentIntoView,
-  setCurrentIndex,
 } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import {
@@ -190,7 +190,7 @@ const handleMessageFromPopup = async (
 
           // ctrl + space
           case changedSections.includes('sectionScroll'): {
-            setCurrentIndex(0);
+            currentIndex.setCurrentIndex(0);
             break;
           }
           case changedSections.includes('sectionSort'):

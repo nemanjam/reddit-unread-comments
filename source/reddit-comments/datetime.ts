@@ -70,6 +70,9 @@ export type SettingsDataHighlight = Pick<SettingsData, 'timeScale' | 'timeSlider
 export const formatDateEU = (date: Date): string =>
   format(date, 'HH:mm:ss d, MMMM, yyyy.');
 
+export const formatDateForLogger = (date: Date): string =>
+  format(date, 'dd-MM-yyyy HH:mm:ss.SSSxxx');
+
 export interface SliderProps {
   max: number;
   step: number;

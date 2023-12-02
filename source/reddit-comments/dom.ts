@@ -36,12 +36,7 @@ import {
 import { addComment } from './database/models/comment';
 import { getAllDbData, limitIndexedDBSize } from './database/limit-size';
 
-import {
-  formatDateEU,
-  getDateHoursAgo,
-  radioAndSliderToDate,
-  relativeTimeStringToDate,
-} from './datetime';
+import { radioAndSliderToDate, relativeTimeStringToDate } from './datetime';
 import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
@@ -449,10 +444,25 @@ export const getHeaderHeight = () => {
   return headerHeight;
 };
 
-export let currentIndex = 0;
-export const setCurrentIndex = (value: number) => {
-  currentIndex = value;
+const createCurrentIndexUpdater = () => {
+  // state
+  let currentIndex = 0;
+
+  const getCurrentIndex = () => currentIndex;
+
+  const setCurrentIndex = (value: number) => {
+    currentIndex = value;
+  };
+
+  return {
+    getCurrentIndex,
+    setCurrentIndex,
+  };
 };
+
+/** Use only this instance. */
+export const currentIndex = createCurrentIndexUpdater();
+
 export const scrollNextCommentIntoView = async (scrollToFirstComment = false) => {
   const db = await openDatabase();
   const settingsData = await getSettings(db);
@@ -477,22 +487,26 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
     if (!firstCommentElement) return;
 
     commentElement = firstCommentElement;
-    currentIndex = 0;
+    currentIndex.setCurrentIndex(0);
   } else {
     // find currentIndex for first element that is not in viewport
-    for (let index = currentIndex; index < commentElements.length; index++) {
+    for (
+      let index = currentIndex.getCurrentIndex();
+      index < commentElements.length;
+      index++
+    ) {
       if (!isElementInViewport(commentElements[index])) {
-        currentIndex = index;
+        currentIndex.setCurrentIndex(index);
         break;
       }
 
       // last iteration
       if (index > commentElements.length - 2) {
-        currentIndex = 0;
+        currentIndex.setCurrentIndex(0);
       }
     }
 
-    commentElement = commentElements[currentIndex];
+    commentElement = commentElements[currentIndex.getCurrentIndex()];
   }
 
   const commentRect = commentElement.getBoundingClientRect();
