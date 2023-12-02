@@ -91,9 +91,9 @@ click set sort by new and delay
     prepopulate form from db settings
     db settings schema
     debounce slider onChange
-send messages from popup to contentScript
+    send messages from popup to contentScript
 limit db size is not tested
-db operacije sa settings tabelom pucaju - limit-size Promise.all([...]) and settingsObjectStore.get(settingsId) in getSettings
+    db operacije sa settings tabelom pucaju - limit-size Promise.all([...]) and settingsObjectStore.get(settingsId) in getSettings
     loader skeleton for popup
     remove reddit toast
 -------------
@@ -102,12 +102,12 @@ fix limitIndexedDBSize()
     reset current thread and all threads
     implement radioAndSliderToDate()
 ----
-get all db data for debug
+    get all db data for debug
 ----
 not same db in popup and contentScript? manifest?
 -----
     scroll to first comment thats not in viewport
-reset all highlight on settings change (css dom and event listeners)
+r   eset all highlight on settings change (css dom and event listeners)
     fix reset slider on radio and switch
 
 

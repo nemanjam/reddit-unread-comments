@@ -523,7 +523,7 @@ export const handleUrlChangeDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    await updateCommentsFromPreviousSessionOrCreateThread(true);
+    await updateCommentsFromPreviousSessionOrCreateThread();
     await highlight(commentElements);
 
     // completely independent from db highlighting, can run in parallel
