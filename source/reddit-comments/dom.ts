@@ -72,16 +72,16 @@ const getDateFromCommentId = (commentId: string): Date => {
   return date;
 };
 
-export const clickSortByNewMenuItem = async () => {
+export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   // check if its new already
   const sortMenuSpan = document.querySelector<HTMLElement>(sortMenuSpanTextSelector);
-  if (!sortMenuSpan) return;
+  if (!sortMenuSpan) return false;
 
-  if (sortMenuSpan.innerHTML.toLowerCase().includes('new')) return; // new already
+  if (sortMenuSpan.innerHTML.toLowerCase().includes('new')) return false; // new already
 
   // get menu
   const sortMenu = document.querySelector<HTMLElement>(sortMenuSelector);
-  if (!sortMenu) return;
+  if (!sortMenu) return false;
 
   sortMenu.click();
   await wait(sortMenuWait);
@@ -95,6 +95,8 @@ export const clickSortByNewMenuItem = async () => {
   });
 
   if (sortByNewMenuItem) (sortByNewMenuItem as HTMLElement).click();
+
+  return true;
 };
 
 export const hasModalScrollContainer = (): boolean => {

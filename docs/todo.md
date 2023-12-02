@@ -111,4 +111,4 @@ not same db in popup and contentScript? manifest?
     fix reset slider on radio and switch
 ---------
 threadId puca zbog modal, dodatni delay zbog new dok ucita comments
-logging
+logging switch
