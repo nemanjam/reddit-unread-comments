@@ -108,6 +108,7 @@ export const formSectionsKeys = {
   sectionUnHighlight: ['unHighlightOn'],
   sectionScroll: ['scrollTo'],
   sectionSort: ['sortAllByNew'],
+  sectionLogger: ['enableLogger'],
 } as const;
 
 export type formSectionsKeysType = keyof typeof formSectionsKeys;
@@ -193,7 +194,11 @@ const handleMessageFromPopup = async (
             currentIndex.setCurrentIndex(0);
             break;
           }
+
           case changedSections.includes('sectionSort'):
+            break;
+
+          case changedSections.includes('sectionLogger'):
             break;
 
           default:

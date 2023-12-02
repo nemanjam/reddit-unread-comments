@@ -15,6 +15,7 @@ import { defaultValues } from '../database/models/settings';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
+import SectionLogger from './section-logger';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -109,7 +110,11 @@ const Popup: FC = () => {
             <SectionScroll form={form} />
           </Flex>
           <Separator size="4" my="4" />
-          <SectionSort form={form} />
+          <Flex>
+            <SectionSort form={form} />
+            <Separator orientation="vertical" size="2" mx="4" />
+            <SectionLogger form={form} />
+          </Flex>
           <Separator size="4" my="4" />
           <SectionDatabase form={form} onResetClick={handleResetDb} />
         </form>

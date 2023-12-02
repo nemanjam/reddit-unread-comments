@@ -11,6 +11,7 @@ export const defaultDbValues: SettingsData = {
   unHighlightOn: 'on-scroll',
   scrollTo: 'both',
   sortAllByNew: false,
+  enableLogger: false,
 } as const;
 
 export const defaultValues: SettingsData = {

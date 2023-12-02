@@ -38,6 +38,7 @@ export interface SettingsData {
   unHighlightOn: UnHighlightOnType;
   scrollTo: ScrollToType;
   sortAllByNew: boolean;
+  enableLogger: boolean;
   /** not persisted in db */
   resetDb?: ResetDbType;
 }
@@ -93,6 +94,7 @@ export const Settings = {
   UnHighlightOnIndex: 'UnHighlightOnIndex',
   ScrollToIndex: 'ScrollToIndex',
   SortAllByNewIndex: 'SortAllByNewIndex',
+  EnableLoggerIndex: 'EnableLoggerIndex',
 } as const;
 
 // Create schema
@@ -160,10 +162,9 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
   settingsObjectStore.createIndex(Settings.SortAllByNewIndex, 'sortAllByNew', {
     unique: false,
   });
-
-  // insert it here, once on db create
-  // on truncate leaves db without settings
-  settingsObjectStore.add(defaultDbValues);
+  settingsObjectStore.createIndex(Settings.EnableLoggerIndex, 'enableLogger', {
+    unique: false,
+  });
 };
 
 const onSuccess = (
