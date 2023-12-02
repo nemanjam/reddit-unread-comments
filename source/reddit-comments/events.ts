@@ -8,14 +8,19 @@ import {
   isActiveTab,
 } from './utils';
 import {
+  getAllComments,
   getScrollElement,
   getThreadIdFromDom,
   handleScrollDom,
   handleUrlChangeDom,
+  highlight,
   highlightByDateWithSettingsData,
+  removeHighlightByDateClass,
+  removeHighlightReadClass,
   scrollNextCommentIntoView,
+  setCurrentIndex,
 } from './dom';
-import { commentSelector, scrollDebounceWait, urlChangeDebounceWait } from './constants';
+import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import {
   deleteAllThreadsWithComments,
   deleteThreadWithComments,
@@ -23,7 +28,7 @@ import {
   truncateDatabase,
 } from './database/limit-size';
 import { messageTypes, MyMessageType } from './message';
-import { openDatabase, SettingsDataKeys } from './database/schema';
+import { openDatabase, SettingsData, SettingsDataKeys } from './database/schema';
 import {
   getSettings,
   initSettings,
@@ -39,12 +44,13 @@ import {
 
 const handleCtrlSpaceKeyDown = async (event: KeyboardEvent) => {
   // ctrl + shift + space -> scroll to first
-  if (event.ctrlKey && event.shiftKey && event.code === 'Space') {
-    await scrollNextCommentIntoView(true);
-    return;
+  if (event.ctrlKey && event.code === 'Space') {
+    if (event.shiftKey) {
+      await scrollNextCommentIntoView(true);
+    } else {
+      await scrollNextCommentIntoView();
+    }
   }
-
-  if (event.ctrlKey && event.code === 'Space') await scrollNextCommentIntoView();
 };
 
 /*-------------------------------- onScroll ------------------------------*/
@@ -131,7 +137,7 @@ const handleMessageFromPopup = async (
       }
 
       case messageTypes.SUBMIT_SETTINGS_DATA: {
-        const settingsData = payload;
+        const settingsData: SettingsData = payload;
 
         const db = await openDatabase();
         // only correct place to get prev settings
@@ -146,25 +152,47 @@ const handleMessageFromPopup = async (
           )
           .map(([section]) => section);
 
-        console.log('changedSections', changedSections);
-
         // handle all form sections
+        // redo operations so changes are visible immediately
         // can return response only once, all return void
         switch (true) {
-          case changedSections.includes('sectionTime'):
-            const commentElements =
-              document.querySelectorAll<HTMLElement>(commentSelector);
-            if (!(commentElements.length > 0)) return;
+          case changedSections.includes('sectionTime'): {
+            const { isHighlightOnTime } = settingsData;
 
-            // highlight on form change
-            await highlightByDateWithSettingsData(commentElements);
-            break;
+            // if highlight on date re-highlight onChange
+            if (isHighlightOnTime) {
+              const commentElements = getAllComments();
 
-          // nothing, settings db is updated already
-          case changedSections.includes('sectionUnHighlight'):
+              // highlight on form change
+              await highlightByDateWithSettingsData(commentElements);
+            } else {
+              // if not un-highlight
+              removeHighlightByDateClass();
+            }
             break;
-          case changedSections.includes('sectionScroll'):
+          }
+
+          // un-highlight on-scroll or url change
+          case changedSections.includes('sectionUnHighlight'): {
+            const { unHighlightOn } = settingsData;
+
+            switch (unHighlightOn) {
+              case 'on-url-change':
+                removeHighlightReadClass();
+                break;
+              case 'on-scroll':
+                const commentElements = getAllComments();
+                await highlight(commentElements);
+                break;
+            }
             break;
+          }
+
+          // ctrl + space
+          case changedSections.includes('sectionScroll'): {
+            setCurrentIndex(0);
+            break;
+          }
           case changedSections.includes('sectionSort'):
             break;
 

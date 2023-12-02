@@ -155,23 +155,27 @@ const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Da
   });
 };
 
-const unHighlightAllByDate = (commentElements: NodeListOf<HTMLElement>) => {
-  const highlightedElements = document.querySelectorAll<HTMLElement>(
+export const removeHighlightReadClass = () => {
+  const highlightedReadElements = document.querySelectorAll<HTMLElement>(
+    `.${highlightedCommentReadClass}`
+  );
+  highlightedReadElements.forEach((commentElement) => {
+    commentElement.classList.remove(highlightedCommentReadClass);
+  });
+};
+
+export const removeHighlightByDateClass = () => {
+  const highlightedElementsByDate = document.querySelectorAll<HTMLElement>(
     `.${highlightedCommentByDateClass}`
   );
-  if (!(highlightedElements.length > 0)) return;
-
-  commentElements.forEach((commentElement) => {
-    const hasHighlightedByDateClassAlready = commentElement.classList.contains(
-      highlightedCommentByDateClass
-    );
-
-    // un-highlighting
-    if (hasHighlightedByDateClassAlready) {
-      console.log('Removing highlight by date class.');
-      commentElement.classList.remove(highlightedCommentByDateClass);
-    }
+  highlightedElementsByDate.forEach((commentElement) => {
+    commentElement.classList.remove(highlightedCommentByDateClass);
   });
+};
+
+export const getAllComments = (): NodeListOf<HTMLElement> => {
+  const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+  return commentElements;
 };
 
 /** Only this one should be used. */
@@ -180,13 +184,11 @@ export const highlightByDateWithSettingsData = async (
 ) => {
   const db = await openDatabase();
   const settings = await getSettings(db);
-
   const { isHighlightOnTime, timeScale, timeSlider } = settings;
+
   if (isHighlightOnTime) {
     const dateInPast = radioAndSliderToDate({ timeScale, timeSlider });
     highlightByDate(commentElements, dateInPast);
-  } else {
-    unHighlightAllByDate(commentElements);
   }
 };
 
@@ -195,7 +197,7 @@ export const highlightByDateWithSettingsData = async (
  * onUrlChange - creates session
  * onScroll - doesn't create session
  */
-const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
+export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
 
@@ -208,7 +210,7 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     db,
     threadIdFromDom
   );
-  const settingsData = await getSettings(db);
+  const { unHighlightOn } = await getSettings(db);
 
   const readCommentsPreviousSessionsIds = readCommentsPreviousSessions.map(
     (comment) => comment.commentId
@@ -218,12 +220,6 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   );
 
   commentElements.forEach(async (commentElement) => {
-    const hasHighlightedReadClassAlready = commentElement.classList.contains(
-      highlightedCommentReadClass
-    );
-    // handled comment already
-    if (hasHighlightedReadClassAlready) return;
-
     const commentId = validateCommentElementIdOrThrow(commentElement);
     // disjunction between all comments and read comments in db
     const isReadCommentPreviousSessions =
@@ -232,25 +228,44 @@ const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 
     if (isReadCommentPreviousSessions) return;
 
+    // state must come from db, never from dom
     const hasHighlightedClassAlready = commentElement.classList.contains(
       highlightedCommentClass
     );
+    const hasHighlightedReadClassAlready = commentElement.classList.contains(
+      highlightedCommentReadClass
+    );
 
-    // highlighting
-    if (!hasHighlightedClassAlready && !isReadCommentCurrentSession) {
-      console.log('Adding highlight class.');
-      commentElement.classList.add(highlightedCommentClass);
+    if (unHighlightOn === 'on-scroll') {
+      // highlighting
+      if (!isReadCommentCurrentSession) {
+        // check when adding or removing class to avoid double
+        if (!hasHighlightedClassAlready)
+          commentElement.classList.add(highlightedCommentClass);
+      }
+
+      // un-highlighting
+      if (isReadCommentCurrentSession) {
+        if (hasHighlightedClassAlready)
+          commentElement.classList.remove(highlightedCommentClass);
+
+        // highlighting read
+        if (!hasHighlightedReadClassAlready)
+          commentElement.classList.add(highlightedCommentReadClass);
+      }
     }
 
-    if (settingsData.unHighlightOn !== 'on-scroll') return;
+    if (unHighlightOn === 'on-url-change') {
+      // highlighting
+      if (!isReadCommentCurrentSession) {
+        if (!hasHighlightedClassAlready)
+          commentElement.classList.add(highlightedCommentClass);
+      }
 
-    // un-highlighting
-    if (hasHighlightedClassAlready && isReadCommentCurrentSession) {
-      console.log('Replacing highlight with highlight-read class.');
-      commentElement.classList.replace(
-        highlightedCommentClass,
-        highlightedCommentReadClass
-      );
+      // un-highlighting
+      // remove unconditionally
+      if (hasHighlightedReadClassAlready)
+        commentElement.classList.remove(highlightedCommentReadClass);
     }
   });
 };
@@ -408,7 +423,10 @@ export const getHeaderHeight = () => {
   return headerHeight;
 };
 
-let currentIndex = 0;
+export let currentIndex = 0;
+export const setCurrentIndex = (value: number) => {
+  currentIndex = value;
+};
 export const scrollNextCommentIntoView = async (scrollToFirstComment = false) => {
   const db = await openDatabase();
   const settingsData = await getSettings(db);
@@ -451,8 +469,6 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
     commentElement = commentElements[currentIndex];
   }
 
-  console.log('currentIndex', currentIndex);
-
   const commentRect = commentElement.getBoundingClientRect();
 
   const modalScrollContainer = document.querySelector<HTMLElement>(
@@ -489,14 +505,7 @@ export const handleScrollDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
-    const db = await openDatabase();
-    const settingsData = await getSettings(db);
-
-    if (settingsData.unHighlightOn === 'on-scroll') {
-      await delayExecution(markAsRead, markAsReadDelay, commentElements);
-    } else {
-      await markAsRead(commentElements);
-    }
+    await delayExecution(markAsRead, markAsReadDelay, commentElements); // always delay
 
     await highlight(commentElements);
     await highlightByDateWithSettingsData(commentElements);
