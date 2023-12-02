@@ -65,7 +65,7 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
 
     return db;
   } catch (error) {
-    logger.error('Error opening database:', error);
+    console.error('Error opening database:', error);
     throw error;
   }
 };
@@ -172,13 +172,13 @@ const onSuccess = (
   resolve: (value: IDBDatabase | PromiseLike<IDBDatabase>) => void,
   event: Event
 ) => {
-  logger.info('Database connected successfully.');
+  console.log('Database connected successfully.');
   const db = (event.target as IDBRequest).result as IDBDatabase;
   globalDb = db;
   resolve(db);
 };
 
 const onError = (reject: (reason?: any) => void, event: Event) => {
-  logger.error('Database connection failed.');
+  console.error('Database connection failed.');
   reject((event.target as IDBRequest).error);
 };

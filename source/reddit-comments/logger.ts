@@ -27,6 +27,7 @@ class Logger {
 
   private async checkEnableLoggerStatus(): Promise<void> {
     try {
+      // these db functions must not use logger, not created yet
       const db = await openDatabase();
       const { enableLogger } = await getSettings(db);
 
