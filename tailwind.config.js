@@ -11,4 +11,8 @@ module.exports = {
     },
   },
   plugins: [],
+  // disable base styles, fixes button position
+  corePlugins: {
+    preflight: false,
+  },
 };

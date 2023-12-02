@@ -95,7 +95,7 @@ send messages from popup to contentScript
 limit db size is not tested
 db operacije sa settings tabelom pucaju - limit-size Promise.all([...]) and settingsObjectStore.get(settingsId) in getSettings
     loader skeleton for popup
-remove reddit toast
+    remove reddit toast
 -------------
 fix limitIndexedDBSize()
     remove reset radios from db
@@ -110,4 +110,4 @@ not same db in popup and contentScript? manifest?
 reset all highlight on settings change (css dom and event listeners)
     fix reset slider on radio and switch
 
-    
+
