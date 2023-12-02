@@ -6,14 +6,16 @@ import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
 import usePrevious from './usePrevious';
 import { getSliderPropsFromScale } from '../datetime';
+import useIsMounting from './useIsMounting';
 
 type Props = {
   form: UseFormReturn<SettingsData>;
-  isPopupMounting: boolean;
 };
 
-const SectionTime: FC<Props> = ({ form, isPopupMounting }) => {
+const SectionTime: FC<Props> = ({ form }) => {
   const { control, watch, setValue } = form;
+
+  const { isMounting } = useIsMounting();
 
   const timeScale = watch('timeScale');
   const timeSlider = watch('timeSlider');
@@ -26,27 +28,20 @@ const SectionTime: FC<Props> = ({ form, isPopupMounting }) => {
   // reset slider and radio on switch false
   useEffect(() => {
     // on transition only
-    if (
-      !isPopupMounting &&
-      isDisabledSection &&
-      prevIsDisabledSection !== isDisabledSection
-    ) {
+    if (!isMounting && isDisabledSection && prevIsDisabledSection !== isDisabledSection) {
       setValue('timeSlider', defaultValues.timeSlider);
       setValue('timeScale', defaultValues.timeScale);
     }
-  }, [isPopupMounting, isDisabledSection, prevIsDisabledSection]);
+  }, [isMounting, isDisabledSection, prevIsDisabledSection]);
 
   // reset slider on radio change
-  // todo: triggered onMount too and overrides db
-  // todo: skip on popup close
-  // this resets, has transition, needs additional check condition
   useEffect(() => {
-    if (!isPopupMounting && prevTimeScale !== timeScale)
+    if (!isMounting && prevTimeScale !== timeScale)
       setValue(
         'timeSlider',
         defaultValues.timeSlider // should set to 0 and save to db
       );
-  }, [isPopupMounting, timeScale, prevTimeScale]);
+  }, [isMounting, timeScale, prevTimeScale]);
 
   const { max, step, unit } = getSliderPropsFromScale(timeScale);
 
@@ -76,7 +71,6 @@ const SectionTime: FC<Props> = ({ form, isPopupMounting }) => {
           <Slider
             onValueChange={(chValue) => onChange(chValue[0])}
             value={[value]}
-            defaultValue={[value]}
             max={max} // needs to change with radio, defaultMax too
             step={step}
             disabled={isDisabledSection}
@@ -87,7 +81,7 @@ const SectionTime: FC<Props> = ({ form, isPopupMounting }) => {
         name="timeScale"
         control={control}
         render={({ field: { onChange, value } }) => (
-          <RadioGroup.Root onValueChange={onChange} value={value} defaultValue={value}>
+          <RadioGroup.Root onValueChange={onChange} value={value}>
             <Flex gap="2">
               <Text as="label" size="2">
                 <Flex gap="2">

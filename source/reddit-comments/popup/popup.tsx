@@ -12,7 +12,6 @@ import SectionLink from './section-link';
 import './popup.scss';
 import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
-import useIsMounting from './useIsMounting';
 import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
@@ -20,8 +19,6 @@ import { messageTypes, MyMessageType, sendMessage } from '../message';
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-
-  const { isMounting } = useIsMounting();
 
   const form = useForm<SettingsData>({
     mode: 'onChange',
@@ -104,11 +101,7 @@ const Popup: FC = () => {
     <Theme radius="medium">
       <Container id="popup" p="4">
         <form onChange={debouncedHandleSubmit}>
-          <SectionTime
-            form={form}
-            // this causes race, fix it
-            isPopupMounting={isMounting}
-          />
+          <SectionTime form={form} />
           <Separator size="4" my="4" />
           <Flex>
             <SectionUnHighlight form={form} />

@@ -99,12 +99,15 @@ remove reddit toast
 -------------
 fix limitIndexedDBSize()
     remove reset radios from db
-reset current thread and all threads
+    reset current thread and all threads
     implement radioAndSliderToDate()
 ----
 get all db data for debug
 ----
 not same db in popup and contentScript? manifest?
 -----
-scroll to first comment thats not in viewport
-reset all highlight on settings change
+    scroll to first comment thats not in viewport
+reset all highlight on settings change (css dom and event listeners)
+    fix reset slider on radio and switch
+
+    

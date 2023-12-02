@@ -20,7 +20,7 @@ const SectionScroll: FC<Props> = ({ form }) => {
         name="scrollTo"
         control={control}
         render={({ field: { onChange, value } }) => (
-          <RadioGroup.Root onValueChange={onChange} value={value} defaultValue={value}>
+          <RadioGroup.Root onValueChange={onChange} value={value}>
             <Flex gap="2">
               <Text as="label" size="2">
                 <Flex gap="2">
