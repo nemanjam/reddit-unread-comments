@@ -109,3 +109,8 @@ export const detectChanges = (object1: SettingsData, object2: SettingsData): str
 
   return changes;
 };
+
+export const wait = (milliseconds: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });

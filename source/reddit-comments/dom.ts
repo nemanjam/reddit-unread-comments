@@ -14,6 +14,10 @@ import {
   modalHeaderSelector,
   modalScrollContainerSelector,
   pageHeaderSelector,
+  sortByNewMenuItemSelector,
+  sortMenuSelector,
+  sortMenuSpanTextSelector,
+  sortMenuWait,
   threadPostSelector,
   timestampIdModalSuffix,
   timestampIdPrefix,
@@ -42,7 +46,7 @@ import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
 } from './validation';
-import { delayExecution, isActiveTab } from './utils';
+import { delayExecution, isActiveTab, wait } from './utils';
 import { getSettings } from './database/models/settings';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
@@ -66,6 +70,31 @@ const getDateFromCommentId = (commentId: string): Date => {
 
   const date = relativeTimeStringToDate(timeAgo);
   return date;
+};
+
+export const clickSortByNewMenuItem = async () => {
+  // check if its new already
+  const sortMenuSpan = document.querySelector<HTMLElement>(sortMenuSpanTextSelector);
+  if (!sortMenuSpan) return;
+
+  if (sortMenuSpan.innerHTML.toLowerCase().includes('new')) return; // new already
+
+  // get menu
+  const sortMenu = document.querySelector<HTMLElement>(sortMenuSelector);
+  if (!sortMenu) return;
+
+  sortMenu.click();
+  await wait(sortMenuWait);
+
+  // get items
+  const menuItems = document.querySelectorAll<HTMLElement>(sortByNewMenuItemSelector);
+
+  let sortByNewMenuItem: HTMLElement | null = null;
+  menuItems.forEach((element) => {
+    if (element.innerHTML.toLowerCase().includes('new')) sortByNewMenuItem = element;
+  });
+
+  if (sortByNewMenuItem) (sortByNewMenuItem as HTMLElement).click();
 };
 
 export const hasModalScrollContainer = (): boolean => {
@@ -335,12 +364,7 @@ const getCurrentThread = async (): Promise<ThreadData> => {
   const threadIdFromDom = getThreadIdFromDom();
 
   const db = await openDatabase();
-  const thread = await getThread(db, threadIdFromDom);
-
-  if (!thread)
-    throw new MyModelNotFoundDBException(
-      `Thread with threadIdFromDom: ${threadIdFromDom} not found.`
-    );
+  const thread = await getThread(db, threadIdFromDom); // will throw
 
   return thread;
 };
@@ -517,6 +541,8 @@ export const handleScrollDom = async () => {
 /** updateCommentsFromPreviousSession, highlight */
 export const handleUrlChangeDom = async () => {
   if (!isActiveTab()) return;
+
+  // await clickSortByNewMenuItem();
 
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   // only root check, child functions must have commentElements array filled

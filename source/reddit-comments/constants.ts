@@ -33,6 +33,10 @@ export const modalScrollContainerSelector = '#overlayScrollContainer';
 export const pageHeaderSelector = 'header';
 export const modalHeaderSelector = '#overlayScrollContainer > :first-child';
 
+export const sortMenuSelector = '#CommentSort--SortPicker';
+export const sortMenuSpanTextSelector = '#CommentSort--SortPicker > span';
+export const sortByNewMenuItemSelector = '[role="menuitem"] > button > span';
+
 /*----------------------------------- My constants ---------------------------------*/
 
 export const isDebug = process.env.IS_DEBUG === 'true' || true;
@@ -48,6 +52,9 @@ export const formSubmitDebounceWait = 300;
 
 /** In realtime mode, delay to mark as read and un-highlight comments. */
 export const markAsReadDelay = 5 * 1000;
+
+/** Wait for sort menu to load. */
+export const sortMenuWait = 300;
 
 export const highlightedCommentClass = 'ruc-highlight-comment';
 export const highlightedCommentReadClass = 'ruc-highlight-comment-read';

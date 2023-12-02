@@ -107,7 +107,8 @@ fix limitIndexedDBSize()
 not same db in popup and contentScript? manifest?
 -----
     scroll to first comment thats not in viewport
-r   eset all highlight on settings change (css dom and event listeners)
+    reset all highlight on settings change (css dom and event listeners)
     fix reset slider on radio and switch
-
-
+---------
+threadId puca zbog modal, dodatni delay zbog new dok ucita comments
+logging
