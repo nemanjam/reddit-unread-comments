@@ -1,5 +1,6 @@
 import { currentSessionCreatedAt } from '../../constants';
 import { MyModelNotFoundDBException } from '../../exceptions';
+import logger from '../../logger';
 import { ThreadData, Thread, CommentData, Comment } from '../schema';
 import { updateComment } from './comment';
 
@@ -29,7 +30,7 @@ export const addThread = async (
 
     addObjectRequest.onerror = () => reject(transaction.error);
     transaction.oncomplete = () =>
-      console.log(`Thread with threadId: ${threadData.threadId} added successfully.`);
+      logger.info(`Thread with threadId: ${threadData.threadId} added successfully.`);
   });
 
 export const getThread = async (db: IDBDatabase, threadId: string): Promise<ThreadData> =>
@@ -77,25 +78,25 @@ export const updateThread = async (
         const updateRequest = threadObjectStore.put(mergedThread);
 
         updateRequest.onsuccess = () => {
-          console.log(
+          logger.info(
             `Thread with threadId: ${updatedThreadData.threadId} updated successfully.`
           );
           resolve(mergedThread);
         };
 
         updateRequest.onerror = (event) => {
-          console.error('Error updating thread:', (event.target as IDBRequest).error);
+          logger.error('Error updating thread:', (event.target as IDBRequest).error);
           reject((event.target as IDBRequest).error);
         };
       } else {
         const message = `updateThread(), Thread with threadId: ${updatedThreadData.threadId} not found.`;
-        console.error(message);
+        logger.error(message);
         reject(message);
       }
     };
 
     getRequest.onerror = (event) => {
-      console.error(
+      logger.error(
         'Error fetching thread for update:',
         (event.target as IDBRequest).error
       );

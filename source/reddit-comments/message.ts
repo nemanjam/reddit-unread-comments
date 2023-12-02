@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill';
+import logger from './logger';
 
 export interface MyMessageType {
   type: MessageTypes;
@@ -23,12 +24,12 @@ export const sendMessage = async (message: MyMessageType): Promise<any> => {
     if (activeTab?.id) {
       // response to popup from contentScript
       const response = await browser.tabs.sendMessage(activeTab.id, message);
-      console.log('Response from content script:', response);
+      logger.info('Response from content script:', response);
       return response;
     } else {
-      console.error('No active tab found.');
+      logger.error('No active tab found.');
     }
   } catch (error) {
-    console.error('Error sending message to content script:', error);
+    logger.error('Error sending message to content script:', error);
   }
 };

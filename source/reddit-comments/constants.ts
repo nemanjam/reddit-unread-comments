@@ -82,7 +82,7 @@ export const dbTargetSize: number = 300;
 
 // document
 //   .querySelectorAll('[data-testid="comment_timestamp"]')
-//   .forEach((el) => console.log(el.id));
+//   .forEach((el) => logger.info(el.id));
 
 // [id^="t1_"]:not([id*="-"])
 

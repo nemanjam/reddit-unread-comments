@@ -1,4 +1,5 @@
 import { MyModelNotFoundDBException } from '../../exceptions';
+import logger from '../../logger';
 import { Settings, SettingsData } from '../schema';
 
 export const settingsId = 1 as const;
@@ -46,19 +47,19 @@ export const addSettings = async (
     addObjectRequest.onerror = () => reject(transaction.error);
 
     transaction.oncomplete = () =>
-      console.log(`Settings with id: ${settingsData.id} added successfully.`);
+      logger.info(`Settings with id: ${settingsData.id} added successfully.`);
   });
 
 export const initSettings = async (db: IDBDatabase): Promise<void> => {
-  console.log('Checking defaultDbSettings...');
+  logger.info('Checking defaultDbSettings...');
 
   const existingSettings = await getSettings(db).catch((_error) =>
-    console.log('defaultDbSettings not found, adding settings...')
+    logger.info('defaultDbSettings not found, adding settings...')
   );
 
   if (!existingSettings) {
     const settingsData = await addSettings(db, defaultDbValues);
-    console.log('added defaultDbSettings', settingsData);
+    logger.info('added defaultDbSettings', settingsData);
   }
 };
 
@@ -82,24 +83,24 @@ export const updateSettings = async (
         const updateRequest = settingsObjectStore.put(updatedObject);
 
         updateRequest.onsuccess = (event) => {
-          console.log('Updated Settings instance.');
+          logger.info('Updated Settings instance.');
           const updatedSettings = (event.target as IDBRequest).result as SettingsData;
           resolve(updatedSettings);
         };
 
         updateRequest.onerror = (event) => {
-          console.error('Error updating settings:', (event.target as IDBRequest).error);
+          logger.error('Error updating settings:', (event.target as IDBRequest).error);
           reject((event.target as IDBRequest).error);
         };
       } else {
         // If no settings with ID 1 exists, you can choose to reject or create a new one
-        console.error('Settings not found for update.');
+        logger.error('Settings not found for update.');
         reject(new Error('Settings not found for update.'));
       }
     };
 
     getRequest.onerror = (event) => {
-      console.error(
+      logger.error(
         'Error checking existing settings:',
         (event.target as IDBRequest).error
       );

@@ -36,29 +36,29 @@ class Logger {
     }
   }
 
-  private log(level: LogLevel, message: string): void {
+  private log(level: LogLevel, ...args: any[]): void {
     if (!this.enableLogger) {
       return;
     }
-
+    const [message, ...restArgs] = args;
     const timestamp = formatDateForLogger(new Date());
     const logString = `[${timestamp}] [${this.logLevels[level]}]: ${message}`;
 
-    if (level === 'INFO') console.log(logString);
-    if (level === 'WARN') console.warn(logString);
-    if (level === 'ERROR') console.error(logString);
+    if (level === 'INFO') console.info(logString, ...restArgs);
+    if (level === 'WARN') console.warn(logString, ...restArgs);
+    if (level === 'ERROR') console.error(logString, ...restArgs);
   }
 
-  public info(message: string): void {
-    this.log(this.logLevels.INFO, message);
+  public info(...args: any[]): void {
+    this.log(this.logLevels.INFO, ...args);
   }
 
-  public warn(message: string): void {
-    this.log(this.logLevels.WARN, message);
+  public warn(...args: any[]): void {
+    this.log(this.logLevels.WARN, ...args);
   }
 
-  public error(message: string): void {
-    this.log(this.logLevels.ERROR, message);
+  public error(...args: any[]): void {
+    this.log(this.logLevels.ERROR, ...args);
   }
 }
 

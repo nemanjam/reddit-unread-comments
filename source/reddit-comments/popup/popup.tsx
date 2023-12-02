@@ -16,6 +16,7 @@ import { formSubmitDebounceWait } from '../constants';
 import { debounce } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';
+import logger from '../logger';
 
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
@@ -27,7 +28,7 @@ const Popup: FC = () => {
   });
   const { reset, getValues, watch, handleSubmit, resetField } = form;
 
-  // console.error('getValues', getValues(), 'watch', watch());
+  // logger.error('getValues', getValues(), 'watch', watch());
 
   //! CANT USE DB, write generic function to get db data
 
@@ -41,7 +42,7 @@ const Popup: FC = () => {
         const settingsData: SettingsData = response.payload;
         reset({ ...settingsData, resetDb: defaultValues.resetDb });
       } catch (error) {
-        console.error('Populating settings failed, error:', error);
+        logger.error('Populating settings failed, error:', error);
       }
       setIsLoading(false);
     };

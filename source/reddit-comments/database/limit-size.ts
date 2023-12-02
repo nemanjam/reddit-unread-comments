@@ -1,5 +1,6 @@
 import { dbSizeLimit, dbTargetSize } from '../constants';
 import { MyDeleteModelFailedDBException } from '../exceptions';
+import logger from '../logger';
 import { sizeInMBString } from '../utils';
 import {
   openDatabase,
@@ -32,7 +33,7 @@ export const deleteCommentsForThread = async (
 
     if (cursor) {
       const commentId: string = cursor.value.commentId;
-      console.log(`Deleting comment with commentId: ${commentId}`);
+      logger.info(`Deleting comment with commentId: ${commentId}`);
 
       cursor.delete();
       cursor.continue();
@@ -41,12 +42,12 @@ export const deleteCommentsForThread = async (
 
   return new Promise<void>((resolve, reject) => {
     threadTransaction.oncomplete = () => {
-      console.log(`Deleted comments for thread with threadId: ${threadId}`);
+      logger.info(`Deleted comments for thread with threadId: ${threadId}`);
       resolve();
     };
 
     threadTransaction.onerror = (event: Event) => {
-      console.error('Error deleting comments:', (event.target as IDBRequest).error);
+      logger.error('Error deleting comments:', (event.target as IDBRequest).error);
       reject();
     };
   });
@@ -72,12 +73,12 @@ export const deleteThreadWithComments = async (
 
   return new Promise<string>((resolve, reject) => {
     deleteRequest.onsuccess = () => {
-      console.log(`Deleted thread with threadId: ${threadId}`);
+      logger.info(`Deleted thread with threadId: ${threadId}`);
       resolve(threadId);
     };
 
     deleteRequest.onerror = (event: Event) => {
-      console.error('Error deleting thread:', (event.target as IDBRequest).error);
+      logger.error('Error deleting thread:', (event.target as IDBRequest).error);
       reject();
     };
   });
@@ -120,14 +121,14 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
 export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
   let currentSize = await getCurrentDatabaseSize(db);
 
-  console.log('Reducing database size, checking...');
+  logger.info('Reducing database size, checking...');
 
   if (currentSize <= dbSizeLimit) {
     const message = `Database reducing size is not needed, \
     currentSize: ${sizeInMBString(currentSize)} MB, \
     dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB. Exiting.`;
 
-    console.log(message);
+    logger.info(message);
     return;
   }
 
@@ -154,14 +155,14 @@ export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
       // Check the current size of the database after each deletion
       currentSize = await getCurrentDatabaseSize(db);
 
-      console.log(`Deleting threads, currentSize: ${sizeInMBString(currentSize)} MB.`);
+      logger.info(`Deleting threads, currentSize: ${sizeInMBString(currentSize)} MB.`);
 
       if (currentSize < dbTargetSize) {
         const message = `Database size reducing finished, \
     currentSize: ${sizeInMBString(currentSize)} MB \
     dbTargetSize: ${sizeInMBString(dbTargetSize)} MB.`;
 
-        console.log(message);
+        logger.info(message);
         break;
       }
     }
@@ -185,25 +186,25 @@ export const truncateDatabase = async () => {
 
   try {
     await truncateObjectStore(db, Thread.ThreadObjectStore);
-    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
+    logger.info(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
 
     await truncateObjectStore(db, Comment.CommentObjectStore);
-    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+    logger.info(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
 
     await truncateObjectStore(db, Settings.SettingsObjectStore);
-    console.log(`Data truncated in ${Settings.SettingsObjectStore} successfully.`);
+    logger.info(`Data truncated in ${Settings.SettingsObjectStore} successfully.`);
   } catch (error) {
-    console.error('Error truncating data:', error);
+    logger.error('Error truncating data:', error);
   }
 };
 
 export const deleteAllThreadsWithComments = async (db: IDBDatabase): Promise<boolean> => {
   try {
     await truncateObjectStore(db, Comment.CommentObjectStore);
-    console.log(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
+    logger.info(`Data truncated in ${Comment.CommentObjectStore} successfully.`);
 
     await truncateObjectStore(db, Thread.ThreadObjectStore);
-    console.log(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
+    logger.info(`Data truncated in ${Thread.ThreadObjectStore} successfully.`);
 
     // Success
     return true;

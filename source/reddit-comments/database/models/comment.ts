@@ -1,5 +1,6 @@
 import { MyModelNotFoundDBException } from '../../exceptions';
 import { CommentData, Comment } from '../schema';
+import logger from '../../logger';
 
 export const getComment = async (
   db: IDBDatabase,
@@ -48,7 +49,7 @@ export const addComment = async (
 
     addObjectRequest.onerror = () => reject(transaction.error);
     transaction.oncomplete = () =>
-      console.log(
+      logger.info(
         `Comment with commentId: ${commentData.commentId}, threadId: ${commentData.threadId} added successfully.`
       );
   });
@@ -76,25 +77,25 @@ export const updateComment = async (
         const updateRequest = commentObjectStore.put(mergedComment);
 
         updateRequest.onsuccess = () => {
-          console.log(
+          logger.info(
             `Comment with commentId: ${updatedCommentData.commentId} updated successfully.`
           );
           resolve(mergedComment);
         };
 
         updateRequest.onerror = (event) => {
-          console.error('Error updating comment:', (event.target as IDBRequest).error);
+          logger.error('Error updating comment:', (event.target as IDBRequest).error);
           reject((event.target as IDBRequest).error);
         };
       } else {
         const message = `Comment with commentId: ${updatedCommentData.commentId} not found.`;
-        console.error(message);
+        logger.error(message);
         reject(message);
       }
     };
 
     getRequest.onerror = (event) => {
-      console.error(
+      logger.error(
         'Error fetching comment for update:',
         (event.target as IDBRequest).error
       );

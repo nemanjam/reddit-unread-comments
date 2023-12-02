@@ -1,4 +1,5 @@
 import { databaseName } from '../constants';
+import logger from '../logger';
 import { defaultDbValues } from './models/settings';
 
 export interface ThreadData {
@@ -64,7 +65,7 @@ export const openDatabase = async (): Promise<IDBDatabase> => {
 
     return db;
   } catch (error) {
-    console.error('Error opening database:', error);
+    logger.error('Error opening database:', error);
     throw error;
   }
 };
@@ -171,13 +172,13 @@ const onSuccess = (
   resolve: (value: IDBDatabase | PromiseLike<IDBDatabase>) => void,
   event: Event
 ) => {
-  console.log('Database connected successfully.');
+  logger.info('Database connected successfully.');
   const db = (event.target as IDBRequest).result as IDBDatabase;
   globalDb = db;
   resolve(db);
 };
 
 const onError = (reject: (reason?: any) => void, event: Event) => {
-  console.error('Database connection failed.');
+  logger.error('Database connection failed.');
   reject((event.target as IDBRequest).error);
 };

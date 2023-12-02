@@ -1,10 +1,8 @@
 import {
   MyCreateModelFailedDBException,
   MyElementNotFoundDOMException,
-  MyModelNotFoundDBException,
 } from './exceptions';
 import {
-  allHighlightedCommentsSelector,
   commentSelector,
   currentSessionCreatedAt,
   highlightedCommentByDateClass,
@@ -23,7 +21,7 @@ import {
   timestampIdPrefix,
 } from './constants';
 
-import { openDatabase, ThreadData, CommentData, SettingsData } from './database/schema';
+import { openDatabase, ThreadData } from './database/schema';
 import {
   addThread,
   getThread,
@@ -43,6 +41,7 @@ import {
 } from './validation';
 import { delayExecution, isActiveTab, wait } from './utils';
 import { getSettings } from './database/models/settings';
+import logger from './logger';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => {
@@ -375,7 +374,7 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (
 
   const db = await openDatabase();
   const existingThread = await getThread(db, threadIdFromDom).catch((_error) =>
-    console.log(`First run, thread with threadIdFromDom:${threadIdFromDom} not found.`)
+    logger.info(`First run, thread with threadIdFromDom:${threadIdFromDom} not found.`)
   );
 
   if (existingThread) {
@@ -390,7 +389,7 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (
       updatedComments.length > 0
         ? `Updated ${updatedComments.length} pending comments from previous session.`
         : 'No pending comments to update from previous session.';
-    console.log(message);
+    logger.info(message);
 
     result = {
       isExistingThread: true,
@@ -419,10 +418,10 @@ export const updateCommentsFromPreviousSessionOrCreateThread = async (
   }
 
   if (debug) {
-    console.log('updateCommentsFromPreviousSessionOrCreateThread debug result:', result);
+    logger.info('updateCommentsFromPreviousSessionOrCreateThread debug result:', result);
 
     const allDbData = await getAllDbData(db);
-    console.log('allDbData', allDbData);
+    logger.info('allDbData', allDbData);
   }
 };
 
@@ -550,7 +549,7 @@ export const handleScrollDom = async () => {
     await highlight(commentElements);
     await highlightByDateWithSettingsData(commentElements);
   } catch (error) {
-    console.error('Error handling comments onScroll:', error);
+    logger.error('Error handling comments onScroll:', error);
   }
 };
 
@@ -571,6 +570,6 @@ export const handleUrlChangeDom = async () => {
     // completely independent from db highlighting, can run in parallel
     await highlightByDateWithSettingsData(commentElements);
   } catch (error) {
-    console.error('Error handling comments onUrlChange:', error);
+    logger.error('Error handling comments onUrlChange:', error);
   }
 };

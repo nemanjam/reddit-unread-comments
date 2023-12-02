@@ -35,6 +35,7 @@ import {
   resetSettings,
   updateSettings,
 } from './database/models/settings';
+import logger from './logger';
 
 /**------------------------------------------------------------------------
  *                           onUrlChange ->  onScroll
@@ -119,7 +120,7 @@ const handleMessageFromPopup = async (
   /** deprecated, just return */
   _sendResponse: (response?: any) => void
 ): Promise<any> => {
-  console.log('Content script received message:', request);
+  logger.info('Content script received message:', request);
 
   const { type, payload } = request;
 
@@ -232,7 +233,7 @@ const handleMessageFromPopup = async (
         break;
     }
   } catch (error) {
-    console.error(`Error handling a message: ${type}.`, request);
+    logger.error(`Error handling a message: ${type}.`, request);
   }
 
   // default no response

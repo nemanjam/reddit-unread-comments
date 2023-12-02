@@ -1,10 +1,6 @@
 import { isDebug, redditThreadUrlRegex } from './constants';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 
-export const debug = (...args: any[]) => {
-  if (isDebug) console.log(...args);
-};
-
 export type AnyFunction = (...args: any[]) => any;
 
 export const debounce = (func: AnyFunction, wait: number) => {
