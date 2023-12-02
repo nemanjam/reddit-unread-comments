@@ -61,3 +61,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 ```
 - messaging system popup and contentScript, without backgroundScript, indexdb sandboxed
 - indexdb wrapper https://github.com/dexie/Dexie.js , https://github.com/jakearchibald/idb#examples
+- disable tailwind preflight in extension
+

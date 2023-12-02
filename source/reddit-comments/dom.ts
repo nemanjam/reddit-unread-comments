@@ -142,15 +142,15 @@ const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Da
     // both highlight and un-highlight always, slider can change
 
     // highlighting
-    if (!hasHighlightedByDateClassAlready && isCommentNewerThan) {
-      console.log('Adding highlight by date class.');
-      commentElement.classList.add(highlightedCommentByDateClass);
+    if (isCommentNewerThan) {
+      if (!hasHighlightedByDateClassAlready)
+        commentElement.classList.add(highlightedCommentByDateClass);
     }
 
     // un-highlighting
-    if (hasHighlightedByDateClassAlready && !isCommentNewerThan) {
-      console.log('Removing highlight by date class.');
-      commentElement.classList.remove(highlightedCommentByDateClass);
+    if (!isCommentNewerThan) {
+      if (hasHighlightedByDateClassAlready)
+        commentElement.classList.remove(highlightedCommentByDateClass);
     }
   });
 };
