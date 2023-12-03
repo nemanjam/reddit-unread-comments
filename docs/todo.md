@@ -114,4 +114,4 @@ threadId puca zbog modal, dodatni delay zbog new dok ucita comments
     logging switch
 add additional debugging logging
     fix link flex grow, disable align stretch
-    dont add disable unread switch
+    add unread switch

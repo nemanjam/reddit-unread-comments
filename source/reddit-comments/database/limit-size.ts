@@ -162,8 +162,8 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
 export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
   let currentSize = await getCurrentDatabaseSize(db);
 
-  // const allData = await getAllDbData(db);
-  // logger.info('allData', allData);
+  const allData = await getAllDbData(db);
+  logger.info('allData', allData);
 
   logger.info('Reducing database size, checking...');
 

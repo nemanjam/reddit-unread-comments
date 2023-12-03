@@ -9,6 +9,7 @@ export const defaultDbValues: SettingsData = {
   isHighlightOnTime: false,
   timeSlider: 0,
   timeScale: '6h',
+  isHighlightUnread: true,
   unHighlightOn: 'on-scroll',
   scrollTo: 'both',
   sortAllByNew: false,

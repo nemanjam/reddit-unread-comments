@@ -125,15 +125,21 @@ export const getThreadIdFromDom = (): string => {
   return threadId;
 };
 
-// sync
+// sync, fix for big comments
 const isElementInViewport = (element: HTMLElement) => {
   const rect = element.getBoundingClientRect();
-  return (
+  const elementHeight = rect.bottom - rect.top;
+
+  const isInViewport =
     rect.top >= 0 &&
     rect.left >= 0 &&
     rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-  );
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth);
+
+  const isHigherThanViewport = elementHeight > window.innerHeight;
+
+  const result = isInViewport || isHigherThanViewport;
+  return result;
 };
 
 const getFilteredNewerCommentsByDate = (
@@ -150,7 +156,10 @@ const getFilteredNewerCommentsByDate = (
 };
 
 /** Works only with DOM elements, no database. */
-const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Date) => {
+const highlightByDate = (
+  commentElements: NodeListOf<HTMLElement>,
+  newerThan: Date
+): void => {
   const commentsArray = Array.from(commentElements);
   const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
   const filteredCommentsIds = filteredComments.map((commentElement) => commentElement.id);
@@ -180,6 +189,14 @@ const highlightByDate = (commentElements: NodeListOf<HTMLElement>, newerThan: Da
   });
 };
 
+export const removeHighlightClass = () => {
+  const highlightedElements = document.querySelectorAll<HTMLElement>(
+    `.${highlightedCommentClass}`
+  );
+  highlightedElements.forEach((commentElement) => {
+    commentElement.classList.remove(highlightedCommentClass);
+  });
+};
 export const removeHighlightReadClass = () => {
   const highlightedReadElements = document.querySelectorAll<HTMLElement>(
     `.${highlightedCommentReadClass}`
@@ -226,6 +243,10 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
   const threadIdFromDom = getThreadIdFromDom();
 
+  const { unHighlightOn, isHighlightUnread } = await getSettings(db);
+  // highlighting disabled
+  if (!isHighlightUnread) return;
+
   // works for both realtime and onUrlChange un-highlight, no need for getAllCommentsForThread()
   const readCommentsPreviousSessions = await getCommentsForThreadWithoutCurrentSession(
     db,
@@ -235,7 +256,6 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     db,
     threadIdFromDom
   );
-  const { unHighlightOn } = await getSettings(db);
 
   const readCommentsPreviousSessionsIds = readCommentsPreviousSessions.map(
     (comment) => comment.commentId
@@ -264,6 +284,10 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     if (unHighlightOn === 'on-scroll') {
       // highlighting
       if (!isReadCommentCurrentSession) {
+        // remove highlight read if exists
+        if (hasHighlightedReadClassAlready)
+          commentElement.classList.remove(highlightedCommentReadClass);
+
         // check when adding or removing class to avoid double
         if (!hasHighlightedClassAlready)
           commentElement.classList.add(highlightedCommentClass);
@@ -296,8 +320,12 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 };
 
 /** Mutates only database, no live DOM updates. */
-const markAsRead = async (commentElements: NodeListOf<HTMLElement>) => {
+const markAsRead = async (commentElements: NodeListOf<HTMLElement>): Promise<void> => {
   const db = await openDatabase();
+
+  const { isHighlightUnread } = await getSettings(db);
+  // marking disabled
+  if (!isHighlightUnread) return;
 
   const thread = await getCurrentThread();
   const { threadId } = thread;

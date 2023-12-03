@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Theme, Container, Separator, Flex, Text } from '@radix-ui/themes';
 
 import SectionTime from './section-time';
-import SectionUnHighlight from './section-unhighlight';
+import SectionUnread from './section-unread';
 import SectionDatabase from './section-database';
 import SectionScroll from './section-scroll';
 import SectionSort from './section-sort';
@@ -105,13 +105,13 @@ const Popup: FC = () => {
         <form onChange={debouncedHandleSubmit}>
           <SectionTime form={form} />
           <Separator size="4" my="4" />
-          <Flex>
-            <SectionUnHighlight form={form} />
-            <Separator orientation="vertical" size="3" mx="4" />
+          <Flex style={{ height: 90 }}>
+            <SectionUnread form={form} />
+            <Separator orientation="vertical" size="4" mx="4" />
             <SectionScroll form={form} />
           </Flex>
           <Separator size="4" my="4" />
-          <Flex>
+          <Flex align="center">
             <SectionSort form={form} />
             <Separator orientation="vertical" size="2" mx="4" />
             <SectionLogger form={form} />

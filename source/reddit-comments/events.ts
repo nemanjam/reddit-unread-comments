@@ -17,8 +17,10 @@ import {
   highlight,
   highlightByDateWithSettingsData,
   removeHighlightByDateClass,
+  removeHighlightClass,
   removeHighlightReadClass,
   scrollNextCommentIntoView,
+  updateCommentsFromPreviousSessionOrCreateThread,
 } from './dom';
 import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
 import {
@@ -106,7 +108,7 @@ const onUrlChange = () => {
 
 export const formSectionsKeys = {
   sectionTime: ['isHighlightOnTime', 'timeSlider', 'timeScale'],
-  sectionUnHighlight: ['unHighlightOn'],
+  sectionUnread: ['isHighlightUnread', 'unHighlightOn'],
   sectionScroll: ['scrollTo'],
   sectionSort: ['sortAllByNew'],
   sectionLogger: ['enableLogger'],
@@ -175,8 +177,19 @@ const handleMessageFromPopup = async (
           }
 
           // un-highlight on-scroll or url change
-          case changedSections.includes('sectionUnHighlight'): {
-            const { unHighlightOn } = settingsData;
+          case changedSections.includes('sectionUnread'): {
+            const { unHighlightOn, isHighlightUnread } = settingsData;
+
+            if (changedKeys.includes('isHighlightUnread')) {
+              if (isHighlightUnread === true) {
+                const commentElements = getAllComments();
+                await highlight(commentElements);
+              } else {
+                // disable main highlight
+                removeHighlightClass();
+                removeHighlightReadClass();
+              }
+            }
 
             switch (unHighlightOn) {
               case 'on-url-change':
@@ -218,6 +231,11 @@ const handleMessageFromPopup = async (
       case messageTypes.RESET_ALL_THREADS_DATA: {
         const db = await openDatabase();
         await deleteAllThreadsWithComments(db);
+
+        // reset current thread
+        await updateCommentsFromPreviousSessionOrCreateThread();
+        const commentElements = getAllComments();
+        await highlight(commentElements);
         break;
       }
 
@@ -225,7 +243,12 @@ const handleMessageFromPopup = async (
         const threadIdFromDom = getThreadIdFromDom();
 
         const db = await openDatabase();
-        deleteThreadWithComments(db, threadIdFromDom);
+        await deleteThreadWithComments(db, threadIdFromDom);
+
+        // reset current thread
+        await updateCommentsFromPreviousSessionOrCreateThread();
+        const commentElements = getAllComments();
+        await highlight(commentElements);
         break;
       }
 

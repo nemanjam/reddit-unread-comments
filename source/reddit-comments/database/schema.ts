@@ -1,6 +1,4 @@
 import { databaseName } from '../constants';
-import logger from '../logger';
-import { defaultDbValues } from './models/settings';
 
 export interface ThreadData {
   id?: number;
@@ -36,6 +34,7 @@ export interface SettingsData {
   isHighlightOnTime: boolean;
   timeSlider: number;
   timeScale: TimeScaleType;
+  isHighlightUnread: boolean;
   unHighlightOn: UnHighlightOnType;
   scrollTo: ScrollToType;
   sortAllByNew: boolean;
@@ -92,6 +91,7 @@ export const Settings = {
   IsHighlightOnTimeIndex: 'IsHighlightOnTimeIndex',
   TimeSliderIndex: 'TimeSliderIndex',
   TimeScaleIndex: 'TimeScaleIndex',
+  IsHighlightUnreadIndex: 'IsHighlightUnreadIndex',
   UnHighlightOnIndex: 'UnHighlightOnIndex',
   ScrollToIndex: 'ScrollToIndex',
   SortAllByNewIndex: 'SortAllByNewIndex',
@@ -154,6 +154,9 @@ const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
     unique: false,
   });
   settingsObjectStore.createIndex(Settings.TimeScaleIndex, 'timeScale', {
+    unique: false,
+  });
+  settingsObjectStore.createIndex(Settings.IsHighlightUnreadIndex, 'isHighlightUnread', {
     unique: false,
   });
   settingsObjectStore.createIndex(Settings.UnHighlightOnIndex, 'unHighlightOn', {
