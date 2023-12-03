@@ -6,8 +6,10 @@ import {
   hasArrivedToRedditThread,
   hasLeftRedditThread,
   isActiveTab,
+  wait,
 } from './utils';
 import {
+  clickSortByNewMenuItem,
   currentIndex,
   getAllComments,
   getScrollElement,
@@ -22,7 +24,11 @@ import {
   scrollNextCommentIntoView,
   updateCommentsFromPreviousSessionOrCreateThread,
 } from './dom';
-import { scrollDebounceWait, urlChangeDebounceWait } from './constants';
+import {
+  scrollDebounceWait,
+  urlChangeDebounceWait,
+  waitAfterSortByNew,
+} from './constants';
 import {
   deleteAllThreadsWithComments,
   deleteThreadWithComments,
@@ -210,6 +216,17 @@ const handleMessageFromPopup = async (
           }
 
           case changedSections.includes('sectionSort'):
+            const { sortAllByNew } = settingsData;
+            if (sortAllByNew) {
+              const hasSorted = await clickSortByNewMenuItem();
+              if (hasSorted) {
+                await wait(waitAfterSortByNew);
+
+                const commentElements = getAllComments();
+                await highlightByDateWithSettingsData(commentElements);
+                await highlight(commentElements);
+              }
+            }
             break;
 
           case changedSections.includes('sectionLogger'):

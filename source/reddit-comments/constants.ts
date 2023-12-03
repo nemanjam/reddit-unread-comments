@@ -46,6 +46,7 @@ export const scrollDebounceWait = 1000;
 
 /** Must wait for routing (change page), and load content */
 export const urlChangeDebounceWait = 2000;
+export const waitAfterSortByNew = 2000;
 
 /** Debounce only slider onChange in form. */
 export const formSubmitDebounceWait = 300;
@@ -68,8 +69,8 @@ export const databaseName = 'reddit-unread-comments-db';
 /** 2 * 10**12 */
 export const currentSessionCreatedAt = 2e12 as const;
 
-// export const dbSizeLimit: number = 6 * 1024 * 1024; // 6MB limit
-// export const dbTargetSize: number = 5 * 1024 * 1024; // 5MB target size
+// export const dbSizeLimit: number = 1 * 1024 * 1024; // 1 MB limit
+// export const dbTargetSize: number = 0.5 * 1024 * 1024; // 0.5 MB target size
 
 export const dbSizeLimit: number = 400;
 export const dbTargetSize: number = 300;

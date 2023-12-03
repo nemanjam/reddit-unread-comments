@@ -512,4 +512,15 @@ const myState = {
 sendMessageToContentScript({ type: 'UPDATE_STATE', payload: myState });
 
 
-  
+const createDebouncedUrlChangeHandler = async (func: AnyFunction) => {
+  const db = await openDatabase();
+  const { sortAllByNew } = await getSettings(db);
+
+  const debounceWait = sortAllByNew
+    ? urlChangeDebounceWaitWithSortByNew
+    : urlChangeDebounceWait;
+
+  // must wait for redirect and page content load
+  const debouncedUrlChangeHandler = debounce(func, debounceWait);
+  return debouncedUrlChangeHandler;
+};

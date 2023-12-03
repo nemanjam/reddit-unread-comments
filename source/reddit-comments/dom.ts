@@ -19,6 +19,7 @@ import {
   threadPostSelector,
   timestampIdModalSuffix,
   timestampIdPrefix,
+  waitAfterSortByNew,
 } from './constants';
 
 import { openDatabase, ThreadData } from './database/schema';
@@ -57,15 +58,15 @@ const getDateFromCommentId = (commentId: string): Date => {
   if (!timestampElement)
     throw new MyElementNotFoundDOMException(
       `Comment timestamp element with timestampId: ${timestampId} not found.`
-    ); // here, blocked users
+    );
 
-  // 2 hr. ago
   const timeAgo = timestampElement.innerHTML;
 
   const date = relativeTimeStringToDate(timeAgo);
   return date;
 };
 
+/** Returns true if it wasn't by new already. */
 export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   // check if its new already
   const sortMenuSpan = document.querySelector<HTMLElement>(sortMenuSpanTextSelector);
@@ -158,6 +159,14 @@ const getFilteredNewerCommentsByDate = (
   return filteredComments;
 };
 
+const addClass = (element: HTMLElement, className: string): void => {
+  if (!element.classList.contains(className)) element.classList.add(className);
+};
+
+const removeClass = (element: HTMLElement, className: string): void => {
+  if (element.classList.contains(className)) element.classList.remove(className);
+};
+
 /** Works only with DOM elements, no database. */
 const highlightByDate = (
   commentElements: NodeListOf<HTMLElement>,
@@ -172,22 +181,16 @@ const highlightByDate = (
 
     const isCommentNewerThan = filteredCommentsIds.includes(commentId);
 
-    const hasHighlightedByDateClassAlready = commentElement.classList.contains(
-      highlightedCommentByDateClass
-    );
-
     // both highlight and un-highlight always, slider can change
 
     // highlighting
     if (isCommentNewerThan) {
-      if (!hasHighlightedByDateClassAlready)
-        commentElement.classList.add(highlightedCommentByDateClass);
+      addClass(commentElement, highlightedCommentByDateClass);
     }
 
     // un-highlighting
     if (!isCommentNewerThan) {
-      if (hasHighlightedByDateClassAlready)
-        commentElement.classList.remove(highlightedCommentByDateClass);
+      removeClass(commentElement, highlightedCommentByDateClass);
     }
   });
 };
@@ -277,47 +280,32 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
     if (isReadCommentPreviousSessions) return;
 
     // state must come from db, never from dom
-    const hasHighlightedClassAlready = commentElement.classList.contains(
-      highlightedCommentClass
-    );
-    const hasHighlightedReadClassAlready = commentElement.classList.contains(
-      highlightedCommentReadClass
-    );
 
     if (unHighlightOn === 'on-scroll') {
       // highlighting
       if (!isReadCommentCurrentSession) {
         // remove highlight read if exists
-        if (hasHighlightedReadClassAlready)
-          commentElement.classList.remove(highlightedCommentReadClass);
-
-        // check when adding or removing class to avoid double
-        if (!hasHighlightedClassAlready)
-          commentElement.classList.add(highlightedCommentClass);
+        removeClass(commentElement, highlightedCommentReadClass);
+        addClass(commentElement, highlightedCommentClass);
       }
 
       // un-highlighting
       if (isReadCommentCurrentSession) {
-        if (hasHighlightedClassAlready)
-          commentElement.classList.remove(highlightedCommentClass);
-
+        removeClass(commentElement, highlightedCommentClass);
         // highlighting read
-        if (!hasHighlightedReadClassAlready)
-          commentElement.classList.add(highlightedCommentReadClass);
+        addClass(commentElement, highlightedCommentReadClass);
       }
     }
 
     if (unHighlightOn === 'on-url-change') {
       // highlighting
       if (!isReadCommentCurrentSession) {
-        if (!hasHighlightedClassAlready)
-          commentElement.classList.add(highlightedCommentClass);
+        addClass(commentElement, highlightedCommentClass);
       }
 
       // un-highlighting
       // remove unconditionally
-      if (hasHighlightedReadClassAlready)
-        commentElement.classList.remove(highlightedCommentReadClass);
+      removeClass(commentElement, highlightedCommentReadClass);
     }
   });
 };
@@ -579,13 +567,21 @@ export const handleScrollDom = async () => {
 export const handleUrlChangeDom = async () => {
   if (!isActiveTab()) return;
 
-  // await clickSortByNewMenuItem();
-
-  const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
-  // only root check, child functions must have commentElements array filled
-  if (!(commentElements.length > 0)) return;
-
   try {
+    const db = await openDatabase();
+    const { sortAllByNew } = await getSettings(db);
+    if (sortAllByNew) {
+      const hasSorted = await clickSortByNewMenuItem();
+      if (hasSorted) {
+        // delay must be AFTER sort
+        await wait(waitAfterSortByNew);
+      }
+    }
+    //! important, must select element AFTER sort
+    const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
+    // only root check, child functions must have commentElements array filled
+    if (!(commentElements.length > 0)) return;
+
     await updateCommentsFromPreviousSessionOrCreateThread();
     await highlight(commentElements);
 
