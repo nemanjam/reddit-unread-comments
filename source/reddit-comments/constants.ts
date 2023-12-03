@@ -69,24 +69,9 @@ export const databaseName = 'reddit-unread-comments-db';
 /** 2 * 10**12 */
 export const currentSessionCreatedAt = 2e12 as const;
 
+// todo: uncomment this after test
 // export const dbSizeLimit: number = 1 * 1024 * 1024; // 1 MB limit
 // export const dbTargetSize: number = 0.5 * 1024 * 1024; // 0.5 MB target size
 
 export const dbSizeLimit: number = 400;
 export const dbTargetSize: number = 300;
-
-/*------------------------------ test code, remove later ----------------------------*/
-
-//0.000434 MB, dbSizeLimit: 6.000000 MB.
-
-// 1 699 867 623 577 // 2066
-
-// document
-//   .querySelectorAll('[data-testid="comment_timestamp"]')
-//   .forEach((el) => logger.info(el.id));
-
-// [id^="t1_"]:not([id*="-"])
-
-// document.querySelectorAll('[id^="t1_"]:not([id*="-"])');
-
-// now 1 699 946 225 776

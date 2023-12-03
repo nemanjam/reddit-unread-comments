@@ -110,8 +110,10 @@ not same db in popup and contentScript? manifest?
     reset all highlight on settings change (css dom and event listeners)
     fix reset slider on radio and switch
 ---------
-threadId puca zbog modal, dodatni delay zbog new dok ucita comments, debouncedUrlChangeHandler
+    threadId puca zbog modal, dodatni delay zbog new dok ucita comments, debouncedUrlChangeHandler, no order of waiting and selecting
     logging switch
 add additional debugging logging
     fix link flex grow, disable align stretch
     add unread switch
+test db size deleting
+check console errors
