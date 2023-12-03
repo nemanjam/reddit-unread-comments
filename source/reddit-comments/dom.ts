@@ -503,12 +503,8 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
 
   if (!(commentElements.length > 0)) return;
 
-  let commentElement: HTMLElement;
   if (scrollToFirstComment) {
-    const firstCommentElement = document.querySelector<HTMLElement>(commentSelector);
-    if (!firstCommentElement) return;
-
-    commentElement = firstCommentElement;
+    // scroll to first highlighted comment
     currentIndex.setCurrentIndex(0);
   } else {
     // find currentIndex for first element that is not in viewport
@@ -527,9 +523,9 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
         currentIndex.setCurrentIndex(0);
       }
     }
-
-    commentElement = commentElements[currentIndex.getCurrentIndex()];
   }
+
+  const commentElement = commentElements[currentIndex.getCurrentIndex()];
 
   const commentRect = commentElement.getBoundingClientRect();
 
