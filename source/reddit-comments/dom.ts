@@ -136,9 +136,12 @@ const isElementInViewport = (element: HTMLElement) => {
     rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
     rect.right <= (window.innerWidth || document.documentElement.clientWidth);
 
-  const isHigherThanViewport = elementHeight > window.innerHeight;
+  const isHigherThanViewportAndVisible =
+    elementHeight > window.innerHeight &&
+    (rect.top >= 0 ||
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight));
 
-  const result = isInViewport || isHigherThanViewport;
+  const result = isInViewport || isHigherThanViewportAndVisible;
   return result;
 };
 
