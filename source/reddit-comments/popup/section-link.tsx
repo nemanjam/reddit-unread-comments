@@ -5,7 +5,7 @@ const repoUrl = 'https://github.com/nemanjam/reddit-unread-comments';
 
 const SectionLink: FC = () => {
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" align="start" gap="2">
       <Text as="label" size="1">
         Feedback and suggestions:
       </Text>

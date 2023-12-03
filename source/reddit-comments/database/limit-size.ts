@@ -68,17 +68,37 @@ export const deleteThreadWithComments = async (
     Thread.ThreadObjectStore
   );
 
-  // Delete the thread
-  const deleteRequest = deleteObjectStore.delete(threadId);
+  const getRequest = deleteObjectStore.index(Thread.ThreadIdIndex).get(threadId);
 
   return new Promise<string>((resolve, reject) => {
-    deleteRequest.onsuccess = () => {
-      logger.info(`Deleted thread with threadId: ${threadId}`);
-      resolve(threadId);
+    getRequest.onsuccess = (event: Event) => {
+      const threadToDelete = (event.target as IDBRequest).result;
+
+      if (threadToDelete) {
+        // Delete the thread
+        const deleteRequest = deleteObjectStore.delete(threadToDelete.id);
+
+        deleteRequest.onsuccess = () => {
+          logger.info(`Deleted thread with threadId: ${threadId}`);
+          resolve(threadId);
+        };
+
+        deleteRequest.onerror = (deleteEvent: Event) => {
+          logger.error(
+            'Error deleting thread:',
+            (deleteEvent.target as IDBRequest).error
+          );
+          reject();
+        };
+      } else {
+        // Thread not found
+        logger.warn(`Thread with threadId: ${threadId} not found`);
+        resolve(threadId);
+      }
     };
 
-    deleteRequest.onerror = (event: Event) => {
-      logger.error('Error deleting thread:', (event.target as IDBRequest).error);
+    getRequest.onerror = (event: Event) => {
+      logger.error('Error getting thread:', (event.target as IDBRequest).error);
       reject();
     };
   });
@@ -98,38 +118,68 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
     const commentObjectStore = transaction.objectStore(Comment.CommentObjectStore);
     const settingsObjectStore = transaction.objectStore(Settings.SettingsObjectStore);
 
-    const getAllThreads = threadObjectStore.getAll();
-    const getAllComments = commentObjectStore.getAll();
-    const getAllSettings = settingsObjectStore.getAll();
+    let threadResults: any[];
+    let commentResults: any[];
+    let settingsResults: any[];
 
-    Promise.all([getAllThreads, getAllComments, getAllSettings])
-      .then(([threadResults, commentResults, settingsResults]) => {
-        const currentSizeThreads: number = JSON.stringify(threadResults).length;
-        const currentSizeComments: number = JSON.stringify(commentResults).length;
-        const currentSizeSettings: number = JSON.stringify(settingsResults).length;
+    const getAllThreads: IDBRequest<any[]> = threadObjectStore.getAll();
+    getAllThreads.onsuccess = (event: Event) => {
+      threadResults = (event.target as IDBRequest<any[]>).result;
 
-        const totalSize: number =
-          currentSizeThreads + currentSizeComments + currentSizeSettings;
+      const getAllComments: IDBRequest<any[]> = commentObjectStore.getAll();
+      getAllComments.onsuccess = (event: Event) => {
+        commentResults = (event.target as IDBRequest<any[]>).result;
 
-        resolve(totalSize);
-      })
-      .catch((error) => {
-        reject(error);
-      });
+        const getAllSettings: IDBRequest<any[]> = settingsObjectStore.getAll();
+        getAllSettings.onsuccess = (event: Event) => {
+          settingsResults = (event.target as IDBRequest<any[]>).result;
+
+          const currentSizeThreads: number = JSON.stringify(threadResults).length;
+          const currentSizeComments: number = JSON.stringify(commentResults).length;
+          const currentSizeSettings: number = JSON.stringify(settingsResults).length;
+
+          const totalSize: number =
+            currentSizeThreads + currentSizeComments + currentSizeSettings;
+
+          resolve(totalSize);
+        };
+
+        getAllSettings.onerror = (event: Event) => {
+          reject((event.target as IDBRequest).error);
+        };
+      };
+
+      getAllComments.onerror = (event: Event) => {
+        reject((event.target as IDBRequest).error);
+      };
+    };
+
+    getAllThreads.onerror = (event: Event) => {
+      reject((event.target as IDBRequest).error);
+    };
   });
 
 export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
   let currentSize = await getCurrentDatabaseSize(db);
 
+  // const allData = await getAllDbData(db);
+  // logger.info('allData', allData);
+
   logger.info('Reducing database size, checking...');
 
   if (currentSize <= dbSizeLimit) {
     const message = `Database reducing size is not needed, \
-    currentSize: ${sizeInMBString(currentSize)} MB, \
-    dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB. Exiting.`;
+currentSize: ${sizeInMBString(currentSize)} MB, \
+dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB. Exiting.`;
 
     logger.info(message);
     return;
+  } else {
+    const message = `Detected database oversize, started deleting..., \
+currentSize: ${sizeInMBString(currentSize)} MB > \
+dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB.`;
+
+    logger.info(message);
   }
 
   const transaction: IDBTransaction = db.transaction(
@@ -155,12 +205,16 @@ export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
       // Check the current size of the database after each deletion
       currentSize = await getCurrentDatabaseSize(db);
 
-      logger.info(`Deleting threads, currentSize: ${sizeInMBString(currentSize)} MB.`);
+      const message1 = `Deleting threads, \
+currentSize: ${sizeInMBString(currentSize)} MB, \
+dbTargetSize: ${sizeInMBString(dbTargetSize)} MB.`;
+      logger.info(message1);
 
       if (currentSize < dbTargetSize) {
         const message = `Database size reducing finished, \
-    currentSize: ${sizeInMBString(currentSize)} MB \
-    dbTargetSize: ${sizeInMBString(dbTargetSize)} MB.`;
+currentSize: ${sizeInMBString(currentSize)} MB, \
+dbTargetSize: ${sizeInMBString(dbTargetSize)} MB, \
+dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB.`;
 
         logger.info(message);
         break;

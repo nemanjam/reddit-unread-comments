@@ -365,65 +365,60 @@ const getCurrentThread = async (): Promise<ThreadData> => {
   return thread;
 };
 
-export const updateCommentsFromPreviousSessionOrCreateThread = async (
-  debug = false
-): Promise<void> => {
-  let result = {};
+export const updateCommentsFromPreviousSessionOrCreateThread =
+  async (): Promise<void> => {
+    let result = {};
 
-  const threadIdFromDom = getThreadIdFromDom();
+    const threadIdFromDom = getThreadIdFromDom();
 
-  const db = await openDatabase();
-  const existingThread = await getThread(db, threadIdFromDom).catch((_error) =>
-    logger.info(`First run, thread with threadIdFromDom:${threadIdFromDom} not found.`)
-  );
-
-  if (existingThread) {
-    const { threadId, updatedAt } = existingThread;
-    const updatedComments = await updateCommentsSessionCreatedAtForThread(
-      db,
-      threadId,
-      updatedAt
+    const db = await openDatabase();
+    const existingThread = await getThread(db, threadIdFromDom).catch((_error) =>
+      logger.info(`First run, thread with threadIdFromDom:${threadIdFromDom} not found.`)
     );
 
-    const message =
-      updatedComments.length > 0
-        ? `Updated ${updatedComments.length} pending comments from previous session.`
-        : 'No pending comments to update from previous session.';
-    logger.info(message);
+    if (existingThread) {
+      const { threadId, updatedAt } = existingThread;
+      const updatedComments = await updateCommentsSessionCreatedAtForThread(
+        db,
+        threadId,
+        updatedAt
+      );
 
-    result = {
-      isExistingThread: true,
-      thread: existingThread,
-      updatedComments,
-    };
-  } else {
-    // reduce db size here, before adding new thread
-    // todo: fix this
-    await limitIndexedDBSize(db);
+      const message =
+        updatedComments.length > 0
+          ? `Updated ${updatedComments.length} pending comments from previous session.`
+          : 'No pending comments to update from previous session.';
+      logger.info(message);
 
-    // add new thread if it doesn't exist
-    const newThread = await addThread(db, {
-      threadId: threadIdFromDom,
-      updatedAt: new Date().getTime(), // first run creates session - comment.currentCreatedAt
-    });
+      result = {
+        isExistingThread: true,
+        thread: existingThread,
+        updatedComments,
+      };
+    } else {
+      // new thread detected
 
-    if (!newThread)
-      throw new MyCreateModelFailedDBException('Failed to create new Thread.');
+      // reduce db size here, before adding new thread
+      await limitIndexedDBSize(db);
 
-    result = {
-      isExistingThread: false,
-      thread: newThread,
-      updatedComments: [],
-    };
-  }
+      // add new thread if it doesn't exist
+      const newThread = await addThread(db, {
+        threadId: threadIdFromDom,
+        updatedAt: new Date().getTime(), // first run creates session - comment.currentCreatedAt
+      });
 
-  if (debug) {
+      if (!newThread)
+        throw new MyCreateModelFailedDBException('Failed to create new Thread.');
+
+      result = {
+        isExistingThread: false,
+        thread: newThread,
+        updatedComments: [],
+      };
+    }
+
     logger.info('updateCommentsFromPreviousSessionOrCreateThread debug result:', result);
-
-    const allDbData = await getAllDbData(db);
-    logger.info('allDbData', allDbData);
-  }
-};
+  };
 
 export const getHeaderHeight = () => {
   if (hasModalScrollContainer()) {

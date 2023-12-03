@@ -71,7 +71,7 @@ export const formatDateEU = (date: Date): string =>
   format(date, 'HH:mm:ss d, MMMM, yyyy.');
 
 export const formatDateForLogger = (date: Date): string =>
-  format(date, 'dd-MM-yyyy HH:mm:ss.SSSxxx');
+  format(date, 'dd-MM-yyyy HH:mm:ss.SSS xxx');
 
 export interface SliderProps {
   max: number;

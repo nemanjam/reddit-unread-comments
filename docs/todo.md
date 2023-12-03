@@ -97,7 +97,7 @@ limit db size is not tested
     loader skeleton for popup
     remove reddit toast
 -------------
-fix limitIndexedDBSize()
+fix limitIndexedDBSize(), test it
     remove reset radios from db
     reset current thread and all threads
     implement radioAndSliderToDate()
@@ -113,3 +113,5 @@ not same db in popup and contentScript? manifest?
 threadId puca zbog modal, dodatni delay zbog new dok ucita comments
     logging switch
 add additional debugging logging
+    fix link flex grow, disable align stretch
+    dont add disable unread switch
