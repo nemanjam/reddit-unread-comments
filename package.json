@@ -1,5 +1,5 @@
 {
-  "name": "Reddit Unread Comments",
+  "name": "reddit-unread-comments",
   "version": "0.0.0",
   "description": "Web extension for easier tracking of new comments on Reddit.",
   "private": false,
