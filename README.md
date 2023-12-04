@@ -18,7 +18,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ## Development
 
-## Contributing and possible improvements
+## Contributing
 
 ## References
 
@@ -27,7 +27,11 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ## Author
 
-**[https://github.com/nemanjam](https://github.com/nemanjam), [https://www.linkedin.com/in/nemanja-mitic](https://www.linkedin.com/in/nemanja-mitic)**, December 2023.
+[https://github.com/nemanjam](https://github.com/nemanjam)
+
+[https://www.linkedin.com/in/nemanja-mitic](https://www.linkedin.com/in/nemanja-mitic)
+
+December 2023.
 
 ## License
 
