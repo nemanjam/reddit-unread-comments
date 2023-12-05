@@ -3,6 +3,7 @@ import {
   MyElementNotFoundDOMException,
 } from './exceptions';
 import {
+  commentHeightHeadroom,
   commentSelector,
   currentSessionCreatedAt,
   highlightedCommentByDateClass,
@@ -33,14 +34,14 @@ import {
   getAllCommentsForThread,
 } from './database/models/thread';
 import { addComment } from './database/models/comment';
-import { getAllDbData, limitIndexedDBSize } from './database/limit-size';
+import { limitIndexedDBSize } from './database/limit-size';
 
 import { radioAndSliderToDate, relativeTimeStringToDate } from './datetime';
 import {
   validateCommentElementIdOrThrow,
   validateThreadElementIdOrThrow,
 } from './validation';
-import { delayExecution, isActiveTab, wait } from './utils';
+import { delayExecution, isActiveTabAndRedditThread, wait } from './utils';
 import { getSettings } from './database/models/settings';
 import logger from './logger';
 
@@ -129,7 +130,7 @@ export const getThreadIdFromDom = (): string => {
 // sync, fix for big comments
 const isElementInViewport = (element: HTMLElement) => {
   const rect = element.getBoundingClientRect();
-  const elementHeight = rect.bottom - rect.top;
+  const elementHeight = commentHeightHeadroom + (rect.bottom - rect.top);
 
   const isInViewport =
     rect.top >= 0 &&
@@ -326,6 +327,9 @@ export const highlight = async (commentElements: NodeListOf<HTMLElement>) => {
 
 /** Mutates only database, no live DOM updates. */
 const markAsRead = async (commentElements: NodeListOf<HTMLElement>): Promise<void> => {
+  // because of delay
+  if (!isActiveTabAndRedditThread()) return;
+
   const db = await openDatabase();
 
   const { isHighlightUnread } = await getSettings(db);
@@ -562,7 +566,7 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
 /** onScroll - markAsRead, highlight */
 export const handleScrollDom = async () => {
   // disable handlers too, and not attaching only
-  if (!isActiveTab()) return;
+  if (!isActiveTabAndRedditThread()) return;
 
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   if (!(commentElements.length > 0)) return;
@@ -579,7 +583,7 @@ export const handleScrollDom = async () => {
 
 /** updateCommentsFromPreviousSession, highlight */
 export const handleUrlChangeDom = async () => {
-  if (!isActiveTab()) return;
+  if (!isActiveTabAndRedditThread()) return;
 
   try {
     const db = await openDatabase();

@@ -57,6 +57,9 @@ export const calcHighlightOnTimeDebounceWait = 300;
 /** In realtime mode, delay to mark as read and un-highlight comments. */
 export const markAsReadDelay = 5 * 1000;
 
+/** Increase comment height by 100px. */
+export const commentHeightHeadroom = 100;
+
 /** Wait for sort menu to load. */
 export const sortMenuWait = 300;
 
@@ -75,9 +78,8 @@ export const databaseName = 'reddit-unread-comments-db';
 /** 2 * 10**12 */
 export const currentSessionCreatedAt = 2e12 as const;
 
-// todo: uncomment this after test
-// export const dbSizeLimit: number = 1 * 1024 * 1024; // 1 MB limit
-// export const dbTargetSize: number = 0.5 * 1024 * 1024; // 0.5 MB target size
-
-export const dbSizeLimit: number = 400;
-export const dbTargetSize: number = 300;
+// tested
+/** Start deleting at. */
+export const dbSizeLimit: number = 1 * 1024 * 1024; // 1 MB limit
+/** Bring to this size. */
+export const dbTargetSize: number = 0.5 * 1024 * 1024; // 0.5 MB target size

@@ -48,6 +48,11 @@ export const isRedditSite = (url: string): boolean => redditUrlRegex.test(url);
 
 export const isRedditThread = (url: string): boolean => redditThreadUrlRegex.test(url);
 
+export const isRedditThreadWithHref = (): boolean => isRedditThread(location.href);
+
+export const isActiveTabAndRedditThread = (): boolean =>
+  isActiveTab() && isRedditThreadWithHref();
+
 export const hasArrivedToRedditThread = (
   previousUrl: string,
   currentUrl: string

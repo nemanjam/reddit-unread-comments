@@ -161,9 +161,7 @@ export const getCurrentDatabaseSize = async (db: IDBDatabase): Promise<number> =
 
 export const limitIndexedDBSize = async (db: IDBDatabase): Promise<void> => {
   let currentSize = await getCurrentDatabaseSize(db);
-
-  const allData = await getAllDbData(db);
-  logger.info('allData', allData);
+  let initialSize = currentSize;
 
   logger.info('Reducing database size, checking...');
 
@@ -194,11 +192,9 @@ dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB.`;
     const threads: ThreadData[] = (event.target as IDBRequest).result;
 
     // Create a sorted copy of threads by the updatedAt column in ascending order
-    const sortedThreads: ThreadData[] = threads
-      .slice()
-      .sort((a, b) => a.updatedAt - b.updatedAt);
+    const sortedThreadsAsc = threads.slice().sort((a, b) => a.updatedAt - b.updatedAt);
 
-    for (const thread of sortedThreads) {
+    for (const thread of sortedThreadsAsc) {
       // Delete the thread
       await deleteThreadWithComments(db, thread.threadId);
 
@@ -211,10 +207,14 @@ dbTargetSize: ${sizeInMBString(dbTargetSize)} MB.`;
       logger.info(message1);
 
       if (currentSize < dbTargetSize) {
+        const freedSize = initialSize - currentSize;
+
         const message = `Database size reducing finished, \
 currentSize: ${sizeInMBString(currentSize)} MB, \
 dbTargetSize: ${sizeInMBString(dbTargetSize)} MB, \
-dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB.`;
+dbSizeLimit: ${sizeInMBString(dbSizeLimit)} MB. \
+initialSize: ${sizeInMBString(initialSize)} MB. \
+freedSize: ${sizeInMBString(freedSize)} MB.`;
 
         logger.info(message);
         break;
