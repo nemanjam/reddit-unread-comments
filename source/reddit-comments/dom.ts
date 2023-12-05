@@ -221,6 +221,20 @@ export const removeHighlightByDateClass = () => {
   });
 };
 
+export const calcHighlightedByDateCount = (): number => {
+  const highlightedElementsByDate = document.querySelectorAll<HTMLElement>(
+    `.${highlightedCommentByDateClass}`
+  );
+  return highlightedElementsByDate.length;
+};
+
+export const calcHighlightedUnreadCount = (): number => {
+  const highlightedElementsUnread = document.querySelectorAll<HTMLElement>(
+    `.${highlightedCommentClass}`
+  );
+  return highlightedElementsUnread.length;
+};
+
 export const getAllComments = (): NodeListOf<HTMLElement> => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   return commentElements;

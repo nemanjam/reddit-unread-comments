@@ -57,6 +57,9 @@ export const markAsReadDelay = 5 * 1000;
 /** Wait for sort menu to load. */
 export const sortMenuWait = 300;
 
+/** Refetch every interval. */
+export const highlightedCommentsCountInterval = 1000;
+
 export const highlightedCommentClass = 'ruc-highlight-comment';
 export const highlightedCommentReadClass = 'ruc-highlight-comment-read';
 /** Both read and unread. Don't use.*/

@@ -1,14 +1,15 @@
 import React, { FC } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import { Flex, Text, RadioGroup, Switch } from '@radix-ui/themes';
+import { Flex, Text, RadioGroup, Switch, Box } from '@radix-ui/themes';
 
 import { SettingsData } from '../database/schema';
 
 type Props = {
   form: UseFormReturn<SettingsData>;
+  count: number;
 };
 
-const SectionUnread: FC<Props> = ({ form }) => {
+const SectionUnread: FC<Props> = ({ form, count }) => {
   const { control, watch } = form;
 
   const isHighlightUnread = watch('isHighlightUnread');
@@ -28,6 +29,7 @@ const SectionUnread: FC<Props> = ({ form }) => {
               </>
             )}
           />
+          {!isDisabledSection && <Box>Count: {count}</Box>}
         </Flex>
       </Text>
       <Text as="label" size="2">

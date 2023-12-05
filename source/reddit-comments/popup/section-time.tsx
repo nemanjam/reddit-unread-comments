@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import { Flex, Text, Slider, Switch, RadioGroup } from '@radix-ui/themes';
+import { Flex, Text, Slider, Switch, RadioGroup, Box } from '@radix-ui/themes';
 
 import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
@@ -10,9 +10,10 @@ import useIsMounting from './useIsMounting';
 
 type Props = {
   form: UseFormReturn<SettingsData>;
+  count: number;
 };
 
-const SectionTime: FC<Props> = ({ form }) => {
+const SectionTime: FC<Props> = ({ form, count }) => {
   const { control, watch, setValue } = form;
 
   const { isMounting } = useIsMounting();
@@ -60,9 +61,10 @@ const SectionTime: FC<Props> = ({ form }) => {
                 </>
               )}
             />
+            {!isDisabledSection && <Box>Count: {count}</Box>}
           </Flex>
         </Text>
-        <Text as="label">{`${timeSlider} ${unit}`}</Text>
+        <Text as="label" size="2">{`${timeSlider} ${unit}`}</Text>
       </Flex>
       <Controller
         name="timeSlider"

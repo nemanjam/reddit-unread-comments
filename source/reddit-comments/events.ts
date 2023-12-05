@@ -9,6 +9,8 @@ import {
   wait,
 } from './utils';
 import {
+  calcHighlightedByDateCount,
+  calcHighlightedUnreadCount,
   clickSortByNewMenuItem,
   currentIndex,
   getAllComments,
@@ -267,6 +269,26 @@ const handleMessageFromPopup = async (
         const commentElements = getAllComments();
         await highlight(commentElements);
         break;
+      }
+
+      case messageTypes.CALC_HIGHLIGHTED_ON_TIME_COUNT: {
+        const count = calcHighlightedByDateCount();
+        const response: MyMessageType = {
+          type: messageTypes.CALC_HIGHLIGHTED_ON_TIME_COUNT,
+          payload: count,
+        };
+
+        return response;
+      }
+
+      case messageTypes.CALC_HIGHLIGHTED_UNREAD_COUNT: {
+        const count = calcHighlightedUnreadCount();
+        const response: MyMessageType = {
+          type: messageTypes.CALC_HIGHLIGHTED_UNREAD_COUNT,
+          payload: count,
+        };
+
+        return response;
       }
 
       default:

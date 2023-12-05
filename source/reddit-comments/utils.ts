@@ -1,4 +1,4 @@
-import { isDebug, redditThreadUrlRegex } from './constants';
+import { redditThreadUrlRegex } from './constants';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 
 export type AnyFunction = (...args: any[]) => any;
@@ -57,7 +57,7 @@ export const hasLeftRedditThread = (previousUrl: string, currentUrl: string): bo
 export const sizeInMBString = (sizeInBytes: number): string =>
   (sizeInBytes / (1024 * 1024)).toFixed(6);
 
-/** Sort comments by new. */
+/** Sort comments by new. Unused.*/
 export const getSortByNewUrl = (url: string): string => {
   if (!isRedditThread(url)) return url;
 

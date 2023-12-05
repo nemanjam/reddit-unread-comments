@@ -12,7 +12,7 @@ import SectionLink from './section-link';
 import './popup.scss';
 import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
-import { formSubmitDebounceWait } from '../constants';
+import { formSubmitDebounceWait, highlightedCommentsCountInterval } from '../constants';
 import { debounce } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';
@@ -21,14 +21,16 @@ import logger from '../logger';
 const Popup: FC = () => {
   const [reloadFormIndex, setReloadFormIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [highlightedOnTimeCount, setHighlightedOnTimeCount] = useState(0);
+  const [highlightedUnreadCount, setHighlightedUnreadCount] = useState(0);
 
   const form = useForm<SettingsData>({
     mode: 'onChange',
     defaultValues,
   });
   const { reset, getValues, watch, handleSubmit, resetField } = form;
-
-  // logger.error('getValues', getValues(), 'watch', watch());
+  const isHighlightOnTime = watch('isHighlightOnTime');
+  const isHighlightUnread = watch('isHighlightUnread');
 
   //! CANT USE DB, write generic function to get db data
 
@@ -49,6 +51,40 @@ const Popup: FC = () => {
 
     populateFormFromDb();
   }, [reloadFormIndex]);
+
+  // refetch count of highlighted comments while popup is open
+  useEffect(() => {
+    const intervalFunction1 = async () => {
+      const message: MyMessageType = {
+        type: messageTypes.CALC_HIGHLIGHTED_ON_TIME_COUNT,
+      };
+      const response: MyMessageType = await sendMessage(message);
+      const highlightedOnTimeCount = response.payload;
+
+      setHighlightedOnTimeCount(highlightedOnTimeCount);
+    };
+
+    const intervalFunction2 = async () => {
+      const message: MyMessageType = {
+        type: messageTypes.CALC_HIGHLIGHTED_UNREAD_COUNT,
+      };
+      const response: MyMessageType = await sendMessage(message);
+      const highlightedUnreadCount = response.payload;
+
+      setHighlightedUnreadCount(highlightedUnreadCount);
+    };
+
+    const intervalFunction = async () => {
+      if (isHighlightOnTime) await intervalFunction1();
+      if (isHighlightUnread) await intervalFunction2();
+    };
+
+    const intervalId = setInterval(intervalFunction, highlightedCommentsCountInterval);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [isHighlightOnTime, isHighlightUnread]);
 
   const onSubmit = async (settingsData: SettingsData) => {
     const message: MyMessageType = {
@@ -96,6 +132,7 @@ const Popup: FC = () => {
         break;
     }
   };
+  // return if not reddit thread
 
   if (isLoading) return <Text as="div">Loading...</Text>;
 
@@ -103,10 +140,10 @@ const Popup: FC = () => {
     <Theme radius="medium">
       <Container id="popup" p="4">
         <form onChange={debouncedHandleSubmit}>
-          <SectionTime form={form} />
+          <SectionTime form={form} count={highlightedOnTimeCount} />
           <Separator size="4" my="4" />
           <Flex style={{ height: 90 }}>
-            <SectionUnread form={form} />
+            <SectionUnread form={form} count={highlightedUnreadCount} />
             <Separator orientation="vertical" size="4" mx="4" />
             <SectionScroll form={form} />
           </Flex>
