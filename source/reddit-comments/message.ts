@@ -14,6 +14,7 @@ export const messageTypes = {
   RESET_THREAD_DATA: 'RESET_THREAD_DATA',
   CALC_HIGHLIGHTED_ON_TIME_COUNT: 'CALC_HIGHLIGHTED_ON_TIME_COUNT',
   CALC_HIGHLIGHTED_UNREAD_COUNT: 'CALC_HIGHLIGHTED_UNREAD_COUNT',
+  GET_PAGE_URL: 'GET_PAGE_URL',
 } as const;
 
 export type MessageTypes = (typeof messageTypes)[keyof typeof messageTypes];

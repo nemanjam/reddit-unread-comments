@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Theme, Container, Separator, Flex, Text } from '@radix-ui/themes';
 
@@ -12,8 +12,12 @@ import SectionLink from './section-link';
 import './popup.scss';
 import { SettingsData } from '../database/schema';
 import { defaultValues } from '../database/models/settings';
-import { formSubmitDebounceWait, highlightedCommentsCountInterval } from '../constants';
-import { debounce } from '../utils';
+import {
+  calcHighlightOnTimeDebounceWait,
+  formSubmitDebounceWait,
+  highlightedCommentsCountInterval,
+} from '../constants';
+import { debounce, isRedditThread } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';
 import logger from '../logger';
@@ -23,16 +27,35 @@ const Popup: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [highlightedOnTimeCount, setHighlightedOnTimeCount] = useState(0);
   const [highlightedUnreadCount, setHighlightedUnreadCount] = useState(0);
+  const [pageUrl, setPageUrl] = useState('');
 
   const form = useForm<SettingsData>({
     mode: 'onChange',
     defaultValues,
   });
   const { reset, getValues, watch, handleSubmit, resetField } = form;
+
+  const timeScale = watch('timeScale');
+  const timeSlider = watch('timeSlider');
   const isHighlightOnTime = watch('isHighlightOnTime');
   const isHighlightUnread = watch('isHighlightUnread');
 
   //! CANT USE DB, write generic function to get db data
+
+  // get page url
+  useEffect(() => {
+    const getPageUrl = async () => {
+      const message: MyMessageType = {
+        type: messageTypes.GET_PAGE_URL,
+      };
+      const response: MyMessageType = await sendMessage(message);
+      const pageUrl = response.payload;
+
+      setPageUrl(pageUrl);
+    };
+
+    getPageUrl();
+  }, []);
 
   // pre-populate form from db
   useEffect(() => {
@@ -51,6 +74,30 @@ const Popup: FC = () => {
 
     populateFormFromDb();
   }, [reloadFormIndex]);
+
+  // calc highlight on time onChange too
+  useEffect(() => {
+    const getHighlightedOnTimeCount = async () => {
+      const message: MyMessageType = {
+        type: messageTypes.CALC_HIGHLIGHTED_ON_TIME_COUNT,
+      };
+      const response: MyMessageType = await sendMessage(message);
+      const highlightedOnTimeCount = response.payload;
+
+      setHighlightedOnTimeCount(highlightedOnTimeCount);
+    };
+
+    const debouncedGetHighlightedOnTimeCount = debounce(
+      getHighlightedOnTimeCount,
+      calcHighlightOnTimeDebounceWait
+    );
+
+    const onChange = async () => {
+      if (isHighlightOnTime) await debouncedGetHighlightedOnTimeCount();
+    };
+
+    onChange();
+  }, [isHighlightOnTime, timeScale, timeSlider]);
 
   // refetch count of highlighted comments while popup is open
   useEffect(() => {
@@ -132,42 +179,55 @@ const Popup: FC = () => {
         break;
     }
   };
-  // return if not reddit thread
 
-  if (isLoading) return <Text as="div">Loading...</Text>;
+  if (!isRedditThread(pageUrl))
+    return (
+      <ReturnText>You must be on Reddit thread to load User Settings window.</ReturnText>
+    );
+
+  if (isLoading) return <ReturnText>Loading...</ReturnText>;
 
   return (
-    <Theme radius="medium">
-      <Container id="popup" p="4">
-        <form onChange={debouncedHandleSubmit}>
-          <SectionTime form={form} count={highlightedOnTimeCount} />
-          <Separator size="4" my="4" />
-          <Flex style={{ height: 90 }}>
-            <SectionUnread form={form} count={highlightedUnreadCount} />
-            <Separator orientation="vertical" size="4" mx="4" />
-            <SectionScroll form={form} />
-          </Flex>
-          <Separator size="4" my="4" />
-          <Flex align="center">
-            <SectionSort form={form} />
-            <Separator orientation="vertical" size="2" mx="4" />
-            <SectionLogger form={form} />
-          </Flex>
-          <Separator size="4" my="4" />
-          <SectionDatabase form={form} onResetClick={handleResetDb} />
-        </form>
+    <ThemeWithContainer>
+      <form onChange={debouncedHandleSubmit}>
+        <SectionTime form={form} count={highlightedOnTimeCount} />
         <Separator size="4" my="4" />
-        <SectionLink />
-      </Container>
-    </Theme>
+        <Flex style={{ height: 90 }}>
+          <SectionUnread form={form} count={highlightedUnreadCount} />
+          <Separator orientation="vertical" size="4" mx="4" />
+          <SectionScroll form={form} />
+        </Flex>
+        <Separator size="4" my="4" />
+        <Flex align="center">
+          <SectionSort form={form} />
+          <Separator orientation="vertical" size="2" mx="4" />
+          <SectionLogger form={form} />
+        </Flex>
+        <Separator size="4" my="4" />
+        <SectionDatabase form={form} onResetClick={handleResetDb} />
+      </form>
+      <Separator size="4" my="4" />
+      <SectionLink />
+    </ThemeWithContainer>
   );
 };
 
 export default Popup;
 
-// time slider and scale radio
-// radio unhighlight mode: scroll, url-change
-// buttons clear database, clear thread, clear settings
-// radio scroll to unread, scroll to by date, scroll to both
-// radio sort by new
-// github url
+type Props = {
+  children: ReactNode;
+};
+
+const ThemeWithContainer: FC<Props> = ({ children }) => (
+  <Theme radius="medium">
+    <Container id="popup" p="4">
+      {children}
+    </Container>
+  </Theme>
+);
+
+const ReturnText: FC<Props> = ({ children }) => (
+  <ThemeWithContainer>
+    <Text as="div">{children}</Text>
+  </ThemeWithContainer>
+);

@@ -291,6 +291,15 @@ const handleMessageFromPopup = async (
         return response;
       }
 
+      case messageTypes.GET_PAGE_URL: {
+        const response: MyMessageType = {
+          type: messageTypes.GET_PAGE_URL,
+          payload: location.href,
+        };
+
+        return response;
+      }
+
       default:
         break;
     }

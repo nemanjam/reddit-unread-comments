@@ -85,7 +85,7 @@ export const getSliderPropsFromScale = (timeScale: TimeScaleType): SliderProps =
     '6h': { max: 6, step: 1, unit: 'hours' },
     '1 day': { max: 24, step: 1, unit: 'hours' },
     '1 week': { max: 7, step: 1, unit: 'days' },
-    '1 month': { max: 30, step: 1, unit: 'days' },
+    '1 month': { max: 31, step: 1, unit: 'days' },
     '1 year': { max: 12, step: 1, unit: 'months' },
     '10 years': { max: 10, step: 1, unit: 'years' },
   } as const;

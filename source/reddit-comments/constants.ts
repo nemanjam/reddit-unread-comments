@@ -10,6 +10,7 @@
  *------------------------------------------------------------------------**/
 
 export const redditThreadUrlRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comments\/.+/;
+export const redditUrlRegex = /https?:\/\/www\.?reddit\.com.*/;
 
 // selectors, easier to select children than parents
 export const commentSelector = '[id^="t1_"]:not([id*="-"])';
@@ -50,6 +51,8 @@ export const waitAfterSortByNew = 2000;
 
 /** Debounce only slider onChange in form. */
 export const formSubmitDebounceWait = 300;
+
+export const calcHighlightOnTimeDebounceWait = 300;
 
 /** In realtime mode, delay to mark as read and un-highlight comments. */
 export const markAsReadDelay = 5 * 1000;

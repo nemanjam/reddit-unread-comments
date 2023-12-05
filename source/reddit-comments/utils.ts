@@ -1,4 +1,4 @@
-import { redditThreadUrlRegex } from './constants';
+import { redditThreadUrlRegex, redditUrlRegex } from './constants';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 
 export type AnyFunction = (...args: any[]) => any;
@@ -43,6 +43,8 @@ export const delayExecution = async <T extends any[]>(
   });
 
 export const isActiveTab = () => document.visibilityState === 'visible';
+
+export const isRedditSite = (url: string): boolean => redditUrlRegex.test(url);
 
 export const isRedditThread = (url: string): boolean => redditThreadUrlRegex.test(url);
 

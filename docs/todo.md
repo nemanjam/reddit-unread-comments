@@ -117,4 +117,6 @@ add additional debugging logging
     add unread switch
 test db size deleting
 check console errors
-check if reddit thread url in popup
+    check if reddit thread url in popup
+    display comments count
+    trigger on interval and onChange
