@@ -27,7 +27,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 - All Reddit selectors are extracted into a single file `source/reddit-comments/constants.ts` making it easier to update and maintain when Reddit modifies design and markup in the future.
 - Extension runs completely client side, no data ever leaves users browser.
 - Extension is loaded only on Reddit domain. Popup is loaded only on Reddit threads. All data is kept within a single IndexDb.
-- This extension won't be aware if you visited Reddit threads on a phone app or other browsers, it runs completely locally.
+- This extension won't be aware if you visited Reddit threads on a phone app or in other browsers, it runs completely locally.
 
 ## Installation
 
@@ -35,11 +35,19 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 #### The Problem
 
+Reddit uses `Best` (mostly), `Top`, `New`, `Controversial`, `Old` and `Q&A` for primary sorting orders for comments in threads. Secondary sorting order (comments of a comment) are always chronological - `New`.
+
+So what is wrong with this and why this needs fixing?
+
+Sorting by `Best` (default in most subreddits) breaks chronological order of the comments and you can't always understand context if some comment is a reaction to some previous comment and also makes it impossible to track what are the new comments since your last visit. Because you usually check same thread few times if that is topic of your interest. This gets worse if thread has hundreds of comments when you have to reread entire thread just to spot few new comments which is waste of time and nerves. All of this is probably something that you are already familiar with.
+
 #### The Solution
+
+Just simplify things, make them intuitive and sort everything chronologically by new, mark unread comments since last visit with red highlight for threads that I closely follow and read multiple times, and add independent secondary highlight based on comment's timestamp where I can quickly filter new comments for threads that I visit for the first time or follow less closely. When you move the slider highlight and Count are reflected imidiately. Use `Ctrl + Space` and `Ctrl + Shift + Space` shortcuts to scroll quickly to the next unread (or new) comment and to the first unread comment respectively. Optionally force default sorting to `New` for all subreddits. Use reset thread and reset threads options if you want to start from scratch. That's it.
 
 ## Development
 
-- For the recent Node.js versions (v20+) you will need `NODE_OPTIONS=--openssl-legacy-provider` option which is already included in the `package.json` scripts.Install dependencies:
+- For the recent Node.js versions (v20+) you will need `NODE_OPTIONS=--openssl-legacy-provider` option which is already included in the `package.json` scripts. Install dependencies with:
 
 ```bash
 yarn install
@@ -73,6 +81,7 @@ yarn dev:chrome
 - Improve exception classes in `source/reddit-comments/exceptions.ts`.
 - Make `redditThreadUrlRegex` in `source/reddit-comments/constants.ts` mor tight (maybe).
 - Add tests (maybe).
+- Create mote original logo icon (maybe).
 
 ## References
 
