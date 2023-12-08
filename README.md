@@ -34,7 +34,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 #### The Problem
 
-#### The solution
+#### The Solution
 
 ## Development
 
