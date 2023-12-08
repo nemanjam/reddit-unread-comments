@@ -6,7 +6,7 @@
 - reddit thread with scroll on modal and on page
 - tailwind border-style: solid
 - isElementInViewport sync and async intersectionObserver, async fns bubbling
-- document.querySelectorAll<HTMLElement>(commentSelector) not live updating, forEach, filter
+- document.querySelectorAll<HTMLElement>(commentSelector) not live updating, forEach, filter // important
 
 - async open database | null, db handlers in global scope
 
@@ -62,4 +62,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 - messaging system popup and contentScript, without backgroundScript, indexdb sandboxed
 - indexdb wrapper https://github.com/dexie/Dexie.js , https://github.com/jakearchibald/idb#examples
 - disable tailwind preflight in extension
+
+Big points:
+
+- document.querySelectorAll<HTMLElement>(commentSelector) not live updating, forEach, filter // important
+- big point, indexdb scoped for domain, IndexedDB follows the same-origin policy, popup // to, messages
+
+```ts
+// in popup
+window.location.href = moz-extension://217ba40e-ad16-4562-97db-ffe4a7af1be7/popup.html
+```
 

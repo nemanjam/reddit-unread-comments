@@ -112,11 +112,11 @@ not same db in popup and contentScript? manifest?
 ---------
     threadId puca zbog modal, dodatni delay zbog new dok ucita comments, debouncedUrlChangeHandler, no order of waiting and selecting
     logging switch
-add additional debugging logging
+    add additional debugging logging
     fix link flex grow, disable align stretch
     add unread switch
-test db size deleting
-check console errors
+    test db size deleting
+    check console errors
     check if reddit thread url in popup
     display comments count
     trigger on interval and onChange
