@@ -13,7 +13,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 ## Features
 
 - Two separate highlighting modes: 1. Highlight unread comments, 2. Highlight based on comment's timestamp.
-- Unread comments can be un-highlighted: 1. after 5 seconds after appearing in viewport, while still being highlighted on mouse hover, 2. after navigating away from thread (url change).
+- Unread comments can be un-highlighted: 1. After 5 seconds after appearing in viewport, while still being highlighted on mouse hover, 2. After navigating away from thread (url change).
 - Comments are highlighted on both page load (url change) and on scroll.
 - Unread comments are separated in the database into two sessions: 1. Current session (thread visit), 2. All earlier sessions. This way un-highlighting can be managed more precisely and state is never kept inside the DOM.
 - Count of highlighted comments for both kind, in realtime.
@@ -22,11 +22,12 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 - Sort all Reddit threads by new by default (will introduce additional 3-5 seconds delay for comments to load twice).
 - Enable/disable logging to browser console. Useful for debugging when reporting bugs.
 - Reset highlighted comments for; 1. A thread, 2. All threads, 3. Reset user settings (Popup controls) to default.
-- IndexDb size is checked on every new thread and limited to 1MB when it will be reduced to 0.5MB by deleting the oldest threads from the database. Browser limit for IndexDb is around 50MB.
+- IndexDb size is checked on every new thread and limited to 1 MB when it will be reduced to 0.5 MB by deleting the oldest threads from the database. Browser limit for IndexDb is around 50 MB.
 - Extension is minimally obtrusive to the existing Reddit behavior, lazy loading (pagination) of threads is intact, as well as loading threads as new page and within modal. Tailwind preflight styles are disabled, only highlight classes are included so the original Reddit styling is intact.
 - All Reddit selectors are extracted into a single file `source/reddit-comments/constants.ts` making it easier to update and maintain when Reddit modifies design and markup in the future.
 - Extension runs completely client side, no data ever leaves users browser.
 - Extension is loaded only on Reddit domain. Popup is loaded only on Reddit threads. All data is kept within a single IndexDb.
+- This extension won't be aware if you visited Reddit threads on a phone app or other browsers, it runs completely locally.
 
 ## Installation
 
@@ -71,6 +72,7 @@ yarn dev:chrome
 - Add live new comment notifications with backgroundScript **(maybe)**.
 - Improve exception classes in `source/reddit-comments/exceptions.ts`.
 - Make `redditThreadUrlRegex` in `source/reddit-comments/constants.ts` mor tight (maybe).
+- Add tests (maybe).
 
 ## References
 
