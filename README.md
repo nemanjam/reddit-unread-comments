@@ -32,6 +32,10 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ## Usage
 
+#### The Problem
+
+#### The solution
+
 ## Development
 
 - For the recent Node.js versions (v20+) you will need `NODE_OPTIONS=--openssl-legacy-provider` option which is already included in the `package.json` scripts.Install dependencies:
