@@ -15,6 +15,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 - Two separate highlighting modes: 1. Highlight unread comments, 2. Highlight based on comment's timestamp.
 - Unread comments can be un-highlighted: 1. after 5 seconds after appearing in viewport, while still being highlighted on mouse hover, 2. after navigating away from thread (url change).
 - Comments are highlighted on both page load (url change) and on scroll.
+- Unread comments are separated in the database into two sessions: 1. Current session (thread visit), 2. All earlier sessions. This way un-highlighting can be managed more precisely and state is never kept inside the DOM.
 - Count of highlighted comments for both kind, in realtime.
 - All form controls in Popup are imidiately reflected and realtime.
 - Scroll to the next highlighted comment with `Ctrl + Space`. Scroll to the first highlighted comment with `Ctrl + Shift + Space`. Can pick weather to scroll to 1. Unread highlighted comment, 2. Highlighted comment by timestamp, or 3. Both.
