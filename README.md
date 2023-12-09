@@ -69,7 +69,7 @@ yarn dev:chrome
 
 - To load the extension in Chrome navigate to `chrome://extensions/`, enable `Developer mode` switch and select the entire Chrome extension folder `extension/chrome`.
 
-![Screenshot_4](/docs/screenshots/Screenshot_4.png)
+![Screenshot_3](/docs/screenshots/Screenshot_3.png)
 
 - When debugging the Popup code in Firefox you will need to open developer console with ` Ctrl + Shift + j` and to use `console.error` instead of `console.log`. There is a logger instance in `source/reddit-comments/logger.ts` that you can use for logging and debugging in code other than Popup.
 
