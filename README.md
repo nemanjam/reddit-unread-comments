@@ -75,13 +75,14 @@ yarn dev:chrome
 
 - Use IndexDB wrapper library to reduce complexity and verbosity of the existing database code: [https://github.com/dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [https://github.com/jakearchibald/idb](https://github.com/jakearchibald/idb).
 - The initial extension starter project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter) is outdated and requires updating.
+- Cleanup remaining exceptions from console (if any).
 - Use `useReducer` with `onChange` to handle Popup form fields instead of the existing `react-hook-form` **(maybe)**. Because it's just state management without any validation logic.
 - `isElementInViewport()` can be improved for the comments higher than viewport (maybe).
 - Add live new comment notifications with backgroundScript **(maybe)**.
 - Improve exception classes in `source/reddit-comments/exceptions.ts`.
 - Make `redditThreadUrlRegex` in `source/reddit-comments/constants.ts` mor tight (maybe).
 - Add tests (maybe).
-- Create mote original logo icon (maybe).
+- Create more original logo icon (maybe).
 
 ## References
 

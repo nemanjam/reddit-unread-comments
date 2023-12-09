@@ -220,7 +220,7 @@ type Props = {
 
 const ThemeWithContainer: FC<Props> = ({ children }) => (
   <Theme radius="medium">
-    <Container id="popup" p="4">
+    <Container id="popup" display="block" width="max-content" height="max-content" p="4">
       {children}
     </Container>
   </Theme>
