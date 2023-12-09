@@ -69,6 +69,8 @@ yarn dev:chrome
 
 - When debugging the Popup code in Firefox you will need to open developer console with ` Ctrl + Shift + j` and to use `console.error` instead of `console.log`. There is a logger instance in `source/reddit-comments/logger.ts` that you can use for logging and debugging in code other than Popup.
 
+- To view logs in Chrome you need to enable developer mode and click `background page` link for this extension, see this [Stackoverflow answer](https://stackoverflow.com/questions/10257301/accessing-console-and-devtools-of-extensions-background-js/10258029#10258029)
+
 ## Contributing
 
 - Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:

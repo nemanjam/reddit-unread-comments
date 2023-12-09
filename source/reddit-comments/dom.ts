@@ -47,7 +47,7 @@ import logger from './logger';
 
 // CommentTopMeta--Created--t1_k8etzzz from t1_k8etzzz
 const getTimestampIdFromCommentId = (commentId: string) => {
-  const modalSuffix = hasModalScrollContainer() ? timestampIdModalSuffix : '';
+  const modalSuffix = hasModalScrollContainer() ? timestampIdModalSuffix : ''; //! this failed to detect overlay
   const timestampId = timestampIdPrefix + commentId + modalSuffix;
   return timestampId;
 };
@@ -153,7 +153,7 @@ const getFilteredNewerCommentsByDate = (
 ): HTMLElement[] => {
   const filteredComments = commentElements.filter((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
-    const commentDate = getDateFromCommentId(commentId);
+    const commentDate = getDateFromCommentId(commentId); // here it throws
     return commentDate.getTime() > newerThan.getTime();
   });
 
@@ -572,10 +572,15 @@ export const handleScrollDom = async () => {
   if (!(commentElements.length > 0)) return;
 
   try {
+    // independent of comments in database, comes first
+    //! scroll fires with scrollDebounceWait = 1000 before urlChange 2 seconds, and overlayId is not found, try to fix
+    await highlightByDateWithSettingsData(commentElements);
+
     await delayExecution(markAsRead, markAsReadDelay, commentElements); // always delay
+    // check after delay again
+    if (!isActiveTabAndRedditThread()) return;
 
     await highlight(commentElements);
-    await highlightByDateWithSettingsData(commentElements);
   } catch (error) {
     logger.error('Error handling comments onScroll:', error);
   }
