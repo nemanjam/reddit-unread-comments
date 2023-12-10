@@ -1,6 +1,6 @@
 # Reddit Unread Comments
 
-Did you ever had to reread entire 200+ comments Reddit thread just to find a few new comments? Every day, few times a day?
+Have you ever had to reread entire 200+ comments Reddit thread just to find a few new comments? Every day, few times a day?
 
 Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, open source, privacy aware, runs completely client side without sending any data to any server.
 
@@ -53,7 +53,7 @@ Just simplify things, make them intuitive and sort everything chronologically by
 yarn install
 ```
 
-For Firefox and Chrome you need to run the following scripts respectively:
+- For Firefox and Chrome you need to run the following scripts respectively:
 
 ```bash
 # Firefox
@@ -77,7 +77,7 @@ yarn dev:chrome
 
 ## Contributing
 
-- Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
+Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. Cleanup remaining exceptions from console (if any).
 - Use IndexDB wrapper library to reduce complexity and verbosity of the existing database code: [https://github.com/dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [https://github.com/jakearchibald/idb](https://github.com/jakearchibald/idb).
