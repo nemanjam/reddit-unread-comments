@@ -4,8 +4,6 @@ Have you ever had to reread entire 200+ comments Reddit thread just to find a fe
 
 Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, open source, privacy aware, runs completely client side without sending any data to any server.
 
-**Note:** To use this extension **you must be logged in into your Reddit account** when visiting pages because Reddit has different HTML for signed in and not signed in users.
-
 ## Screenshots
 
 ![Screenshot_1](/docs/screenshots/Screenshot_1.png)
@@ -42,6 +40,8 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 [https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc](https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc/)
 
 ## Usage
+
+**Note:** To use this extension **you must be logged in into your Reddit account** when visiting pages because Reddit has different HTML for signed in and not signed in users.
 
 #### The Problem
 
