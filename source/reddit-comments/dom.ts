@@ -61,7 +61,7 @@ const getDateFromCommentId = (commentId: string): Date => {
       `Comment timestamp element with timestampId: ${timestampId} not found.`
     );
 
-  const timeAgo = timestampElement.innerHTML;
+  const timeAgo = timestampElement.textContent as string;
 
   const date = relativeTimeStringToDate(timeAgo);
   return date;
@@ -73,7 +73,7 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   const sortMenuSpan = document.querySelector<HTMLElement>(sortMenuSpanTextSelector);
   if (!sortMenuSpan) return false;
 
-  if (sortMenuSpan.innerHTML.toLowerCase().includes('new')) return false; // new already
+  if ((sortMenuSpan.textContent as string).toLowerCase().includes('new')) return false; // new already
 
   // get menu
   const sortMenu = document.querySelector<HTMLElement>(sortMenuSelector);
@@ -87,7 +87,8 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
 
   let sortByNewMenuItem: HTMLElement | null = null;
   menuItems.forEach((element) => {
-    if (element.innerHTML.toLowerCase().includes('new')) sortByNewMenuItem = element;
+    if ((element.textContent as string).toLowerCase().includes('new'))
+      sortByNewMenuItem = element;
   });
 
   if (sortByNewMenuItem) (sortByNewMenuItem as HTMLElement).click();
