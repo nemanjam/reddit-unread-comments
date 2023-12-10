@@ -2,7 +2,8 @@
   "extends": [
     "@abhijithvijayan/eslint-config/typescript",
     "@abhijithvijayan/eslint-config/node",
-    "@abhijithvijayan/eslint-config/react"
+    "@abhijithvijayan/eslint-config/react",
+    "plugin:no-unsanitized/DOM"
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"],
@@ -22,7 +23,9 @@
       {
         "ignores": ["modules"]
       }
-    ]
+    ],
+    "no-unsanitized/method": "error",
+    "no-unsanitized/property": "error"
   },
   "env": {
     "webextensions": true

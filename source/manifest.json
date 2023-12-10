@@ -27,9 +27,9 @@
     "name": "Nemanja Mitic"
   },
 
-  "__firefox__applications": {
+  "browser_specific_settings": {
     "gecko": {
-      "id": "{754FB1AD-CC3B-4856-B6A0-7786F8CA9D17}"
+      "id": "{754FB1AD-CC3B-4756-B6A0-7776F7CA9D17}"
     }
   },
 

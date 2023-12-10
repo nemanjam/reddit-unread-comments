@@ -3,3 +3,4 @@ dist/
 extension/
 .yarn/
 .pnp.js
+docs/
