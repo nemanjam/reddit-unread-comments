@@ -1,0 +1,71 @@
+{
+  "manifest_version": 2,
+  "name": "Reddit Unread Comments",
+  "version": "0.0.1",
+
+  "icons": {
+    "16": "assets/icons/favicon-16.png",
+    "32": "assets/icons/favicon-32.png",
+    "48": "assets/icons/favicon-48.png",
+    "128": "assets/icons/favicon-128.png"
+  },
+  "description": "Read new comments on Reddit easier.",
+  "homepage_url": "https://github.com/nemanjam/reddit-unread-comments",
+  "short_name": "Reddit Unread Comments",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "http://*.reddit.com/*",
+    "https://*.reddit.com/*"
+  ],
+
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+
+  "__chrome|firefox__author": "Nemanja Mitic",
+  "__opera__developer": {
+    "name": "Nemanja Mitic"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{754FB1AD-CC3B-4756-B6A0-7776F7CA9D17}"
+    }
+  },
+
+  "__chrome__minimum_chrome_version": "49",
+  "__opera__minimum_opera_version": "36",
+
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/favicon-16.png",
+      "32": "assets/icons/favicon-32.png",
+      "48": "assets/icons/favicon-48.png",
+      "128": "assets/icons/favicon-128.png"
+    },
+    "default_title": "Reddit Unread Comments",
+    "__chrome|opera__chrome_style": false,
+    "__firefox__browser_style": false
+  },
+
+  "__chrome|opera__options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true,
+    "__chrome__chrome_style": false
+  },
+
+  "background": {
+    "scripts": ["js/background.bundle.js"],
+    "__chrome|opera__persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*.reddit.com/*", "https://*.reddit.com/*"],
+      "js": ["js/contentScript.bundle.js"],
+      "css": ["css/contentScript.css"]
+    }
+  ]
+}

@@ -4,6 +4,8 @@ Have you ever had to reread entire 200+ comments Reddit thread just to find a fe
 
 Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, open source, privacy aware, runs completely client side without sending any data to any server.
 
+**Note:** To use this extension **you must be logged in into your Reddit account** when visiting pages because Reddit has different HTML for signed in and not signed in users.
+
 ## Screenshots
 
 ![Screenshot_1](/docs/screenshots/Screenshot_1.png)
@@ -34,6 +36,10 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 #### Firefox store link:
 
 [https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments](https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments/)
+
+#### Chrome store link:
+
+[https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc](https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc/)
 
 ## Usage
 
@@ -78,6 +84,10 @@ yarn dev:chrome
 - When debugging the Popup code in Firefox you will need to open developer console with ` Ctrl + Shift + j` and to use `console.error` instead of `console.log`. There is a logger instance in `source/reddit-comments/logger.ts` that you can use for logging and debugging in code other than Popup.
 
 - To view logs in Chrome you need to enable developer mode and click `background page` link for this extension, see this [Stackoverflow answer](https://stackoverflow.com/questions/10257301/accessing-console-and-devtools-of-extensions-background-js/10258029#10258029)
+
+#### Important:
+
+When building the extension for publishing to stores for Chrome you must use `v3` manifest from `source/manifest-v3-chrome.json` and for Firefox `v2` manifest from `source/manifest-v2-firefox.json`. Just copy the content from the file you need into `source/manifest.json` and build an archive you need.
 
 ## Contributing
 
