@@ -122,3 +122,6 @@ not same db in popup and contentScript? manifest?
     trigger on interval and onChange
 -----------------
 after publish:
+
+github action for tag and release
+dont forget: update readme with links BEFORE the release
