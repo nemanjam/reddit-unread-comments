@@ -99,9 +99,22 @@ yarn dev:chrome
 
 - To view logs in Chrome you need to enable developer mode and click `background page` link for this extension, see this [Stackoverflow answer](https://stackoverflow.com/questions/10257301/accessing-console-and-devtools-of-extensions-background-js/10258029#10258029)
 
+### Building for production
+
+To build binaries run the following commands:
+
+```bash
+# Firefox - outputs: extensions/firefox.xpi
+yarn build:firefox
+
+# Chrome - outputs: extensions/chrome.zip
+yarn build:firefox
+
+```
+
 #### Important:
 
-When building the extension for publishing to stores for Chrome you must use `v3` manifest from `source/manifest-v3-chrome.json` and for Firefox `v2` manifest from `source/manifest-v2-firefox.json`. Just copy the content from the file you need into `source/manifest.json` and build an archive you need.
+When building the extension for publishing to stores for Chrome you must use `v3` manifest from `source/manifest-v3-chrome.json` and for Firefox `v2` manifest from `source/manifest-v2-firefox.json`. Just copy the content from the file you need into `source/manifest.json` and build the archive you need.
 
 ## Contributing
 
