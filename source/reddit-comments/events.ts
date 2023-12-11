@@ -329,3 +329,6 @@ export const attachAllEventHandlers = async () => {
   onReceiveMessage();
   onUrlChange();
 };
+
+// rerun everything when tab gets focus
+document.addEventListener('visibilitychange', attachAllEventHandlers);

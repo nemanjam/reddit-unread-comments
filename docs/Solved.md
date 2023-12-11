@@ -67,4 +67,12 @@ get(id) fails always, use index(objectStore).get(id) even for id
 zapravo sve gore je netacno, glavno je da nisam insert SettingsData row na db create
 solution:
 run settingsObjectStore.add(defaultDbValues); in schema.onupgradeneeded, runs only on schema change
+------------
+after publish:
+event, detect when tab becomes active and let it run
 
+```ts
+document.addEventListener('visibilitychange', attachAllEventHandlers); // just rerun
+
+export const isActiveTab = () => document.visibilityState === 'visible';
+```

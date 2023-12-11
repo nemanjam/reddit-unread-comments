@@ -120,3 +120,5 @@ not same db in popup and contentScript? manifest?
     check if reddit thread url in popup
     display comments count
     trigger on interval and onChange
+-----------------
+after publish:
