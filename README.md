@@ -108,7 +108,7 @@ To build binaries run the following commands:
 yarn build:firefox
 
 # Chrome - outputs: extensions/chrome.zip
-yarn build:firefox
+yarn build:chrome
 
 ```
 
