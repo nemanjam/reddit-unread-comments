@@ -13,12 +13,7 @@
   "homepage_url": "https://github.com/nemanjam/reddit-unread-comments",
   "short_name": "Reddit Unread Comments",
 
-  "permissions": [
-    "storage",
-    "activeTab",
-    "http://*.reddit.com/*",
-    "https://*.reddit.com/*"
-  ],
+  "permissions": ["activeTab", "http://*.reddit.com/*", "https://*.reddit.com/*"],
 
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
