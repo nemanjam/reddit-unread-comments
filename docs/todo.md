@@ -125,3 +125,4 @@ after publish:
 
 github action for tag and release
 dont forget: update readme with links BEFORE the release
+remove focus from new select box, click somewhere else

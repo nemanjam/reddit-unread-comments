@@ -12,7 +12,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ## Features
 
-- Two separate highlighting modes: 1. Highlight unread comments, 2. Highlight based on comment's timestamp.
+- Two separate highlighting modes: 1. Highlight unread comments (red), 2. Highlight based on comment's timestamp (yellow).
 - Unread comments can be un-highlighted: 1. 5 seconds after appearing in viewport, while still being highlighted on mouse hover, 2. After navigating away from thread (url change).
 - Comments are highlighted on both page load (url change) and on scroll.
 - Unread comments are separated in the database into two sessions: 1. Current session (thread visit), 2. All earlier sessions. This way un-highlighting can be managed more precisely and state is never kept inside the DOM.
@@ -67,7 +67,7 @@ Sorting by `Best` (default in most subreddits) breaks chronological order of the
 
 #### The Solution
 
-Just simplify things, make them intuitive and sort everything chronologically by new, mark unread comments since last visit with red highlight for threads that I closely follow and read multiple times, and add independent secondary highlight based on comment's timestamp where I can quickly filter new comments for threads that I visit for the first time or follow less closely. When you move the slider highlight and Count are reflected imidiately. Use `Ctrl + Space` and `Ctrl + Shift + Space` shortcuts to scroll quickly to the next unread page (or new) of comments and to the first unread comment respectively. Optionally force default sorting to `New` for all subreddits. Use reset thread and reset threads options if you want to start from scratch. That's it.
+Just simplify things, make them intuitive and sort everything chronologically by new, mark unread comments since last visit with red highlight for threads that I closely follow and read multiple times, and add independent secondary yellow highlight based on comment's timestamp where I can quickly filter new comments for threads that I visit for the first time or follow less closely. When you move the slider highlight and Count are reflected imidiately. Use `Ctrl + Space` and `Ctrl + Shift + Space` shortcuts to scroll quickly to the next unread page (or new) of comments and to the first unread comment respectively. Optionally force default sorting to `New` for all subreddits. Use reset thread and reset threads options if you want to start from scratch. That's it.
 
 ## Development
 
