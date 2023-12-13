@@ -69,6 +69,8 @@ Sorting by `Best` (default in most subreddits) breaks chronological order of the
 
 Just simplify things, make them intuitive and sort everything chronologically by new, mark unread comments since last visit with red highlight for threads that I closely follow and read multiple times, and add independent secondary yellow highlight based on comment's timestamp where I can quickly filter new comments for threads that I visit for the first time or follow less closely. When you move the slider highlight and Count are reflected imidiately. Use `Ctrl + Space` and `Ctrl + Shift + Space` shortcuts to scroll quickly to the next unread page (or new) of comments and to the first unread comment respectively. Optionally force default sorting to `New` for all subreddits. Use reset thread and reset threads options if you want to start from scratch. That's it.
 
+## Documentation
+
 ## Development
 
 - For the recent Node.js versions (v20+) you will need `NODE_OPTIONS=--openssl-legacy-provider` option which is already included in the `package.json` scripts. Install dependencies with:
@@ -115,6 +117,44 @@ yarn build:chrome
 #### Important:
 
 When building the extension for publishing to stores for Chrome you must use `v3` manifest from `source/manifest-v3-chrome.json` and for Firefox `v2` manifest from `source/manifest-v2-firefox.json`. Just copy the content from the file you need into `source/manifest.json` and build the archive you need.
+
+### Database schema
+
+![Database schema](/docs/screenshots/database-schema.png)
+
+```sql
+-- implemented in IndexDB
+-- https://dbdiagram.io syntax
+
+Table Thread {
+  id integer [primary key]
+  threadId varchar [unique]
+  updatedAt timestamp
+  latestCommentId varchar
+  latestCommentTimestamp timestamp
+}
+
+Table Comment {
+  id integer [primary key]
+  commentId varchar [unique]
+  threadId varchar
+  sessionCreatedAt timestamp [note: '2e2 | now()']
+}
+
+Table Settings {
+  id integer [primary key, default: 1, note: 'singleton']
+  isHighlightOnTime boolean
+  timeSlider varchar
+  timeScale varchar
+  isHighlightUnread boolean
+  unHighlightOn varchar
+  scrollTo varchar
+  sortAllByNew boolean
+  enableLogger boolean
+}
+
+Ref: Thread.threadId < Comment.threadId -- Thread:Comment 1:N
+```
 
 ## Contributing
 
