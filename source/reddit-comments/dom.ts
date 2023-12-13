@@ -155,7 +155,7 @@ const getFilteredNewerCommentsByDate = (
   const filteredComments = commentElements.filter((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
     const commentDate = getDateFromCommentId(commentId); // here it throws
-    return commentDate.getTime() > newerThan.getTime();
+    return commentDate.getTime() >= newerThan.getTime();
   });
 
   return filteredComments;
