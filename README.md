@@ -22,11 +22,11 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 - Sort all Reddit threads by new by default (will introduce additional 3-5 seconds delay for comments to load twice).
 - Enable/disable logging to browser console. Useful for debugging when reporting bugs.
 - Reset highlighted comments for; 1. A thread, 2. All threads, 3. Reset user settings (Popup controls) to default.
-- IndexDb size is checked on every new thread and limited to 1 MB when it will be reduced to 0.5 MB by deleting the oldest threads from the database. Browser limit for IndexDb is around 50 MB.
+- IndexedDB size is checked on every new thread and limited to 1 MB when it will be reduced to 0.5 MB by deleting the oldest threads from the database. Browser limit for IndexedDB is around 50 MB.
 - Extension is minimally obtrusive to the existing Reddit behavior, lazy loading (pagination) of threads is intact, as well as loading threads as new page and within modal. Tailwind preflight styles are disabled, only highlight classes are included so the original Reddit styling is intact.
 - All Reddit selectors are extracted into a single file `source/reddit-comments/constants.ts` making it easier to update and maintain when Reddit modifies design and markup in the future.
 - Extension runs completely client side, no data ever leaves users browser.
-- Extension is loaded only on Reddit domain. Popup is loaded only on Reddit threads. All data is kept within a single IndexDb.
+- Extension is loaded only on Reddit domain. Popup is loaded only on Reddit threads. All data is kept within a single IndexedDB.
 - This extension won't be aware if you visited Reddit threads on a phone app or in other browsers, it runs completely locally.
 
 ## Installation
@@ -123,7 +123,7 @@ When building the extension for publishing to stores for Chrome you must use `v3
 ![Database schema](/docs/screenshots/database-schema.png)
 
 ```sql
--- implemented in IndexDB
+-- implemented in IndexedDB
 -- https://dbdiagram.io syntax
 
 Table Thread {
@@ -161,7 +161,7 @@ Ref: Thread.threadId < Comment.threadId -- Thread:Comment 1:N
 Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. The issue is documented here: [onScroll event fires before onUrlChange #1](https://github.com/nemanjam/reddit-unread-comments/issues/1)
-- Use IndexDB wrapper library to reduce complexity and verbosity of the existing database code: [https://github.com/dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [https://github.com/jakearchibald/idb](https://github.com/jakearchibald/idb).
+- Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [https://github.com/dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [https://github.com/jakearchibald/idb](https://github.com/jakearchibald/idb).
 - The initial extension starter project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter) is outdated and requires updating.
 - Cleanup remaining exceptions from console (if any).
 - Use `useReducer` with `onChange` to handle Popup form fields instead of the existing `react-hook-form` **(maybe)**. Because it's just state management without any validation logic.
@@ -175,7 +175,7 @@ Before any work please open an issue in this repo to discuss with me about a fea
 ## References
 
 - Starter template project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter)
-- Similar outdated extension, idea for IndexDB and `Ctrl + Space` scroll [slikts/unreaddit](https://github.com/slikts/unreaddit)
+- Similar outdated extension, idea for IndexedDB and `Ctrl + Space` scroll [slikts/unreaddit](https://github.com/slikts/unreaddit)
 
 ## Author
 
