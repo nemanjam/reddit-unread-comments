@@ -112,7 +112,7 @@ It's the one feature that I missed myself and wanted to have it. In the existing
 
 Initially I thought to implement this by rewriting the url in which threads are opened by appending `?sort=new` query param. Quickly I discovered that it's not so good idea, it can easily cause recursion and instability in `onUrlChange` event that is implemented using IntersectionObserver. Also it's pretty obtrusive to default Reddit behavior, I am not sure those threads will open in a overlay modal as usual. So I left that idea and went for automating a regular `click` event on the select control in the UI. The downside is that it increases load time for the comments because they need to load twice. It was an tradeoff that I made and I seems good enough for me. Mitigating circumstance is that threads that are already sorted `By New` by default are completely unaffected by this code.
 
-## 11. Calculate latest comment with function closure to avoid nested loops
+## 11. Calculate the latest comment with function closure to avoid nested loops
 
 ChatGPT showed me a nice and elegant trick how to use function closure to keep state which I can further use to reuse the existing `commentElements.forEach()` loop and keep track of the latest comment in same go. This way I could save performance and avoid calculating the same with two nested loops. You can see code example in the `createLatestCommentUpdater()` function in the `dom.ts` file.
 
