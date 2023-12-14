@@ -35,7 +35,7 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 - **Firefox store link:** [https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments](https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments/)
 
-- **Chrome store link:** [https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc](https://chromewebstore.google.com/detail/bbpcddepjkegcdfnddhagpdjhmhnegcc/)
+- **Chrome store link:** [https://chromewebstore.google.com/detail/reddit-unread-comments/bbpcddepjkegcdfnddhagpdjhmhnegcc](https://chromewebstore.google.com/detail/reddit-unread-comments/bbpcddepjkegcdfnddhagpdjhmhnegcc)
 
 ### Install manually
 
