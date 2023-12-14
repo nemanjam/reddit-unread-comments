@@ -77,7 +77,7 @@ Native JavaScript API for working with IndexedDB is pretty verbose, based on cal
 
 ## 4. Highlight, highlight-read classes and sessions
 
-For unread comments there are two CSS classes, `.ruc-highlight-comment` for still unread comments and `.ruc-highlight-comment-read` for read comments in current session, this class has background highlight onHover which can be useful to remind and still identify about new comments. Important note here is that all state about comments is always kept in database and never in the DOM, and DOM with classes can always be recreated. This is achieved with sessions implemented in the database, where only current and all previous sessions are differentiated. Highlight transition is applied only onHover, which is an additional trick.
+For unread comments there are two CSS classes, `.ruc-highlight-comment` for still unread comments and `.ruc-highlight-comment-read` for read comments in current session, this class has background highlight onHover which can be useful to remind and still identify about new comments. Important note here is that all state about comments is always kept in database and never in the DOM, and DOM with classes can always be recreated. This is achieved with sessions implemented in the database, where only current and all previous sessions are differentiated. Highlight transition is applied only onHover out, which is an additional trick.
 
 There is an additional `.ruc-highlight-comment-by-date` class to highlight yellow comment timestamps by time.
 
