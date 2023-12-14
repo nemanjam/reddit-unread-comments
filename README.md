@@ -161,7 +161,7 @@ Ref: Thread.threadId < Comment.threadId -- Thread:Comment 1:N
 Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. The issue is documented here: [onScroll event fires before onUrlChange #1](https://github.com/nemanjam/reddit-unread-comments/issues/1)
-- Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [https://github.com/dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [https://github.com/jakearchibald/idb](https://github.com/jakearchibald/idb).
+- Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [jakearchibald/idb](https://github.com/jakearchibald/idb).
 - The initial extension starter project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter) is outdated and requires updating.
 - Cleanup remaining exceptions from console (if any).
 - Use `useReducer` with `onChange` to handle Popup form fields instead of the existing `react-hook-form` **(maybe)**. Because it's just state management without any validation logic.
