@@ -71,6 +71,10 @@ Just simplify things, make them intuitive and sort everything chronologically by
 
 ## Documentation
 
+- If you are an **user** you can find the features overview here: [users-note.md](/docs/users-note.md).
+
+- If you are a **developer** and want to contribute or understand codebase faster you can find the code overview here: [developers-note.md](/docs/developers-note.md). Additionally there are more unsorted working notes in this folder: [/docs/work-notes](/docs/work-notes/).
+
 ## Development
 
 - For the recent Node.js versions (v20+) you will need `NODE_OPTIONS=--openssl-legacy-provider` option which is already included in the `package.json` scripts. Install dependencies with:
@@ -158,7 +162,7 @@ Ref: Thread.threadId < Comment.threadId -- Thread:Comment 1:N
 
 ## Contributing
 
-Before any work please open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
+Before any work please have a look at [Documentation](#documentation), and then open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. The issue is documented here: [onScroll event fires before onUrlChange #1](https://github.com/nemanjam/reddit-unread-comments/issues/1)
 - Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [jakearchibald/idb](https://github.com/jakearchibald/idb).
