@@ -1,4 +1,5 @@
-import { sub, isToday, startOfDay, format } from 'date-fns';
+import { sub, format } from 'date-fns';
+import { dateCorrectionOffset } from './constants';
 
 import { SettingsData, TimeScaleType } from './database/schema';
 import { MyUnparsableDateException } from './exceptions';
@@ -101,5 +102,11 @@ export const radioAndSliderToDate = (
 
   const pastDate = sub(new Date(), { [unit]: timeSlider });
 
-  return pastDate;
+  // make the slider 30 seconds older than it is so the comment passes the filtering condition
+  // fixes flickering for 1hr > 1hr
+  // should be done exactly and only here
+  // sub = older, add = newer
+  const correctedPastDate = sub(pastDate, { seconds: dateCorrectionOffset });
+
+  return correctedPastDate;
 };

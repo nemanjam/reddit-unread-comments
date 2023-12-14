@@ -78,6 +78,9 @@ export const databaseName = 'reddit-unread-comments-db';
 /** 2 * 10**12 */
 export const currentSessionCreatedAt = 2e12 as const;
 
+/** Offset in seconds to fix Date comparison 1hr > 1hr and prevent flicker. */
+export const dateCorrectionOffset = 30 as const;
+
 // tested
 /** Start deleting at. */
 export const dbSizeLimit: number = 1 * 1024 * 1024; // 1 MB limit
