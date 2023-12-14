@@ -39,19 +39,19 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ### Install manually
 
-Go to release page [https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.2](https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.2) and download Firefox `.xpi` or Chrome `.zip`.
+Go to release page [https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.3](https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.3) and download Firefox `.xpi` or Chrome `.zip`.
 
 - **Firefox manual install:**
 
-  - In Firefox click `Settings` (three horizontal lines in the top-right corner), click `Extensions tab`, click `Gear` icon right from `Manage Your Extensions`, choose `Install Add-on From File...` from the menu and browse `reddit-unread-comments-v0.0.2-firefox.xpi` file which you can download from the release page.
+  - In Firefox click `Settings` (three horizontal lines in the top-right corner), click `Extensions tab`, click `Gear` icon right from `Manage Your Extensions`, choose `Install Add-on From File...` from the menu and browse `reddit-unread-comments-v0.0.3-firefox.xpi` file which you can download from the release page.
 
-  - **Firefox `.xpi`:** [reddit-unread-comments-v0.0.2-firefox.xpi](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.2/reddit-unread-comments-v0.0.2-firefox.xpi)
+  - **Firefox `.xpi`:** [reddit-unread-comments-v0.0.3-firefox.xpi](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.3/reddit-unread-comments-v0.0.3-firefox.xpi)
 
 - **Chrome manual install:**
 
-  - In Chrome navigate to `chrome://extensions/`, switch `Enable developer mode` to true, click `Load unpacked` and browse `reddit-unread-comments-v0.0.2-chrome.zip` file which you can download from the release page.
+  - In Chrome navigate to `chrome://extensions/`, switch `Enable developer mode` to true, click `Load unpacked` and browse `reddit-unread-comments-v0.0.3-chrome.zip` file which you can download from the release page.
 
-  - **Chrome `.zip`:** [reddit-unread-comments-v0.0.2-chrome.zip](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.2/reddit-unread-comments-v0.0.2-chrome.zip)
+  - **Chrome `.zip`:** [reddit-unread-comments-v0.0.3-chrome.zip](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.3/reddit-unread-comments-v0.0.3-chrome.zip)
 
 ## Usage
 
@@ -166,6 +166,7 @@ Before any work please have a look at [Documentation](#documentation), and then 
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. The issue is documented here: [onScroll event fires before onUrlChange #1](https://github.com/nemanjam/reddit-unread-comments/issues/1)
 - Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [jakearchibald/idb](https://github.com/jakearchibald/idb).
+- Add Github Action for a new tag and release.
 - The initial extension starter project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter) is outdated and requires updating.
 - Cleanup remaining exceptions from console (if any).
 - Use `useReducer` with `onChange` to handle Popup form fields instead of the existing `react-hook-form` **(maybe)**. Because it's just state management without any validation logic.
