@@ -73,7 +73,7 @@ Just simplify things, make them intuitive and sort everything chronologically by
 
 - If you are an **user** you can find the features overview here: [users-note.md](/docs/users-note.md).
 
-- If you are a **developer** and want to contribute or understand codebase faster you can find the code overview here: [developers-note.md](/docs/developers-note.md). Additionally there are more unsorted working notes in this folder: [/docs/work-notes](/docs/work-notes/).
+- If you are a **developer** and want to contribute or understand codebase faster you can find the code overview and implementation details explained here: [developers-note.md](/docs/developers-note.md). Additionally there are more unsorted working notes in this folder: [/docs/work-notes](/docs/work-notes/).
 
 ## Development
 
