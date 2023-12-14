@@ -127,7 +127,7 @@ When building the extension for publishing to stores for Chrome you must use `v3
 -- https://dbdiagram.io syntax
 
 Table Thread {
-  id integer [primary key]
+  id integer [primary key, note: 'autoincrement']
   threadId varchar [unique]
   updatedAt timestamp
   latestCommentId varchar
@@ -135,7 +135,7 @@ Table Thread {
 }
 
 Table Comment {
-  id integer [primary key]
+  id integer [primary key, note: 'autoincrement']
   commentId varchar [unique]
   threadId varchar
   sessionCreatedAt timestamp [note: '2e2 | now()']
