@@ -91,7 +91,10 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
       sortByNewMenuItem = element;
   });
 
-  if (sortByNewMenuItem) (sortByNewMenuItem as HTMLElement).click();
+  if (sortByNewMenuItem) {
+    (sortByNewMenuItem as HTMLElement).click();
+    sortMenu.blur(); // remove :focus-visible border
+  }
 
   return true;
 };

@@ -232,6 +232,7 @@ const handleMessageFromPopup = async (
             break;
 
           case changedSections.includes('sectionLogger'):
+            await logger.resetInstance();
             break;
 
           default:

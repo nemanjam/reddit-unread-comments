@@ -124,5 +124,9 @@ not same db in popup and contentScript? manifest?
 after publish:
 
 github action for tag and release
-dont forget: update readme with links BEFORE the release
+don't forget: update readme with links BEFORE the release
+
+// done v0.0.4
 remove focus from new select box, click somewhere else
+logger switch isn't realtime, Logger.resetInstance()
+

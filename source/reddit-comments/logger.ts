@@ -25,6 +25,10 @@ class Logger {
     return Logger.instance;
   }
 
+  public async resetInstance(): Promise<void> {
+    await this.checkEnableLoggerStatus();
+  }
+
   private async checkEnableLoggerStatus(): Promise<void> {
     try {
       // these db functions must not use logger, not created yet
