@@ -130,3 +130,5 @@ don't forget: update readme with links BEFORE the release
 remove focus from new select box, click somewhere else
 logger switch isn't realtime, Logger.resetInstance()
 
+git tag -a v0.0.4 -m "Release 0.0.4"
+git push origin v0.0.4
