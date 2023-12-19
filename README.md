@@ -10,6 +10,8 @@ Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, op
 
 ## Demo
 
+[![Demo video](/docs/screenshots/Screenshot_youtube.png)](https://www.youtube.com/watch?v=dHw0pM3ZzqY)
+
 ## Features
 
 - Two separate highlighting modes: 1. Highlight unread comments (red), 2. Highlight based on comment's timestamp (yellow).
