@@ -57,7 +57,7 @@ Go to release page [https://github.com/nemanjam/reddit-unread-comments/releases/
 
 ## Usage
 
-**Note:** 1. To use this extension **you must be logged in into your Reddit account** when visiting pages because Reddit has different HTML for signed in and not signed in users. 2. Also it's meant **only for new Reddit website `www.reddit.com`**, it won't work on old website `old.reddit.com`. 3. To open the User Settings popup you must navigate to a Reddit thread.
+**Note:** 1. To use this extension **you must be logged in into your Reddit account** when visiting pages because Reddit has different HTML for signed in and not signed in users. 2. Also it's meant **only for the main Reddit website `www.reddit.com`**, it won't work on old website `old.reddit.com` and new website `new.reddit.com`. 3. To open the User Settings popup you must navigate to a Reddit thread.
 
 #### The Problem
 
