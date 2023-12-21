@@ -171,7 +171,7 @@ Ref: Thread.threadId < Comment.threadId -- Thread:Comment 1:N
 Before any work please have a look at [Documentation](#documentation), and then open an issue in this repo to discuss with me about a feature you want to add. Some of the possible future tasks are:
 
 - `onScroll` in thread overlay fires before `onUrlChange` with less delay for DOM to load, causing overlay not to be detected and comment `timestampId` not to be found, exception is handled but still try to fix. The issue is documented here: [onScroll event fires before onUrlChange #1](https://github.com/nemanjam/reddit-unread-comments/issues/1)
-- Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [dexie/Dexie.js](https://github.com/dexie/Dexie.js) or [jakearchibald/idb](https://github.com/jakearchibald/idb).
+- Use IndexedDB wrapper library to reduce complexity and verbosity of the existing database code: [dexie/Dexie.js](https://github.com/dexie/Dexie.js), [jakearchibald/idb](https://github.com/jakearchibald/idb) or [jindalujjwal0720/leafstore](https://github.com/jindalujjwal0720/leafstore)
 - Add Github Action for a new tag and release.
 - The initial extension starter project [abhijithvijayan/web-extension-starter](https://github.com/abhijithvijayan/web-extension-starter) is outdated and requires updating.
 - Cleanup remaining exceptions from console (if any).
