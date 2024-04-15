@@ -1,6 +1,5 @@
 import { attachAllEventHandlers } from './events';
-
-import './styles.scss'; // import only on reddit...?
+import './styles.scss';
 
 const main = () => {
   attachAllEventHandlers();
