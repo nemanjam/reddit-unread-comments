@@ -1,4 +1,4 @@
-import { threadPostSelector } from '../constants';
+import { threadPostSelector } from '../constants/selectors';
 import { MyElementNotFoundDOMException } from '../exceptions';
 import { validateThreadElementIdOrThrow } from '../validation';
 

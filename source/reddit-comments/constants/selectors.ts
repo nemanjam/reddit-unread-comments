@@ -5,6 +5,7 @@ export const redditThreadUrlRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comme
 export const redditUrlRegex = /https?:\/\/www\.?reddit\.com.*/;
 
 // comment
+export const commentIdAttribute = 'thingid';
 export const commentSelector = 'shreddit-comment[thingid^="t1_"]';
 export const getCommentSelectorById = (commentId: string) =>
   `shreddit-comment[thingid^="${commentId}"]`;

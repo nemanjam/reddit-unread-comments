@@ -1,4 +1,5 @@
 import { highlightedCommentByDateClass } from '../constants/config';
+import { commentIdAttribute } from '../constants/selectors';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
 import { radioAndSliderToDate } from '../datetime';
@@ -13,7 +14,9 @@ export const getFilteredNewerCommentsByDate = (
   const filteredComments = commentElements.filter((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
     const commentDate = getDateFromCommentId(commentId); // here it throws
-    return commentDate.getTime() > newerThan.getTime();
+    const isNewComment = commentDate.getTime() > newerThan.getTime();
+
+    return isNewComment;
   });
 
   return filteredComments;
@@ -26,7 +29,9 @@ export const highlightByDate = (
 ): void => {
   const commentsArray = Array.from(commentElements);
   const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
-  const filteredCommentsIds = filteredComments.map((commentElement) => commentElement.id);
+  const filteredCommentsIds = filteredComments
+    .map((commentElement) => commentElement.getAttribute(commentIdAttribute) as string)
+    .filter(Boolean);
 
   commentElements.forEach((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);

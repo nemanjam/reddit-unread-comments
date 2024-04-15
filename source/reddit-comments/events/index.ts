@@ -1,3 +1,4 @@
+import { truncateDatabase } from '../database/limit-size';
 import { initSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
 import { isActiveTab } from '../utils';
