@@ -370,7 +370,9 @@ const markAsRead = async (commentElements: NodeListOf<HTMLElement>): Promise<voi
   await updateThread(db, {
     threadId,
     ...(latestCommentId && { latestCommentId }),
-    ...(latestCommentDate && { latestCommentTimestamp: latestCommentDate.getTime() }),
+    ...(latestCommentDate && {
+      latestCommentTimestamp: latestCommentDate.getTime(),
+    }),
   });
 };
 

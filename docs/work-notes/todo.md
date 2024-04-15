@@ -134,3 +134,9 @@ git tag -a v0.0.4 -m "Release 0.0.4"
 git push all v0.0.4
 ----------
 add mark thread as read button
+
+
+git checkout -b feature/new-reddit-design
+
+git push -u origin feature/new-reddit-design
+

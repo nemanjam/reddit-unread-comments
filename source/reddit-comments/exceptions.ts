@@ -39,6 +39,8 @@ export class MyElementNotFoundDOMException extends MyBaseDOMException {}
 
 export class MyElementIdNotValidDOMException extends MyBaseDOMException {}
 
+export class MyElementAttributeNotValidDOMException extends MyBaseDOMException {}
+
 /*--------------------------- Database Exceptions -------------------------*/
 
 // not needed

@@ -1,6 +1,6 @@
 {
   "extends": [
-    "@abhijithvijayan/eslint-config/typescript",
+    // "@abhijithvijayan/eslint-config/typescript", // garbage
     "@abhijithvijayan/eslint-config/node",
     "@abhijithvijayan/eslint-config/react",
     "plugin:no-unsanitized/DOM"
@@ -25,7 +25,12 @@
       }
     ],
     "no-unsanitized/method": "error",
-    "no-unsanitized/property": "error"
+    "no-unsanitized/property": "error",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "off",
+    // "prettier/prettier": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   "env": {
     "webextensions": true

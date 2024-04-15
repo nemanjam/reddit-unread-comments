@@ -7,7 +7,7 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@abhijithvijayan/eslint-config-airbnb@^1.0.2":
+"@abhijithvijayan/eslint-config-airbnb@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@abhijithvijayan/eslint-config-airbnb/-/eslint-config-airbnb-1.0.2.tgz#f2fd992f7aea5e38dd17f69219696559fd60b610"
   integrity sha512-z7RQadE1sEiiygtrjYrfx/VTK6K/v74h5RL1QVgWxyMW+itl5tkzAyM5v+Fa9d0+y7SurSDDXHJqOnxBOeJieQ==
@@ -20,7 +20,7 @@
   resolved "https://registry.yarnpkg.com/@abhijithvijayan/eslint-config/-/eslint-config-2.6.3.tgz#3f560c99ce4e9631a404d956c4396835e1e52aa7"
   integrity sha512-njS8R0Q4FAtealxY48CmL8Ms58xPPqTZAcabB+92mogmfVkkHOlgb8kHfhW1PZpbe9xhHkKR5HwrkdMPNbMoiA==
 
-"@abhijithvijayan/tsconfig@^1.3.0":
+"@abhijithvijayan/tsconfig@1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@abhijithvijayan/tsconfig/-/tsconfig-1.3.0.tgz#cbf70537884dbf61872a1e1645f73f5e6f347edc"
   integrity sha512-hE16KPLQdygY07f50Lnb4QS2XvUV1anoCNQxsr3rNW2iOAJ/JUhAqIpYqbX6z6UK44ErYHtwUOeW9lOCDjucAQ==
