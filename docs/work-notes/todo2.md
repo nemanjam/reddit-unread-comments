@@ -4,5 +4,6 @@ parse exact time from time.datetime iso string
 put config vars into single object
 mark as read in popup ui
 review delay values
+fix sort by new selector
 
 

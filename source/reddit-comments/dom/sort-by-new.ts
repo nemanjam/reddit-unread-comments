@@ -9,13 +9,21 @@ import { wait } from '../utils';
 /** Returns true if it wasn't by new already. */
 export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   // check if its new already
-  const sortMenuSpan = document.querySelector<HTMLElement>(sortMenuSpanTextSelector);
-  if (!sortMenuSpan) return false;
+  const currentlySelectedElement = document.querySelector<HTMLElement>(
+    sortMenuSpanTextSelector
+  );
+  if (!currentlySelectedElement) return false;
 
-  if ((sortMenuSpan.textContent as string).toLowerCase().includes('new')) return false; // new already
+  const currentlySelectedText = (
+    currentlySelectedElement.textContent as string
+  ).toLowerCase();
+  if (currentlySelectedText.includes('new')) return false; // new already
 
   // get menu
   const sortMenu = document.querySelector<HTMLElement>(sortMenuSelector);
+
+  console.log('sortMenu', sortMenu);
+
   if (!sortMenu) return false;
 
   sortMenu.click();

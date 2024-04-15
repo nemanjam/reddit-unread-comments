@@ -14,8 +14,8 @@ export const getFilteredNewerCommentsByDate = (
   const filteredComments = commentElements.filter((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);
     const commentDate = getDateFromCommentId(commentId); // here it throws
-    const isNewComment = commentDate.getTime() > newerThan.getTime();
 
+    const isNewComment = commentDate.getTime() > newerThan.getTime();
     return isNewComment;
   });
 

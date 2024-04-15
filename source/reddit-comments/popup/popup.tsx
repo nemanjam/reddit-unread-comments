@@ -16,7 +16,7 @@ import {
   calcHighlightOnTimeDebounceWait,
   formSubmitDebounceWait,
   highlightedCommentsCountInterval,
-} from '../constants';
+} from '../constants/config';
 import { debounce, isRedditThread } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';

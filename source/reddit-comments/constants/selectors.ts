@@ -30,6 +30,6 @@ export const pageHeaderSelector = 'reddit-header-large';
 
 // sort dropdown
 // test these
-export const sortMenuSelector = 'shreddit-comments-sort-dropdown';
-export const sortMenuSpanTextSelector = 'button[id="comment-sort-button"] > span > span';
+export const sortMenuSelector = 'shreddit-sort-dropdown';
+export const sortMenuSpanTextSelector = 'div[slot="selected-item"]'; // element outside of shadow dom
 export const sortByNewMenuItemSelector = 'div[slot="dropdown-items"] data[value="NEW"]';
