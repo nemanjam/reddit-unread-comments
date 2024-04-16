@@ -10,7 +10,7 @@ import { onUrlChange } from './on-url-change';
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
 
-  await truncateDatabase();
+  // await truncateDatabase();
 
   // create database
   const db = await openDatabase();

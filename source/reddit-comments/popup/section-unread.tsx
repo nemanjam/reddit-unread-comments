@@ -33,7 +33,7 @@ const SectionUnread: FC<Props> = ({ form, count }) => {
         </Flex>
       </Text>
       <Text as="label" size="2">
-        Unhighlight on:
+        Mark as read on:
       </Text>
       <Controller
         name="unHighlightOn"
