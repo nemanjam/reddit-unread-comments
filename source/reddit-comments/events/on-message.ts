@@ -6,7 +6,13 @@ import {
   deleteAllThreadsWithComments,
   deleteThreadWithComments,
 } from '../database/limit-size';
-import { getSettings, resetSettings, updateSettings } from '../database/models/settings';
+import {
+  defaultValues,
+  getSettings,
+  resetSettings,
+  updateSettings,
+} from '../database/models/settings';
+import { markCommentsAsReadInCurrentSessionForThread } from '../database/models/thread';
 import { openDatabase, SettingsData, SettingsDataKeys } from '../database/schema';
 import { highlightByDateWithSettingsData } from '../dom/highlight-by-date';
 import {
@@ -17,6 +23,7 @@ import {
   calcHighlightedByDateCount,
   calcHighlightedUnreadCount,
   getAllComments,
+  getAllCommentsIds,
   removeHighlightByDateClass,
   removeHighlightClass,
   removeHighlightReadClass,
@@ -30,7 +37,7 @@ import { detectChanges, wait } from '../utils';
 
 export const formSectionsKeys = {
   sectionTime: ['isHighlightOnTime', 'timeSlider', 'timeScale'],
-  sectionUnread: ['isHighlightUnread', 'unHighlightOn'],
+  sectionUnread: ['isHighlightUnread', 'unHighlightOn', 'markAllAsRead'],
   sectionScroll: ['scrollTo'],
   sectionSort: ['sortAllByNew'],
   sectionLogger: ['enableLogger'],
@@ -67,8 +74,12 @@ const handleMessageFromPopup = async (
 
         const db = await openDatabase();
         // only correct place to get prev settings
-        const previousSettingsData = await getSettings(db);
+        const previousSettingsDbData = await getSettings(db);
         await updateSettings(db, settingsData);
+
+        // enhance with props that aren't in db, but only default values
+        const { markAllAsRead } = defaultValues;
+        const previousSettingsData = { ...previousSettingsDbData, markAllAsRead };
 
         const changedKeys = detectChanges(previousSettingsData, settingsData);
 
@@ -100,7 +111,7 @@ const handleMessageFromPopup = async (
 
           // un-highlight on-scroll or url change
           case changedSections.includes('sectionUnread'): {
-            const { unHighlightOn, isHighlightUnread } = settingsData;
+            const { unHighlightOn, isHighlightUnread, markAllAsRead } = settingsData;
 
             if (changedKeys.includes('isHighlightUnread')) {
               if (isHighlightUnread === true) {
@@ -122,6 +133,21 @@ const handleMessageFromPopup = async (
                 await highlightByRead(commentElements);
                 break;
             }
+
+            if (changedKeys.includes('markAllAsRead')) {
+              if (markAllAsRead === true) {
+                const commentIds = getAllCommentsIds();
+                const threadIdFromDom = getThreadIdFromDom();
+                await markCommentsAsReadInCurrentSessionForThread(
+                  db,
+                  threadIdFromDom,
+                  commentIds
+                );
+                const commentElements = getAllComments();
+                await highlightByRead(commentElements);
+              }
+            }
+
             break;
           }
 

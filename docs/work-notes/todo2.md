@@ -11,4 +11,18 @@ update readme
 all exception should be handled in 1-2 chosen levels
 everything should throw custom exception classes and log
 db wrapper
-mark thread as read button
+mark thread as read button, immediately radio
+
+// ovde na pocetku nove sesije oznacava prethodnu kao procitanu
+const { threadId, updatedAt } = existingThread;
+const updatedComments = await updateCommentsSessionCreatedAtForThread(
+  db,
+  threadId,
+  updatedAt
+);
+comment.sessionCreatedAt = thread.updatedAt
+
+// zapravo meni treba ovo, da oznacim comments mark as rad za current session, sa 2e12
+// a to je addComment()
+  const sessionCreatedAt = currentSessionCreatedAt;
+  await addComment(db, { threadId, commentId, sessionCreatedAt });

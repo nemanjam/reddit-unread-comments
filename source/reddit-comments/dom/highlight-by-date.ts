@@ -29,9 +29,9 @@ export const highlightByDate = (
 ): void => {
   const commentsArray = Array.from(commentElements);
   const filteredComments = getFilteredNewerCommentsByDate(commentsArray, newerThan);
-  const filteredCommentsIds = filteredComments
-    .map((commentElement) => commentElement.getAttribute(commentIdAttribute) as string)
-    .filter(Boolean);
+  const filteredCommentsIds = filteredComments.map((commentElement) =>
+    validateCommentElementIdOrThrow(commentElement)
+  );
 
   commentElements.forEach((commentElement) => {
     const commentId = validateCommentElementIdOrThrow(commentElement);

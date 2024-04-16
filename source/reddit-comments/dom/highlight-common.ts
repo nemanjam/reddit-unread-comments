@@ -5,6 +5,7 @@ import {
   highlightedCommentReadClass,
 } from '../constants/config';
 import { commentSelector } from '../constants/selectors';
+import { validateCommentElementIdOrThrow } from '../validation';
 
 // sync, fix for big comments
 export const isElementInViewport = (element: HTMLElement) => {
@@ -78,4 +79,12 @@ export const calcHighlightedUnreadCount = (): number => {
 export const getAllComments = (): NodeListOf<HTMLElement> => {
   const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
   return commentElements;
+};
+
+export const getAllCommentsIds = (): string[] => {
+  const commentElements = getAllComments();
+  const commentIds = Array.from(commentElements).map((commentElement) =>
+    validateCommentElementIdOrThrow(commentElement)
+  );
+  return commentIds;
 };

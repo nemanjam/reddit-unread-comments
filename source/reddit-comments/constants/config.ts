@@ -26,6 +26,8 @@ export const calcHighlightOnTimeDebounceWait = 300;
 /** Refetch every interval. */
 export const highlightedCommentsCountInterval = 1000;
 
+export const markAllAsReadDbAndDomWait = 500;
+
 /*--------------- highlighting --------------*/
 
 /** In highlight by read mode, delay to mark as read and un-highlight comments. */
