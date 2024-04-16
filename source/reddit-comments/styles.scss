@@ -2,14 +2,17 @@
 
 /*-------------------------------- from database ------------------------------*/
 
-.ruc-highlight-comment div[id^='t1_'] {
+// outline doesn't affect size, border does
+// transition requires correct (same) both start and end css rules
+
+.ruc-highlight-comment > div[slot='comment'] {
   @apply bg-red-100;
-  @apply border border-solid rounded border-red-300;
+  @apply outline-1 outline outline-red-300;
   @apply transition-none;
 }
 
-.ruc-highlight-comment-read div[id^='t1_'] {
-  @apply bg-transparent;
+.ruc-highlight-comment-read > div[slot='comment'] {
+  @apply bg-transparent outline-transparent;
   @apply transition duration-1000 ease-linear;
   @apply hover:bg-red-100 hover:transition-none;
 }
