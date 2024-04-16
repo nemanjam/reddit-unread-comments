@@ -39,9 +39,7 @@ export const pageHeaderSelector = 'reddit-header-large';
 export const sortMenuShadowHostSelector = 'shreddit-sort-dropdown';
 // inside shadow dom
 export const currentlySelectedItemSelector = '#comment-sort-button > span > span';
-// shadow host 2
-export const sortMenuShadowHost2Selector = 'faceplate-dropdown-menu';
-export const sortMenuClickSelector = '#trigger';
+export const sortMenuClickSelector = '#comment-sort-button';
 
 // dropdown item new
 export const sortByNewMenuItemSelector = 'div[slot="dropdown-items"] span.text-14';

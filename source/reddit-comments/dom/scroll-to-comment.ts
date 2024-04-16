@@ -40,6 +40,8 @@ export const scrollNextCommentIntoView = async (scrollToFirstComment = false) =>
   const db = await openDatabase();
   const settingsData = await getSettings(db);
 
+  console.log('scrollNextCommentIntoView');
+
   const highlightedCommentsSelector = `.${highlightedCommentClass}`;
   const highlightedCommentsByDateSelector = `.${highlightedCommentByDateClass}`;
 

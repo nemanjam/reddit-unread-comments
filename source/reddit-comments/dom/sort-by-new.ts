@@ -3,7 +3,6 @@ import {
   currentlySelectedItemSelector,
   sortByNewMenuItemSelector,
   sortMenuShadowHostSelector,
-  sortMenuShadowHost2Selector,
   sortMenuClickSelector,
   mainContentForBlurSelector,
 } from '../constants/selectors';
@@ -35,15 +34,7 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   if (currentlySelectedText.includes('new')) return false; // new already
 
   // get dropdown menu
-  const shadowHost2 = shadowRoot.querySelector(sortMenuShadowHost2Selector);
-  const shadowRoot2 = shadowHost2?.shadowRoot;
-
-  if (!shadowRoot2)
-    throw new MyElementNotFoundDOMException(
-      `shadowRoot2 not found. sortMenuShadowHost2Selector: ${sortMenuShadowHost2Selector}`
-    );
-
-  const sortMenu = shadowRoot2.querySelector<HTMLElement>(sortMenuClickSelector);
+  const sortMenu = shadowRoot.querySelector<HTMLElement>(sortMenuClickSelector);
   if (!sortMenu)
     throw new MyElementNotFoundDOMException(
       `sortMenu not found. sortMenuClickSelector: ${sortMenuClickSelector}`

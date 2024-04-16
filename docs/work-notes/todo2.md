@@ -7,4 +7,7 @@ review delay values
 fix sort by new selector
 wrapper for querySelector that returns Node or throws, not null
 scroll ctrl + space broken
-
+update readme
+all exception should be handled in 1-2 chosen levels
+everything should throw custom exception classes and log
+db wrapper
