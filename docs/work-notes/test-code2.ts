@@ -30,3 +30,33 @@ document.querySelectorAll('shreddit-comment[thingid^="t1_kzklld1"]');
 document.querySelector(
   'shreddit-comment[thingid^="t1_kzklld1"] time:first-child[datetime]'
 );
+
+const shadowHost = document.getElementById('shadow-host');
+const shadowRoot = shadowHost.getRootNode();
+const buttonInsideShadow = shadowRoot.querySelector('button');
+buttonInsideShadow.click();
+
+
+document.querySelector('shreddit-sort-dropdown').click()
+
+
+document.querySelector('#comment-sort-button').click()
+
+
+document.querySelectorAll('shreddit-sort-dropdown')
+
+
+
+var shadowHost = document.querySelector('shreddit-sort-dropdown');
+var buttonInsideShadow = shadowHost.shadowRoot.querySelector('button[id="comment-sort-button"] > span > span');
+buttonInsideShadow.textContent
+
+buttonInsideShadow.click();
+
+
+document.querySelector('button[id="comment-sort-button"]');
+
+
+document.querySelector('data[value="NEW"]').click()
+
+document.querySelector('#main-content').click()

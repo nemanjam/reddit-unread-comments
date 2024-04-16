@@ -5,5 +5,6 @@ put config vars into single object
 mark as read in popup ui
 review delay values
 fix sort by new selector
-
+wrapper for querySelector that returns Node or throws, not null
+scroll ctrl + space broken
 

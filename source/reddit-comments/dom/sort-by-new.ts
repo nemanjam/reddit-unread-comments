@@ -1,46 +1,81 @@
 import { sortMenuWait } from '../constants/config';
 import {
+  currentlySelectedItemSelector,
   sortByNewMenuItemSelector,
-  sortMenuSelector,
-  sortMenuSpanTextSelector,
+  sortMenuShadowHostSelector,
+  sortMenuShadowHost2Selector,
+  sortMenuClickSelector,
+  mainContentForBlurSelector,
 } from '../constants/selectors';
+import { MyElementNotFoundDOMException } from '../exceptions';
 import { wait } from '../utils';
 
 /** Returns true if it wasn't by new already. */
 export const clickSortByNewMenuItem = async (): Promise<boolean> => {
-  // check if its new already
-  const currentlySelectedElement = document.querySelector<HTMLElement>(
-    sortMenuSpanTextSelector
-  );
-  if (!currentlySelectedElement) return false;
+  // get currently selected sort order
 
-  const currentlySelectedText = (
-    currentlySelectedElement.textContent as string
-  ).toLowerCase();
+  // same shadowHost is reused for currently selected item and dropdown menu click
+  const shadowHost = document.querySelector(sortMenuShadowHostSelector);
+  const shadowRoot = shadowHost?.shadowRoot;
+  if (!shadowRoot)
+    throw new MyElementNotFoundDOMException(
+      `shadowRoot not found. sortMenuShadowHostSelector: ${sortMenuShadowHostSelector}`
+    );
+
+  const currentlySelectedElement = shadowRoot.querySelector(
+    currentlySelectedItemSelector
+  );
+  const currentlySelectedElementText = currentlySelectedElement?.textContent;
+  if (!currentlySelectedElementText)
+    throw new MyElementNotFoundDOMException(
+      `currentlySelectedElementText not found. currentlySelectedElementText: ${currentlySelectedElementText}`
+    );
+
+  const currentlySelectedText = currentlySelectedElementText.toLowerCase();
   if (currentlySelectedText.includes('new')) return false; // new already
 
-  // get menu
-  const sortMenu = document.querySelector<HTMLElement>(sortMenuSelector);
+  // get dropdown menu
+  const shadowHost2 = shadowRoot.querySelector(sortMenuShadowHost2Selector);
+  const shadowRoot2 = shadowHost2?.shadowRoot;
 
-  console.log('sortMenu', sortMenu);
+  if (!shadowRoot2)
+    throw new MyElementNotFoundDOMException(
+      `shadowRoot2 not found. sortMenuShadowHost2Selector: ${sortMenuShadowHost2Selector}`
+    );
 
-  if (!sortMenu) return false;
-
+  const sortMenu = shadowRoot2.querySelector<HTMLElement>(sortMenuClickSelector);
+  if (!sortMenu)
+    throw new MyElementNotFoundDOMException(
+      `sortMenu not found. sortMenuClickSelector: ${sortMenuClickSelector}`
+    );
   sortMenu.click();
+
   await wait(sortMenuWait);
 
   // get items
   const menuItems = document.querySelectorAll<HTMLElement>(sortByNewMenuItemSelector);
 
+  if (!(menuItems?.length > 0))
+    throw new MyElementNotFoundDOMException(
+      `menuItems not found. sortByNewMenuItemSelector: ${sortByNewMenuItemSelector}`
+    );
+
   let sortByNewMenuItem: HTMLElement | null = null;
   menuItems.forEach((element) => {
-    if ((element.textContent as string).toLowerCase().includes('new'))
-      sortByNewMenuItem = element;
+    const itemText = element.textContent;
+    if (itemText?.toLowerCase().includes('new')) sortByNewMenuItem = element;
   });
 
   if (sortByNewMenuItem) {
     (sortByNewMenuItem as HTMLElement).click();
-    sortMenu.blur(); // remove :focus-visible border
+
+    // remove :focus-visible border
+    const mainContent = document.querySelector<HTMLElement>(mainContentForBlurSelector);
+    if (!mainContent)
+      throw new MyElementNotFoundDOMException(
+        `mainContent not found. mainContentForBlurSelector: ${mainContentForBlurSelector}`
+      );
+    mainContent?.click();
   }
 
   return true;

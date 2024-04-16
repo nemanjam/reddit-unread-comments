@@ -1,17 +1,20 @@
 // selectors, easier to select children than parents
 
-// url regex
+/*------------------ url regex -----------------*/
+
 export const redditThreadUrlRegex = /https?:\/\/www\.?reddit\.com\/r\/\w+\/comments\/.+/;
 export const redditUrlRegex = /https?:\/\/www\.?reddit\.com.*/;
 
-// comment
+/*------------------ comment -----------------*/
+
 export const commentIdAttribute = 'thingid';
 export const commentSelector = 'shreddit-comment[thingid^="t1_"]';
 export const getCommentSelectorById = (commentId: string) =>
   `shreddit-comment[thingid^="${commentId}"]`;
 export const commentIdRegexValidate = /^t1_[a-z0-9]+$/;
 
-// timestamp
+/*----------------- timestamp ----------------*/
+
 export const getTimestampSelectorById = (commentId: string) => {
   const targetCommentSelector = getCommentSelectorById(commentId);
 
@@ -20,16 +23,28 @@ export const getTimestampSelectorById = (commentId: string) => {
   return timestampSelector;
 };
 
-// thread
+/*----------------- thread ----------------*/
+
 export const threadPostSelector = 'shreddit-post[id^="t3_"]';
 export const threadPostIdRegexReplace = /^t3_/; // Only to get url id from element.id
 export const threadPostIdRegexValidate = /^t3_[a-z0-9]+$/;
 
-// header
+/*----------------- header ----------------*/
+
 export const pageHeaderSelector = 'reddit-header-large';
 
-// sort dropdown
-// test these
-export const sortMenuSelector = 'shreddit-sort-dropdown';
-export const sortMenuSpanTextSelector = 'div[slot="selected-item"]'; // element outside of shadow dom
-export const sortByNewMenuItemSelector = 'div[slot="dropdown-items"] data[value="NEW"]';
+/*------------- sort dropdown ------------*/
+
+// shadow host 1
+export const sortMenuShadowHostSelector = 'shreddit-sort-dropdown';
+// inside shadow dom
+export const currentlySelectedItemSelector = '#comment-sort-button > span > span';
+// shadow host 2
+export const sortMenuShadowHost2Selector = 'faceplate-dropdown-menu';
+export const sortMenuClickSelector = '#trigger';
+
+// dropdown item new
+export const sortByNewMenuItemSelector = 'div[slot="dropdown-items"] span.text-14';
+
+// for blur, outside of shadow dom, simple selector
+export const mainContentForBlurSelector = '#main-content';
