@@ -4,6 +4,14 @@ Have you ever had to reread entire 200+ comments Reddit thread just to find a fe
 
 Chrome/Firefox extension for easier tracking of new comments on Reddit. Free, open source, privacy aware, runs completely client side without sending any data to any server.
 
+#### Update 2024
+
+Around January 2024. Reddit moved all users to the new design and made version `v0.0.4` outdated. In April 2024. I updated the extension to `1.0.0` to support the new design, and that is the only Reddit design that is supported (available on `www.reddit.com`).
+
+The screenshot bellows shows the new design, demo video shows deprecated design - all features are the same, it shouldn't be a problem.
+
+Version `1.0.0` also includes `Immediately` checkbox to mark the current thread as read manually.
+
 ## Screenshots
 
 ![Screenshot_1](/docs/screenshots/Screenshot_1.png)
