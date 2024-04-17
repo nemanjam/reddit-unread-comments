@@ -60,3 +60,12 @@ document.querySelector('button[id="comment-sort-button"]');
 document.querySelector('data[value="NEW"]').click()
 
 document.querySelector('#main-content').click()
+
+-------------
+
+var currentElement = document.querySelector('shreddit-comment[thingid^="t1_kz4bckd"]')
+var contentElement = currentElement.querySelector('shreddit-comment[thingid^="t1_kz4bckd"] > div[slot="comment"]')
+contentElement;
+
+
+

@@ -1,6 +1,6 @@
 {
   "name": "reddit-unread-comments",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "Web extension for easier tracking of new comments on Reddit.",
   "private": false,
   "repository": "https://github.com/nemanjam/reddit-unread-comments",

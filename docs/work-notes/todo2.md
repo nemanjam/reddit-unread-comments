@@ -13,6 +13,7 @@ everything should throw custom exception classes and log
 db wrapper
   mark thread as read button, immediately radio
   add version label
+  nested comments, check that only comments content is in viewport
 
 // ovde na pocetku nove sesije oznacava prethodnu kao procitanu
 const { threadId, updatedAt } = existingThread;

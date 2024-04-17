@@ -4,11 +4,11 @@ import {
   highlightedCommentClass,
   highlightedCommentReadClass,
 } from '../constants/config';
-import { commentSelector } from '../constants/selectors';
+import { commentSelector, getContentSelectorFromId } from '../constants/selectors';
 import { validateCommentElementIdOrThrow } from '../validation';
 
 // sync, fix for big comments
-export const isElementInViewport = (element: HTMLElement) => {
+export const isElementInViewport = (element: HTMLElement): boolean => {
   const rect = element.getBoundingClientRect();
   const elementHeight = commentHeightHeadroom + (rect.bottom - rect.top);
 
@@ -25,6 +25,16 @@ export const isElementInViewport = (element: HTMLElement) => {
 
   const result = isInViewport || isHigherThanViewportAndVisible;
   return result;
+};
+
+export const getCommentContentElement = (commentElement: HTMLElement) => {
+  const commentId = validateCommentElementIdOrThrow(commentElement);
+  const contentSelector = getContentSelectorFromId(commentId);
+
+  // query from commentElement to save performance
+  // selector for current element can match element itself
+  const contentElement = commentElement.querySelector<HTMLElement>(contentSelector);
+  return contentElement;
 };
 
 export const addClass = (element: HTMLElement, className: string): void => {

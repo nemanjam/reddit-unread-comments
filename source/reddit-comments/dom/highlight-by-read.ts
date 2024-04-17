@@ -20,7 +20,12 @@ import { MyCreateModelFailedDBException } from '../exceptions';
 import logger from '../logger';
 import { isActiveTabAndRedditThread } from '../utils';
 import { validateCommentElementIdOrThrow } from '../validation';
-import { addClass, isElementInViewport, removeClass } from './highlight-common';
+import {
+  addClass,
+  getCommentContentElement,
+  isElementInViewport,
+  removeClass,
+} from './highlight-common';
 import { getThreadIdFromDom } from './thread';
 import { getDateFromCommentId } from './timestamp';
 
@@ -154,7 +159,11 @@ export const markAsRead = async (
     const commentId = validateCommentElementIdOrThrow(commentElement);
     const isAlreadyMarkedComment = allSessionsCommentsIds.includes(commentId); // all checks in one loop
 
-    if (!isElementInViewport(commentElement) || isAlreadyMarkedComment) return;
+    // since comments are now nested, select only content of the comment
+    const commentContentElement = getCommentContentElement(commentElement);
+    if (!commentContentElement) return;
+
+    if (!isElementInViewport(commentContentElement) || isAlreadyMarkedComment) return;
 
     const sessionCreatedAt = currentSessionCreatedAt;
     await addComment(db, { threadId, commentId, sessionCreatedAt });

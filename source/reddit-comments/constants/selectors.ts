@@ -9,18 +9,27 @@ export const redditUrlRegex = /https?:\/\/www\.?reddit\.com.*/;
 
 export const commentIdAttribute = 'thingid';
 export const commentSelector = 'shreddit-comment[thingid^="t1_"]';
-export const getCommentSelectorById = (commentId: string) =>
-  `shreddit-comment[thingid^="${commentId}"]`;
 export const commentIdRegexValidate = /^t1_[a-z0-9]+$/;
 
-/*----------------- timestamp ----------------*/
+// comment
+export const getCommentSelectorFromId = (commentId: string) =>
+  `shreddit-comment[thingid^="${commentId}"]`;
 
-export const getTimestampSelectorById = (commentId: string) => {
-  const targetCommentSelector = getCommentSelectorById(commentId);
+// timestamp
+export const getTimestampSelectorFromId = (commentId: string) => {
+  const targetCommentSelector = getCommentSelectorFromId(commentId);
 
   // select direct child element first to exclude nested comments
   const timestampSelector = `${targetCommentSelector} > div[slot="commentMeta"] time[datetime]`;
   return timestampSelector;
+};
+
+// content
+export const getContentSelectorFromId = (commentId: string) => {
+  const targetCommentSelector = getCommentSelectorFromId(commentId);
+
+  const contentSelector = `${targetCommentSelector} > div[slot="comment"]`; // used in styles.scss too
+  return contentSelector;
 };
 
 /*----------------- thread ----------------*/

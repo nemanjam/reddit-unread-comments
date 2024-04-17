@@ -1,11 +1,11 @@
-import { getTimestampSelectorById } from '../constants/selectors';
+import { getTimestampSelectorFromId } from '../constants/selectors';
 import {
   MyElementAttributeNotValidDOMException,
   MyElementNotFoundDOMException,
 } from '../exceptions';
 
 export const getTimestampElementFromCommentId = (commentId: string) => {
-  const timestampSelector = getTimestampSelectorById(commentId);
+  const timestampSelector = getTimestampSelectorFromId(commentId);
   const timestampElement = document.querySelector<HTMLElement>(timestampSelector);
 
   return timestampElement;
