@@ -19,6 +19,7 @@ export const defaultDbValues: SettingsData = {
 export const defaultValues: SettingsData = {
   ...defaultDbValues,
   resetDb: '',
+  markAllAsRead: false,
 } as const;
 
 export const addSettings = async (

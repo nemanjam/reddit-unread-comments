@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import { Flex, Text, RadioGroup, Switch, Box } from '@radix-ui/themes';
+import { Flex, Text, RadioGroup, Switch, Box, Checkbox } from '@radix-ui/themes';
 
 import { SettingsData } from '../database/schema';
 
@@ -33,7 +33,7 @@ const SectionUnread: FC<Props> = ({ form, count }) => {
         </Flex>
       </Text>
       <Text as="label" size="2">
-        Unhighlight on:
+        Mark as read:
       </Text>
       <Controller
         name="unHighlightOn"
@@ -55,6 +55,22 @@ const SectionUnread: FC<Props> = ({ form, count }) => {
               </Text>
             </Flex>
           </RadioGroup.Root>
+        )}
+      />
+      <Controller
+        name="markAllAsRead"
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <Text as="label" size="2">
+            <Flex gap="2">
+              <Checkbox
+                onCheckedChange={onChange}
+                checked={value}
+                disabled={isDisabledSection}
+              />
+              Immediately
+            </Flex>
+          </Text>
         )}
       />
     </Flex>

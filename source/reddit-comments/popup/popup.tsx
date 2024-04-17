@@ -16,8 +16,9 @@ import {
   calcHighlightOnTimeDebounceWait,
   formSubmitDebounceWait,
   highlightedCommentsCountInterval,
-} from '../constants';
-import { debounce, isRedditThread } from '../utils';
+  markAllAsReadDbAndDomWait,
+} from '../constants/config';
+import { debounce, isRedditThread, wait } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';
 import logger from '../logger';
@@ -39,6 +40,7 @@ const Popup: FC = () => {
   const timeSlider = watch('timeSlider');
   const isHighlightOnTime = watch('isHighlightOnTime');
   const isHighlightUnread = watch('isHighlightUnread');
+  const markAllAsRead = watch('markAllAsRead');
 
   //! CANT USE DB, write generic function to get db data
 
@@ -65,7 +67,9 @@ const Popup: FC = () => {
         const response: MyMessageType = await sendMessage(message);
 
         const settingsData: SettingsData = response.payload;
-        reset({ ...settingsData, resetDb: defaultValues.resetDb });
+        const { resetDb, markAllAsRead } = defaultValues;
+
+        reset({ ...settingsData, resetDb, markAllAsRead });
       } catch (error) {
         logger.error('Populating settings failed, error:', error);
       }
@@ -98,6 +102,28 @@ const Popup: FC = () => {
 
     onChange();
   }, [isHighlightOnTime, timeScale, timeSlider]);
+
+  // re-calc unread comments after markAllAsRead
+  useEffect(() => {
+    const getHighlightedUnreadCount = async () => {
+      // wait for db and dom to update
+      await wait(markAllAsReadDbAndDomWait);
+
+      const message: MyMessageType = {
+        type: messageTypes.CALC_HIGHLIGHTED_UNREAD_COUNT,
+      };
+      const response: MyMessageType = await sendMessage(message);
+      const highlightedUnreadCount = response.payload;
+
+      setHighlightedUnreadCount(highlightedUnreadCount);
+
+      resetField('markAllAsRead');
+    };
+
+    if (markAllAsRead) {
+      getHighlightedUnreadCount();
+    }
+  }, [markAllAsRead]);
 
   // refetch count of highlighted comments while popup is open
   useEffect(() => {
@@ -192,7 +218,7 @@ const Popup: FC = () => {
       <form onChange={debouncedHandleSubmit}>
         <SectionTime form={form} count={highlightedOnTimeCount} />
         <Separator size="4" my="4" />
-        <Flex style={{ height: 90 }}>
+        <Flex style={{ height: 125 }}>
           <SectionUnread form={form} count={highlightedUnreadCount} />
           <Separator orientation="vertical" size="4" mx="4" />
           <SectionScroll form={form} />

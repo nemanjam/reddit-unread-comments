@@ -2,7 +2,7 @@ import { currentSessionCreatedAt } from '../../constants';
 import { MyModelNotFoundDBException } from '../../exceptions';
 import logger from '../../logger';
 import { ThreadData, Thread, CommentData, Comment } from '../schema';
-import { updateComment } from './comment';
+import { addComment, updateComment } from './comment';
 
 export const addThread = async (
   db: IDBDatabase,
@@ -168,6 +168,36 @@ export const updateCommentsSessionCreatedAtForThread = (
 
         Promise.all(updatePromises)
           .then((updatedComments) => resolve(updatedComments))
+          .catch((error) => reject(error));
+      })
+      .catch((error) => reject(error));
+  });
+
+export const markCommentsAsReadInCurrentSessionForThread = (
+  db: IDBDatabase,
+  threadId: string,
+  commentIds: string[]
+): Promise<CommentData[]> =>
+  new Promise<CommentData[]>((resolve, reject) => {
+    getAllCommentsForThread(db, threadId)
+      .then((dbComments) => {
+        const newCommentsToAdd = commentIds.filter(
+          (commentId) =>
+            !dbComments.find((dbComment) => dbComment.commentId === commentId)
+        );
+
+        if (!(newCommentsToAdd.length > 0)) return resolve([]);
+
+        const addPromises = newCommentsToAdd.map((commentId) =>
+          addComment(db, {
+            commentId,
+            threadId,
+            sessionCreatedAt: currentSessionCreatedAt,
+          })
+        );
+
+        Promise.all(addPromises)
+          .then((addedComments) => resolve(addedComments))
           .catch((error) => reject(error));
       })
       .catch((error) => reject(error));

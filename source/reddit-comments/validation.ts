@@ -1,5 +1,6 @@
 import { MyElementIdNotValidDOMException } from './exceptions';
 import { commentIdRegexValidate, threadPostIdRegexValidate } from './constants';
+import { commentIdAttribute } from './constants/selectors';
 
 /** Returns boolean. */
 export const validateThreadId = (threadId: string): boolean =>
@@ -16,7 +17,10 @@ export const validateThreadElementIdOrThrow = (threadElement: HTMLElement): stri
 };
 
 export const validateCommentElementIdOrThrow = (commentElement: HTMLElement): string => {
-  if (!validateCommentId(commentElement.id))
-    throw new MyElementIdNotValidDOMException(`Invalid Comment.id: ${commentElement.id}`);
-  return commentElement.id;
+  const commentId = commentElement.getAttribute(commentIdAttribute);
+
+  if (!(commentId && validateCommentId(commentId)))
+    throw new MyElementIdNotValidDOMException(`Invalid Comment.thingid: ${commentId}`);
+
+  return commentId;
 };

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Reddit Unread Comments",
-  "version": "0.0.4",
+  "version": "1.0.0",
 
   "icons": {
     "16": "assets/icons/favicon-16.png",
@@ -13,7 +13,9 @@
   "homepage_url": "https://github.com/nemanjam/reddit-unread-comments",
   "short_name": "Reddit Unread Comments",
 
-  "permissions": ["activeTab", "http://*.reddit.com/*", "https://*.reddit.com/*"],
+  "permissions": ["activeTab"],
+
+  "host_permissions": ["http://*.reddit.com/*", "https://*.reddit.com/*"],
 
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
@@ -22,12 +24,6 @@
   "__chrome|firefox__author": "Nemanja Mitic",
   "__opera__developer": {
     "name": "Nemanja Mitic"
-  },
-
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{754FB1AD-CC3B-4756-B6A0-7776F7CA9D17}"
-    }
   },
 
   "__chrome__minimum_chrome_version": "88",
@@ -53,7 +49,8 @@
   },
 
   "background": {
-    "service_worker": "js/background.bundle.js"
+    "__firefox__scripts": ["js/background.bundle.js"],
+    "__chrome|opera|edge__service_worker": "js/bgServiceWorker.bundle.js"
   },
 
   "content_scripts": [

@@ -1,122 +1,43 @@
-import browser, { Runtime } from 'webextension-polyfill';
+/*---------------------- Listen to messages in contentScript --------------------*/
 
-import {
-  debounce,
-  detectChanges,
-  hasArrivedToRedditThread,
-  hasLeftRedditThread,
-  isActiveTab,
-  wait,
-} from './utils';
-import {
-  calcHighlightedByDateCount,
-  calcHighlightedUnreadCount,
-  clickSortByNewMenuItem,
-  currentIndex,
-  getAllComments,
-  getScrollElement,
-  getThreadIdFromDom,
-  handleScrollDom,
-  handleUrlChangeDom,
-  highlight,
-  highlightByDateWithSettingsData,
-  removeHighlightByDateClass,
-  removeHighlightClass,
-  removeHighlightReadClass,
-  scrollNextCommentIntoView,
-  updateCommentsFromPreviousSessionOrCreateThread,
-} from './dom';
-import {
-  scrollDebounceWait,
-  urlChangeDebounceWait,
-  waitAfterSortByNew,
-} from './constants';
+import browser, { Runtime } from 'webextension-polyfill';
+import { waitAfterSortByNew } from '../constants/config';
 import {
   deleteAllThreadsWithComments,
   deleteThreadWithComments,
-  getAllDbData,
-  truncateDatabase,
-} from './database/limit-size';
-import { messageTypes, MyMessageType } from './message';
-import { openDatabase, SettingsData, SettingsDataKeys } from './database/schema';
+} from '../database/limit-size';
 import {
+  defaultValues,
   getSettings,
-  initSettings,
   resetSettings,
   updateSettings,
-} from './database/models/settings';
-import logger from './logger';
-
-/**------------------------------------------------------------------------
- *                           onUrlChange ->  onScroll
- *------------------------------------------------------------------------**/
-
-/*------------------------------- onKeyDown -----------------------------*/
-
-const handleCtrlSpaceKeyDown = async (event: KeyboardEvent) => {
-  // ctrl + shift + space -> scroll to first
-  if (event.ctrlKey && event.code === 'Space') {
-    if (event.shiftKey) {
-      await scrollNextCommentIntoView(true);
-    } else {
-      await scrollNextCommentIntoView();
-    }
-  }
-};
-
-/*-------------------------------- onScroll ------------------------------*/
-
-const handleScroll = () => handleScrollDom();
-const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
-
-const handleUrlChange = async (previousUrl: string, currentUrl: string) => {
-  // modal or document
-  const scrollElement = getScrollElement();
-
-  if (hasArrivedToRedditThread(previousUrl, currentUrl)) {
-    scrollElement.addEventListener('scroll', debouncedScrollHandler);
-
-    // listen keys on document
-    document.addEventListener('keydown', handleCtrlSpaceKeyDown);
-
-    // test onUrlChange and onScroll independently
-    await handleUrlChangeDom();
-  }
-
-  if (hasLeftRedditThread(previousUrl, currentUrl)) {
-    scrollElement.removeEventListener('scroll', debouncedScrollHandler);
-  }
-};
-
-// must wait for redirect and page content load
-const debouncedUrlChangeHandler = debounce(handleUrlChange, urlChangeDebounceWait);
-
-/*-------------------------------- onUrlChange ------------------------------*/
-
-let previousUrl = '';
-const observer = new MutationObserver(async () => {
-  // string is primitive type, create backup
-  const previousUrlCopy = previousUrl;
-  const currentUrl = location.href;
-
-  if (currentUrl !== previousUrl) {
-    previousUrl = currentUrl;
-
-    // run on all pages to attach and detach scroll listeners
-    await debouncedUrlChangeHandler(previousUrlCopy, currentUrl);
-  }
-});
-
-const onUrlChange = () => {
-  observer.observe(document, { subtree: true, childList: true });
-  document.addEventListener('beforeunload', () => observer.disconnect());
-};
-
-/*---------------------- Listen to messages in contentScript --------------------*/
+} from '../database/models/settings';
+import { markCommentsAsReadInCurrentSessionForThread } from '../database/models/thread';
+import { openDatabase, SettingsData, SettingsDataKeys } from '../database/schema';
+import { highlightByDateWithSettingsData } from '../dom/highlight-by-date';
+import {
+  highlightByRead,
+  updateCommentsFromPreviousSessionOrCreateThread,
+} from '../dom/highlight-by-read';
+import {
+  calcHighlightedByDateCount,
+  calcHighlightedUnreadCount,
+  getAllComments,
+  getAllCommentsIds,
+  removeHighlightByDateClass,
+  removeHighlightClass,
+  removeHighlightReadClass,
+} from '../dom/highlight-common';
+import { currentIndex } from '../dom/scroll-to-comment';
+import { clickSortByNewMenuItem } from '../dom/sort-by-new';
+import { getThreadIdFromDom } from '../dom/thread';
+import logger from '../logger';
+import { messageTypes, MyMessageType } from '../message';
+import { detectChanges, wait } from '../utils';
 
 export const formSectionsKeys = {
   sectionTime: ['isHighlightOnTime', 'timeSlider', 'timeScale'],
-  sectionUnread: ['isHighlightUnread', 'unHighlightOn'],
+  sectionUnread: ['isHighlightUnread', 'unHighlightOn', 'markAllAsRead'],
   sectionScroll: ['scrollTo'],
   sectionSort: ['sortAllByNew'],
   sectionLogger: ['enableLogger'],
@@ -153,8 +74,12 @@ const handleMessageFromPopup = async (
 
         const db = await openDatabase();
         // only correct place to get prev settings
-        const previousSettingsData = await getSettings(db);
+        const previousSettingsDbData = await getSettings(db);
         await updateSettings(db, settingsData);
+
+        // enhance with props that aren't in db, but only default values
+        const { markAllAsRead } = defaultValues;
+        const previousSettingsData = { ...previousSettingsDbData, markAllAsRead };
 
         const changedKeys = detectChanges(previousSettingsData, settingsData);
 
@@ -186,12 +111,12 @@ const handleMessageFromPopup = async (
 
           // un-highlight on-scroll or url change
           case changedSections.includes('sectionUnread'): {
-            const { unHighlightOn, isHighlightUnread } = settingsData;
+            const { unHighlightOn, isHighlightUnread, markAllAsRead } = settingsData;
 
             if (changedKeys.includes('isHighlightUnread')) {
               if (isHighlightUnread === true) {
                 const commentElements = getAllComments();
-                await highlight(commentElements);
+                await highlightByRead(commentElements);
               } else {
                 // disable main highlight
                 removeHighlightClass();
@@ -205,9 +130,24 @@ const handleMessageFromPopup = async (
                 break;
               case 'on-scroll':
                 const commentElements = getAllComments();
-                await highlight(commentElements);
+                await highlightByRead(commentElements);
                 break;
             }
+
+            if (changedKeys.includes('markAllAsRead')) {
+              if (markAllAsRead === true) {
+                const commentIds = getAllCommentsIds();
+                const threadIdFromDom = getThreadIdFromDom();
+                await markCommentsAsReadInCurrentSessionForThread(
+                  db,
+                  threadIdFromDom,
+                  commentIds
+                );
+                const commentElements = getAllComments();
+                await highlightByRead(commentElements);
+              }
+            }
+
             break;
           }
 
@@ -226,7 +166,7 @@ const handleMessageFromPopup = async (
 
                 const commentElements = getAllComments();
                 await highlightByDateWithSettingsData(commentElements);
-                await highlight(commentElements);
+                await highlightByRead(commentElements);
               }
             }
             break;
@@ -255,7 +195,7 @@ const handleMessageFromPopup = async (
         // reset current thread
         await updateCommentsFromPreviousSessionOrCreateThread();
         const commentElements = getAllComments();
-        await highlight(commentElements);
+        await highlightByRead(commentElements);
         break;
       }
 
@@ -268,7 +208,7 @@ const handleMessageFromPopup = async (
         // reset current thread
         await updateCommentsFromPreviousSessionOrCreateThread();
         const commentElements = getAllComments();
-        await highlight(commentElements);
+        await highlightByRead(commentElements);
         break;
       }
 
@@ -312,24 +252,6 @@ const handleMessageFromPopup = async (
   return;
 };
 
-const onReceiveMessage = () => {
+export const onReceiveMessage = () => {
   browser.runtime.onMessage.addListener(handleMessageFromPopup);
 };
-
-/*-------------------------------- Entry point ------------------------------*/
-
-export const attachAllEventHandlers = async () => {
-  if (!isActiveTab()) return;
-
-  // await truncateDatabase();
-
-  // create database
-  const db = await openDatabase();
-  await initSettings(db);
-
-  onReceiveMessage();
-  onUrlChange();
-};
-
-// rerun everything when tab gets focus
-document.addEventListener('visibilitychange', attachAllEventHandlers);

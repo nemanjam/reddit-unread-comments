@@ -19,6 +19,7 @@ type TimeUnit =
   | 'year'
   | 'years';
 
+/** Unused. */
 export const relativeTimeStringToDate = (relativeTime: string): Date => {
   const [value, unit] = relativeTime.split(' ');
   let date: Date;

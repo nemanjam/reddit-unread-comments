@@ -41,6 +41,7 @@ export interface SettingsData {
   enableLogger: boolean;
   /** not persisted in db */
   resetDb?: ResetDbType;
+  markAllAsRead?: boolean;
 }
 export type SettingsDataKeys = keyof SettingsData;
 
