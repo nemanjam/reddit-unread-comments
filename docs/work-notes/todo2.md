@@ -15,6 +15,8 @@ db wrapper
   add version label
   nested comments, check that only comments content is in viewport
 
+  fix chrome manifest errors
+
 // ovde na pocetku nove sesije oznacava prethodnu kao procitanu
 const { threadId, updatedAt } = existingThread;
 const updatedComments = await updateCommentsSessionCreatedAtForThread(
