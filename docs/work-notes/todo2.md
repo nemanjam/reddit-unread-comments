@@ -11,7 +11,8 @@ update readme
 all exception should be handled in 1-2 chosen levels
 everything should throw custom exception classes and log
 db wrapper
-mark thread as read button, immediately radio
+  mark thread as read button, immediately radio
+  add version label
 
 // ovde na pocetku nove sesije oznacava prethodnu kao procitanu
 const { threadId, updatedAt } = existingThread;
