@@ -49,19 +49,19 @@ Version `1.0.0` also includes `Immediately` checkbox to mark the current thread 
 
 ### Install manually
 
-Go to release page [https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.4](https://github.com/nemanjam/reddit-unread-comments/releases/tag/v0.0.4) and download Firefox `.xpi` or Chrome `.zip`.
+Go to release page [https://github.com/nemanjam/reddit-unread-comments/releases/tag/1.0.0](https://github.com/nemanjam/reddit-unread-comments/releases/tag/1.0.0) and download Firefox `.xpi` or Chrome `.zip`.
 
 - **Firefox manual install:**
 
-  - In Firefox click `Settings` (three horizontal lines in the top-right corner), click `Extensions tab`, click `Gear` icon right from `Manage Your Extensions`, choose `Install Add-on From File...` from the menu and browse `reddit-unread-comments-v0.0.4-firefox.xpi` file which you can download from the release page.
+  - In Firefox click `Settings` (three horizontal lines in the top-right corner), click `Extensions tab`, click `Gear` icon right from `Manage Your Extensions`, choose `Install Add-on From File...` from the menu and browse `reddit-unread-comments-1.0.0-firefox.xpi` file which you can download from the release page.
 
-  - **Firefox `.xpi`:** [reddit-unread-comments-v0.0.4-firefox.xpi](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.4/reddit-unread-comments-v0.0.4-firefox.xpi)
+  - **Firefox `.xpi`:** [reddit-unread-comments-1.0.0-firefox.xpi](https://github.com/nemanjam/reddit-unread-comments/releases/download/1.0.0/reddit-unread-comments-1.0.0-firefox.xpi)
 
 - **Chrome manual install:**
 
-  - In Chrome navigate to `chrome://extensions/`, switch `Enable developer mode` to true, click `Load unpacked` and browse `reddit-unread-comments-v0.0.4-chrome.zip` file which you can download from the release page.
+  - In Chrome navigate to `chrome://extensions/`, switch `Enable developer mode` to true, click `Load unpacked` and browse `reddit-unread-comments-1.0.0-chrome.zip` file which you can download from the release page.
 
-  - **Chrome `.zip`:** [reddit-unread-comments-v0.0.4-chrome.zip](https://github.com/nemanjam/reddit-unread-comments/releases/download/v0.0.4/reddit-unread-comments-v0.0.4-chrome.zip)
+  - **Chrome `.zip`:** [reddit-unread-comments-1.0.0-chrome.zip](https://github.com/nemanjam/reddit-unread-comments/releases/download/1.0.0/reddit-unread-comments-1.0.0-chrome.zip)
 
 ## Usage
 
