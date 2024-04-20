@@ -43,11 +43,11 @@ const getCurrentUrl = (): string => {
 
 let previousUrl = '';
 const observer = new MutationObserver(async () => {
-  //! important: must wait for location.href to update
-  await wait(1000);
-
   // string is primitive type, create backup
   const previousUrlCopy = previousUrl;
+
+  //! important: must wait for location.href to update
+  await wait(1000);
   const currentUrl = location.href;
 
   if (currentUrl !== previousUrl) {
