@@ -14,8 +14,10 @@ db wrapper
   mark thread as read button, immediately radio
   add version label
   nested comments, check that only comments content is in viewport
-
   fix chrome manifest errors
+
+react testing library to retry to wait for content to load
+fix blur on dropdown
 
 // ovde na pocetku nove sesije oznacava prethodnu kao procitanu
 const { threadId, updatedAt } = existingThread;
@@ -30,3 +32,6 @@ comment.sessionCreatedAt = thread.updatedAt
 // a to je addComment()
   const sessionCreatedAt = currentSessionCreatedAt;
   await addComment(db, { threadId, commentId, sessionCreatedAt });
+
+await retrySelectComments()
+onScroll, onKeyDown treba attach samo jednom

@@ -68,4 +68,32 @@ var contentElement = currentElement.querySelector('shreddit-comment[thingid^="t1
 contentElement;
 
 
+{
+  "__@virtualstate/navigation/key": {
+    "__@virtualstate/navigation/meta": true,
+    "currentIndex": 2,
+    "key": "9d9a9f58-b440-45ce-a845-790cc6ca92f6",
+    "entries": [
+      {
+        "id": "76b406fd-8adc-4c47-affa-54109584b9a6",
+        "key": "4c03bb89-03a1-4979-9042-9c8627a8533b",
+        "url": "https://www.reddit.com/r/AskSerbia/comments/1c8vef2/najbolji_primeri_upotrebe_dvostrane_lepljive_trake/",
+        "sameDocument": true
+      },
+      {
+        "id": "f9231630-0b04-4a3d-a944-acd23e2d1658",
+        "key": "200481fc-44b4-47a0-992d-66aafc23f1a2",
+        "url": "https://www.reddit.com/r/AskSerbia/",
+        "sameDocument": true
+      },
+      {
+        "id": "ec59cd16-5b03-49d5-b5b2-fe74f500a33f",
+        "key": "9d9a9f58-b440-45ce-a845-790cc6ca92f6",
+        "url": "https://www.reddit.com/r/AskSerbia/comments/1c8q5ds/pismeni_iz_engleskog/",
+        "sameDocument": true
+      }
+    ]
+  }
+}
+
 
