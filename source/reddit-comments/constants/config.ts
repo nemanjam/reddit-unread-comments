@@ -8,6 +8,17 @@ export const scrollDebounceWait = 1000;
 /** Must wait for routing (change page), and load content */
 export const urlChangeDebounceWait = 2000;
 
+/** Important for urlChange event. */
+export const waitForLocationHrefToUpdate = 1000;
+
+/*------ retry and wait for comments to load -----*/
+
+export const retryMaxCount = 15;
+
+export const retryTimeout = 15 * 1000;
+
+export const retryWait = 1000;
+
 /*----------- sort by new dropdown ----------*/
 
 /** Wait for new comments to reload. */

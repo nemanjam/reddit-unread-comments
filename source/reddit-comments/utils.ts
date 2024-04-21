@@ -1,5 +1,6 @@
 import { redditThreadUrlRegex, redditUrlRegex } from './constants';
 import { SettingsData, SettingsDataKeys } from './database/schema';
+import { getAllComments } from './dom/highlight-common';
 
 export type AnyFunction = (...args: any[]) => any;
 
@@ -52,6 +53,24 @@ export const isRedditThreadWithHref = (): boolean => isRedditThread(location.hre
 
 export const isActiveTabAndRedditThread = (): boolean =>
   isActiveTab() && isRedditThreadWithHref();
+
+export const isActiveTabAndRedditThreadAndHasComments = () => {
+  const isActiveTabValue = isActiveTab();
+  const isRedditThread = isRedditThreadWithHref();
+
+  const commentElements = getAllComments();
+  const hasComments = commentElements.length > 0;
+
+  const result = {
+    isActiveTab: isActiveTabValue,
+    isRedditThread,
+    hasComments,
+    commentElements,
+    isOk: isActiveTabValue && isRedditThread && hasComments,
+  };
+
+  return result;
+};
 
 export const hasArrivedToRedditThread = (
   previousUrl: string,

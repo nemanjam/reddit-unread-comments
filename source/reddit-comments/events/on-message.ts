@@ -14,7 +14,7 @@ import {
 } from '../database/models/settings';
 import { markCommentsAsReadInCurrentSessionForThread } from '../database/models/thread';
 import { openDatabase, SettingsData, SettingsDataKeys } from '../database/schema';
-import { highlightByDateWithSettingsData } from '../dom/highlight-by-date';
+import { highlightByDate } from '../dom/highlight-by-date';
 import {
   highlightByRead,
   updateCommentsFromPreviousSessionOrCreateThread,
@@ -101,7 +101,7 @@ const handleMessageFromPopup = async (
               const commentElements = getAllComments();
 
               // highlight on form change
-              await highlightByDateWithSettingsData(commentElements);
+              await highlightByDate(commentElements);
             } else {
               // if not un-highlight
               removeHighlightByDateClass();
@@ -165,7 +165,7 @@ const handleMessageFromPopup = async (
                 await wait(waitAfterSortByNew);
 
                 const commentElements = getAllComments();
-                await highlightByDateWithSettingsData(commentElements);
+                await highlightByDate(commentElements);
                 await highlightByRead(commentElements);
               }
             }

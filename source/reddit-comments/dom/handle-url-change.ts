@@ -1,14 +1,17 @@
-import { markAsReadDelay, waitAfterSortByNew } from '../constants/config';
-import { commentSelector } from '../constants/selectors';
+import { waitAfterSortByNew } from '../constants/config';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
-import { highlightByDateWithSettingsData } from '../dom/highlight-by-date';
+import { highlightByDate } from '../dom/highlight-by-date';
 import {
   highlightByRead,
   updateCommentsFromPreviousSessionOrCreateThread,
 } from '../dom/highlight-by-read';
 import { clickSortByNewMenuItem } from '../dom/sort-by-new';
-import { isActiveTabAndRedditThread, wait } from '../utils';
+import {
+  isActiveTabAndRedditThread,
+  isActiveTabAndRedditThreadAndHasComments,
+  wait,
+} from '../utils';
 import logger from '../logger';
 
 /** updateCommentsFromPreviousSession, highlight */
@@ -26,15 +29,15 @@ export const handleUrlChangeDom = async () => {
       }
     }
     //! important, must select element AFTER sort
-    const commentElements = document.querySelectorAll<HTMLElement>(commentSelector);
     // only root check, child functions must have commentElements array filled
-    if (!(commentElements.length > 0)) return;
+    const { isOk, commentElements } = isActiveTabAndRedditThreadAndHasComments();
+    if (!isOk) return;
 
     await updateCommentsFromPreviousSessionOrCreateThread();
     await highlightByRead(commentElements);
 
     // completely independent from db highlighting, can run in parallel
-    await highlightByDateWithSettingsData(commentElements);
+    await highlightByDate(commentElements);
   } catch (error) {
     logger.error('Error handling comments onUrlChange:', error);
   }

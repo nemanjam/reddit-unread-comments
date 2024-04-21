@@ -1,5 +1,4 @@
 import { highlightedCommentByDateClass } from '../constants/config';
-import { commentIdAttribute } from '../constants/selectors';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
 import { radioAndSliderToDate } from '../datetime';
@@ -23,7 +22,7 @@ export const getFilteredNewerCommentsByDate = (
 };
 
 /** Works only with DOM elements, no database. */
-export const highlightByDate = (
+export const highlightByDateArg = (
   commentElements: NodeListOf<HTMLElement>,
   newerThan: Date
 ): void => {
@@ -53,15 +52,13 @@ export const highlightByDate = (
 };
 
 /** Only this one should be used. */
-export const highlightByDateWithSettingsData = async (
-  commentElements: NodeListOf<HTMLElement>
-) => {
+export const highlightByDate = async (commentElements: NodeListOf<HTMLElement>) => {
   const db = await openDatabase();
   const settings = await getSettings(db);
   const { isHighlightOnTime, timeScale, timeSlider } = settings;
 
   if (isHighlightOnTime) {
     const dateInPast = radioAndSliderToDate({ timeScale, timeSlider });
-    highlightByDate(commentElements, dateInPast);
+    highlightByDateArg(commentElements, dateInPast);
   }
 };
