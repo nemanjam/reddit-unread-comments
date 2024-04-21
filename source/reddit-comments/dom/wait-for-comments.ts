@@ -1,18 +1,59 @@
-import { retryMaxCount, retryTimeout, retryWait } from '../constants/config';
+import { defaultRetryOptions, RetryOptions } from '../constants/config';
 import { isActiveTabAndRedditThreadAndHasComments, wait } from '../utils';
 
-export interface CommentsLoadResult {
+export interface RetryAndWaitResult {
   isSuccess: boolean;
-  reason: 'has-comments' | 'too-many-retries' | 'timeout' | 'left-thread' | 'unknown';
+  reason: 'has-comments' | 'too-many-retries' | 'timeout' | 'left-thread' | 'initial';
   elapsedTime: number;
   retryIndex: number;
 }
 
-// pass callback for any dom element
-export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
-  let result: CommentsLoadResult = {
+export type RetryAndWaitCallbackResult = Pick<RetryAndWaitResult, 'reason' | 'isSuccess'>;
+export type RetryAndWaitCallback = () => RetryAndWaitCallbackResult;
+
+export const waitForCommentsCallback: RetryAndWaitCallback = () => {
+  let result: RetryAndWaitCallbackResult = {
     isSuccess: false,
-    reason: 'unknown',
+    reason: 'initial',
+  };
+
+  const { isOk, isActiveTab, isRedditThread } =
+    isActiveTabAndRedditThreadAndHasComments();
+
+  // select broken comments dom
+
+  // check 0 comments
+
+  if (isOk) {
+    result = {
+      isSuccess: true,
+      reason: 'has-comments',
+    };
+  }
+
+  if (!(isActiveTab && isRedditThread)) {
+    result = {
+      isSuccess: false,
+      reason: 'left-thread',
+    };
+  }
+
+  return result;
+};
+
+export const retryAndWaitForCommentsToLoad = () =>
+  retryAndWaitForElementToLoad(waitForCommentsCallback);
+
+// pass callback for any dom element
+export const retryAndWaitForElementToLoad = async (
+  callback: RetryAndWaitCallback,
+  retryOptionsArg?: RetryOptions
+): Promise<RetryAndWaitResult> => {
+  const retryOptions = { ...defaultRetryOptions, ...retryOptionsArg };
+
+  let result: RetryAndWaitResult = {
+    isSuccess: false,
+    reason: 'initial',
     elapsedTime: 0,
     retryIndex: 0,
   };
@@ -22,34 +63,19 @@ export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
 
   while (true) {
     retryIndex++;
-    const { isOk, isActiveTab, isRedditThread } =
-      isActiveTabAndRedditThreadAndHasComments();
 
-    if (isOk) {
+    const callbackResult = callback();
+
+    if (callbackResult.reason !== 'initial') {
       result = {
-        isSuccess: true,
-        reason: 'has-comments',
+        ...callbackResult,
         elapsedTime: getElapsedTime(startTime),
         retryIndex,
       };
       break;
     }
 
-    if (!(isActiveTab && isRedditThread)) {
-      result = {
-        isSuccess: false,
-        reason: 'left-thread',
-        elapsedTime: getElapsedTime(startTime),
-        retryIndex,
-      };
-      break;
-    }
-
-    // select broken comments dom
-
-    // check 0 comments
-
-    if (retryIndex < retryMaxCount) {
+    if (retryIndex < retryOptions.maxCount) {
       result = {
         isSuccess: false,
         reason: 'too-many-retries',
@@ -60,7 +86,7 @@ export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
     }
 
     const elapsedTime = getElapsedTime(startTime);
-    if (elapsedTime + retryWait > retryTimeout) {
+    if (elapsedTime + retryOptions.wait > retryOptions.timeout) {
       result = {
         isSuccess: false,
         reason: 'timeout',
@@ -71,7 +97,7 @@ export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
     }
 
     // wait at bottom
-    await wait(retryWait);
+    await wait(retryOptions.wait);
   }
 
   return result;

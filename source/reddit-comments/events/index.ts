@@ -26,9 +26,6 @@ export const attachAllEventHandlers = async () => {
   // listen keys on document
   document.addEventListener('keydown', handleCtrlSpaceKeyDown);
 
-  // rerun everything when tab gets focus
-  document.addEventListener('visibilitychange', attachAllEventHandlers);
-
   document.addEventListener(
     ARRIVED_TO_REDDIT_THREAD_EVENT_NAME,
     debouncedArrivedToRedditThreadHandler
@@ -37,3 +34,6 @@ export const attachAllEventHandlers = async () => {
   onReceiveMessage();
   onUrlChange();
 };
+
+// rerun everything when tab gets focus
+document.addEventListener('visibilitychange', attachAllEventHandlers); // must not attach recursive

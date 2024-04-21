@@ -16,11 +16,17 @@ export const waitForLocationHrefToUpdate = 1000;
 
 /*------ retry and wait for comments to load -----*/
 
-export const retryMaxCount = 15;
+export interface RetryOptions {
+  maxCount: number;
+  timeout: number;
+  wait: number;
+}
 
-export const retryTimeout = 15 * 1000;
-
-export const retryWait = 1000;
+export const defaultRetryOptions: RetryOptions = {
+  maxCount: 15,
+  timeout: 15 * 1000,
+  wait: 1000,
+};
 
 /*----------- sort by new dropdown ----------*/
 

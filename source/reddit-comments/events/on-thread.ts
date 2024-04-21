@@ -16,6 +16,7 @@ import {
 } from '../utils';
 import logger from '../logger';
 import { ARRIVED_TO_REDDIT_THREAD_EVENT_NAME } from '../constants/events';
+import { retryAndWaitForCommentsToLoad } from '../dom/wait-for-comments';
 
 /*-------------------------- onArrivedToRedditThread ------------------------*/
 
@@ -33,6 +34,13 @@ export const handleArrivedToRedditThread = async () => {
         await wait(waitAfterSortByNew);
       }
     }
+
+    const retryResult = await retryAndWaitForCommentsToLoad();
+    // console.log('retryResult', retryResult);
+    const { isSuccess } = retryResult;
+
+    if (!isSuccess) return;
+
     //! important, must select element AFTER sort
     // only root check, child functions must have commentElements array filled
     const { isOk, commentElements } = isActiveTabAndRedditThreadAndHasComments();

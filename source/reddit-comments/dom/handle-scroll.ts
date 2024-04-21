@@ -25,6 +25,6 @@ export const handleScrollDom = async () => {
 
     await highlightByRead(commentElements);
   } catch (error) {
-    logger.error('Error handling comments onScroll:', error);
+    logger.error('Error handling comments handleScrollDom:', error);
   }
 };
