@@ -1,5 +1,11 @@
 import { urlObserveDebounceWait, waitForLocationHrefToUpdate } from '../constants/config';
-import { debounce, hasArrivedToRedditThread, hasLeftRedditThread, wait } from '../utils';
+import {
+  debounce,
+  hasArrivedToRedditThread,
+  hasLeftRedditThread,
+  MeasureTime,
+  wait,
+} from '../utils';
 import { dispatchArrivedToRedditThreadEvent } from './on-thread';
 
 /*-------------------------------- onUrlChange ------------------------------*/
@@ -9,6 +15,8 @@ const handleUrlChange = (previousUrl: string, currentUrl: string) => {
 
   const hasLeft = hasLeftRedditThread(previousUrl, currentUrl);
   console.log('hasArrived', hasArrived, 'hasLeft', hasLeft);
+
+  MeasureTime.setStartTime(performance.now());
 
   if (hasArrived) {
     dispatchArrivedToRedditThreadEvent();

@@ -40,3 +40,5 @@ onScroll, onKeyDown treba attach samo jednom
 2. conditionals for highlight, dropdown and new thread, hasArrived, hasLeft
 3. wait - retry for comments to load or error, or timeout, on dropdown change too
 4. onCommentsLoaded, onThreadArrived, onNewThreadArrived, onThreadLeft dispatch custom events
+
+debounce koji ne ceka na prvi call

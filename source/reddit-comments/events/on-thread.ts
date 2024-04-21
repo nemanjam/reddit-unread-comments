@@ -1,5 +1,5 @@
 import { threadArrivedDebounceWait } from '../constants/config';
-import { debounce } from '../utils';
+import { debounce, MeasureTime } from '../utils';
 import { waitAfterSortByNew } from '../constants/config';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
@@ -36,8 +36,11 @@ export const handleArrivedToRedditThread = async () => {
     }
 
     const retryResult = await retryAndWaitForCommentsToLoad();
-    // console.log('retryResult', retryResult);
+    console.log('retryResult', retryResult);
     const { isSuccess } = retryResult;
+
+    const elapsedTime = MeasureTime.getElapsedTime();
+    console.log('elapsedTime', elapsedTime);
 
     if (!isSuccess) return;
 

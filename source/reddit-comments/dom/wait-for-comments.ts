@@ -1,5 +1,5 @@
 import { defaultRetryOptions, RetryOptions } from '../constants/config';
-import { isActiveTabAndRedditThreadAndHasComments, wait } from '../utils';
+import { getElapsedTime, isActiveTabAndRedditThreadAndHasComments, wait } from '../utils';
 
 export interface RetryAndWaitResult {
   isSuccess: boolean;
@@ -101,10 +101,4 @@ export const retryAndWaitForElementToLoad = async (
   }
 
   return result;
-};
-
-const getElapsedTime = (startTime: number) => {
-  const endTime = performance.now();
-  const elapsedTime = endTime - startTime;
-  return elapsedTime;
 };

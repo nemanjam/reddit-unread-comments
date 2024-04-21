@@ -136,3 +136,29 @@ export const wait = (milliseconds: number) =>
   new Promise((resolve) => {
     setTimeout(resolve, milliseconds);
   });
+
+export const getElapsedTime = (startTime: number) => {
+  const endTime = performance.now();
+  const elapsedTime = endTime - startTime;
+  return elapsedTime;
+};
+
+/** for debugging */
+export class MeasureTime {
+  private static startTimeInitial = 0;
+  private static startTime = MeasureTime.startTimeInitial;
+
+  static setStartTime(startTime: number) {
+    MeasureTime.startTime = startTime;
+  }
+
+  static getElapsedTime() {
+    if (MeasureTime.startTime === MeasureTime.startTimeInitial) {
+      throw new Error(`startTime not set, startTime: ${MeasureTime.startTime}`);
+    }
+
+    const endTime = performance.now();
+    const elapsedTime = endTime - MeasureTime.startTime;
+    return elapsedTime;
+  }
+}

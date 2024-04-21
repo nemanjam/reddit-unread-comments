@@ -12,7 +12,7 @@ export const threadArrivedDebounceWait = 2000;
 export const urlObserveDebounceWait = 500;
 
 /** Important for urlChange event. */
-export const waitForLocationHrefToUpdate = 1000;
+export const waitForLocationHrefToUpdate = 100;
 
 /*------ retry and wait for comments to load -----*/
 
