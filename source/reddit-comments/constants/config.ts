@@ -6,7 +6,10 @@
 export const scrollDebounceWait = 1000;
 
 /** Must wait for routing (change page), and load content */
-export const urlChangeDebounceWait = 2000;
+export const threadArrivedDebounceWait = 2000;
+
+/** How often to check url for change. */
+export const urlObserveDebounceWait = 500;
 
 /** Important for urlChange event. */
 export const waitForLocationHrefToUpdate = 1000;

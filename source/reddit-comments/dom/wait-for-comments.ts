@@ -8,6 +8,7 @@ export interface CommentsLoadResult {
   retryIndex: number;
 }
 
+// pass callback for any dom element
 export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
   let result: CommentsLoadResult = {
     isSuccess: false,
@@ -45,6 +46,8 @@ export const waitForCommentsToLoad = async (): Promise<CommentsLoadResult> => {
     }
 
     // select broken comments dom
+
+    // check 0 comments
 
     if (retryIndex < retryMaxCount) {
       result = {
