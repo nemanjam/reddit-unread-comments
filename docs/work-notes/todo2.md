@@ -45,3 +45,4 @@ debounce koji ne ceka na prvi call
 
     attach listeners only once lock
 fix highlight on focus
+remove delayExecution(markAsRead)

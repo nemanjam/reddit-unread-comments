@@ -24,8 +24,6 @@ import { retryAndWaitForCommentsToLoad } from '../dom/wait-for-comments';
 export const handleArrivedToRedditThread = async () => {
   if (!isActiveTabAndRedditThread()) return;
 
-  console.log('on thread');
-
   try {
     const db = await openDatabase();
     const { sortAllByNew } = await getSettings(db);
@@ -37,13 +35,7 @@ export const handleArrivedToRedditThread = async () => {
       }
     }
 
-    const retryResult = await retryAndWaitForCommentsToLoad();
-    console.log('retryResult', retryResult);
-    const { isSuccess } = retryResult;
-
-    const elapsedTime = MeasureTime.getElapsedTime();
-    console.log('elapsedTime', elapsedTime);
-
+    const { isSuccess } = await retryAndWaitForCommentsToLoad();
     if (!isSuccess) return;
 
     //! important, must select element AFTER sort

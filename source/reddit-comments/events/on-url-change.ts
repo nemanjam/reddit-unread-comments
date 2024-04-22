@@ -1,22 +1,11 @@
 import { urlObserveDebounceWait, waitForLocationHrefToUpdate } from '../constants/config';
-import {
-  debounce,
-  hasArrivedToRedditThread,
-  hasLeftRedditThread,
-  MeasureTime,
-  wait,
-} from '../utils';
+import { debounce, hasArrivedToRedditThread, wait } from '../utils';
 import { dispatchArrivedToRedditThreadEvent } from './on-thread';
 
 /*-------------------------------- onUrlChange ------------------------------*/
 
 const handleUrlChange = (previousUrl: string, currentUrl: string) => {
   const hasArrived = hasArrivedToRedditThread(previousUrl, currentUrl);
-
-  // const hasLeft = hasLeftRedditThread(previousUrl, currentUrl);
-  // console.log('hasArrived', hasArrived, 'hasLeft', hasLeft);
-
-  MeasureTime.setStartTime(performance.now());
 
   if (hasArrived) {
     dispatchArrivedToRedditThreadEvent();
@@ -35,9 +24,6 @@ const observerCallback = async () => {
   if (currentUrl !== previousUrl) {
     previousUrl = currentUrl;
 
-    console.log('previousUrlCopy', previousUrlCopy);
-
-    // run on all pages to attach and detach scroll listeners
     handleUrlChange(previousUrlCopy, currentUrl);
   }
 };
