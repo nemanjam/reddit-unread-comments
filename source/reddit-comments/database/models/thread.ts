@@ -1,4 +1,4 @@
-import { currentSessionCreatedAt } from '../../constants';
+import { currentSessionCreatedAt } from '../../constants/config';
 import { MyModelNotFoundDBException } from '../../exceptions';
 import logger from '../../logger';
 import { ThreadData, Thread, CommentData, Comment } from '../schema';

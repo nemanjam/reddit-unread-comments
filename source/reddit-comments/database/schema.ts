@@ -1,4 +1,4 @@
-import { databaseName } from '../constants';
+import { databaseName } from '../constants/config';
 
 export interface ThreadData {
   id?: number;

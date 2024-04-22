@@ -1,4 +1,4 @@
-import { redditThreadUrlRegex, redditUrlRegex } from './constants';
+import { redditThreadUrlRegex, redditUrlRegex } from './constants/selectors';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 import { getAllComments } from './dom/highlight-common';
 import { default as lodashDebounce } from 'lodash.debounce';
@@ -7,18 +7,6 @@ export type AnyFunction = (...args: any[]) => any;
 
 export const debounce = (func: AnyFunction, wait: number) =>
   lodashDebounce(func, wait, { leading: true, trailing: false });
-
-export const delayExecution = async <T extends any[]>(
-  func: (...args: T) => Promise<void>,
-  wait: number,
-  ...args: T
-): Promise<void> =>
-  new Promise((resolve) => {
-    setTimeout(async () => {
-      await func(...args);
-      resolve();
-    }, wait);
-  });
 
 export const isActiveTab = () => document.visibilityState === 'visible';
 
@@ -59,41 +47,6 @@ export const hasLeftRedditThread = (previousUrl: string, currentUrl: string): bo
 
 export const sizeInMBString = (sizeInBytes: number): string =>
   (sizeInBytes / (1024 * 1024)).toFixed(6);
-
-/** Sort comments by new. Unused.*/
-export const getSortByNewUrl = (url: string): string => {
-  if (!isRedditThread(url)) return url;
-
-  const urlObject = new URL(url);
-  const queryParams = new URLSearchParams(urlObject.search);
-
-  if (queryParams.has('sort')) {
-    if (queryParams.get('sort') === 'new') return url;
-
-    queryParams.set('sort', 'new');
-  } else {
-    queryParams.append('sort', 'new');
-  }
-
-  urlObject.search = queryParams.toString();
-
-  return urlObject.toString();
-};
-
-export const hasSortByNewQueryParam = (url: string): boolean => {
-  const urlObject = new URL(url);
-  const queryParams = new URLSearchParams(urlObject.search);
-
-  return queryParams.has('sort') && queryParams.get('sort') === 'new';
-};
-
-export const pickShallow = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
-  const picked: Partial<Pick<T, K>> = {};
-  keys.forEach((key) => {
-    picked[key] = obj[key];
-  });
-  return picked as Pick<T, K>;
-};
 
 export const detectChanges = (object1: SettingsData, object2: SettingsData): string[] => {
   const changes: string[] = [];

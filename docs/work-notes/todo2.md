@@ -44,5 +44,8 @@ onScroll, onKeyDown treba attach samo jednom
 debounce koji ne ceka na prvi call
 
     attach listeners only once lock
-fix highlight on focus
-remove delayExecution(markAsRead)
+    fix highlight on focus
+remove delayExecution(markAsRead) - needed, cancels on debounce
+
+isElementInViewport broken
+sortByNew

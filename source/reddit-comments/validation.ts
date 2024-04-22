@@ -1,5 +1,5 @@
 import { MyElementIdNotValidDOMException } from './exceptions';
-import { commentIdRegexValidate, threadPostIdRegexValidate } from './constants';
+import { commentIdRegexValidate, threadPostIdRegexValidate } from './constants/selectors';
 import { commentIdAttribute } from './constants/selectors';
 
 /** Returns boolean. */

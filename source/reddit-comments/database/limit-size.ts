@@ -1,4 +1,4 @@
-import { dbSizeLimit, dbTargetSize } from '../constants';
+import { dbSizeLimit, dbTargetSize } from '../constants/config';
 import { MyDeleteModelFailedDBException } from '../exceptions';
 import logger from '../logger';
 import { sizeInMBString } from '../utils';

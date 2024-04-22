@@ -163,7 +163,20 @@ export const markAsRead = async (
     const commentContentElement = getCommentContentElement(commentElement);
     if (!commentContentElement) return;
 
-    if (!isElementInViewport(commentContentElement) || isAlreadyMarkedComment) return;
+    const isInViewport = isElementInViewport(commentContentElement);
+
+    if (commentId === 't1_l0qyzpu') {
+      console.log(
+        'commentId:',
+        commentId,
+        'isInViewport',
+        isInViewport,
+        'commentContentElement',
+        commentContentElement
+      );
+    }
+
+    if (!isInViewport || isAlreadyMarkedComment) return;
 
     const sessionCreatedAt = currentSessionCreatedAt;
     await addComment(db, { threadId, commentId, sessionCreatedAt });
