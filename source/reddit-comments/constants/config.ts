@@ -28,6 +28,10 @@ export const defaultRetryOptions: RetryOptions = {
   wait: 1000,
 };
 
+/*---------------- tab focus ---------------*/
+
+export const tabFocusedWait = 1000;
+
 /*----------- sort by new dropdown ----------*/
 
 /** Wait for new comments to reload. */

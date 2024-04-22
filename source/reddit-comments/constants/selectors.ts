@@ -38,6 +38,11 @@ export const threadPostSelector = 'shreddit-post[id^="t3_"]';
 export const threadPostIdRegexReplace = /^t3_/; // Only to get url id from element.id
 export const threadPostIdRegexValidate = /^t3_[a-z0-9]+$/;
 
+/*-------------- zero comments -------------*/
+
+export const threadWithZeroCommentsSelector =
+  'comment-forest-empty-state[post-id^="t3_"]';
+
 /*----------------- header ----------------*/
 
 export const pageHeaderSelector = 'reddit-header-large';

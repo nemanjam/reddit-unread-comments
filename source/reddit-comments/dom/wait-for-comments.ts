@@ -1,9 +1,17 @@
 import { defaultRetryOptions, RetryOptions } from '../constants/config';
 import { getElapsedTime, isActiveTabAndRedditThreadAndHasComments, wait } from '../utils';
+import { isZeroCommentsThread } from './thread';
 
 export interface RetryAndWaitResult {
+  /** if should proceed with highlight */
   isSuccess: boolean;
-  reason: 'has-comments' | 'too-many-retries' | 'timeout' | 'left-thread' | 'initial';
+  reason:
+    | 'has-comments'
+    | 'too-many-retries'
+    | 'timeout'
+    | 'left-thread'
+    | 'zero-comments'
+    | 'initial';
   elapsedTime: number;
   retryIndex: number;
 }
@@ -17,12 +25,20 @@ export const waitForCommentsCallback: RetryAndWaitCallback = () => {
     reason: 'initial',
   };
 
-  const { isOk, isActiveTab, isRedditThread } =
-    isActiveTabAndRedditThreadAndHasComments();
+  // check 0 comments
+  const hasZeroComments = isZeroCommentsThread();
+
+  if (hasZeroComments) {
+    result = {
+      isSuccess: false,
+      reason: 'zero-comments',
+    };
+  }
 
   // select broken comments dom
 
-  // check 0 comments
+  const { isOk, isActiveTab, isRedditThread } =
+    isActiveTabAndRedditThreadAndHasComments();
 
   if (isOk) {
     result = {
@@ -75,7 +91,7 @@ export const retryAndWaitForElementToLoad = async (
       break;
     }
 
-    if (retryIndex < retryOptions.maxCount) {
+    if (retryIndex > retryOptions.maxCount) {
       result = {
         isSuccess: false,
         reason: 'too-many-retries',

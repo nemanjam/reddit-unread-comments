@@ -1,35 +1,15 @@
 import { redditThreadUrlRegex, redditUrlRegex } from './constants';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 import { getAllComments } from './dom/highlight-common';
+import { default as lodashDebounce } from 'lodash.debounce';
 
 export type AnyFunction = (...args: any[]) => any;
 
-export const debounce = (func: AnyFunction, wait: number) => {
-  let timeout: NodeJS.Timeout;
-  let resolveFn: (() => void) | null = null;
-
-  const debouncedFunction: AnyFunction = function (...args: any[]) {
-    clearTimeout(timeout);
-
-    return new Promise<void>((resolve) => {
-      resolveFn = resolve;
-      timeout = setTimeout(async () => {
-        const result = func.apply(window, args);
-
-        if (result instanceof Promise) {
-          await result;
-        }
-
-        if (resolveFn) {
-          resolveFn();
-          resolveFn = null;
-        }
-      }, wait);
-    });
-  };
-
-  return debouncedFunction;
-};
+export const debounce = (func: AnyFunction, wait: number) =>
+  lodashDebounce(func, wait, {
+    leading: true,
+    trailing: false,
+  });
 
 export const delayExecution = async <T extends any[]>(
   func: (...args: T) => Promise<void>,

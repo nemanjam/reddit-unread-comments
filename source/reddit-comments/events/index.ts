@@ -6,6 +6,7 @@ import { isActiveTab } from '../utils';
 import { handleCtrlSpaceKeyDown } from './on-key-down';
 import { onReceiveMessage } from './on-message';
 import { debouncedScrollHandler } from './on-scroll';
+import { handleTabFocus } from './on-tab-focus';
 import { debouncedArrivedToRedditThreadHandler } from './on-thread';
 import { onUrlChange } from './on-url-change';
 
@@ -35,5 +36,5 @@ export const attachAllEventHandlers = async () => {
   onUrlChange();
 };
 
-// rerun everything when tab gets focus
-document.addEventListener('visibilitychange', attachAllEventHandlers); // must not attach recursive
+// must not attach recursive
+document.addEventListener('visibilitychange', handleTabFocus);

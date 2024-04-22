@@ -1,4 +1,7 @@
-import { threadPostSelector } from '../constants/selectors';
+import {
+  threadPostSelector,
+  threadWithZeroCommentsSelector,
+} from '../constants/selectors';
 import { MyElementNotFoundDOMException } from '../exceptions';
 import { validateThreadElementIdOrThrow } from '../validation';
 
@@ -15,3 +18,6 @@ export const getThreadIdFromDom = (): string => {
 
   return threadId;
 };
+
+export const isZeroCommentsThread = (): boolean =>
+  Boolean(document.querySelector<HTMLElement>(threadWithZeroCommentsSelector));

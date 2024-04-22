@@ -96,4 +96,31 @@ contentElement;
   }
 }
 
+export const old_debounce = (func: AnyFunction, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  let resolveFn: (() => void) | null = null;
+
+  const debouncedFunction: AnyFunction = function (...args: any[]) {
+    clearTimeout(timeout);
+
+    return new Promise<void>((resolve) => {
+      resolveFn = resolve;
+      timeout = setTimeout(async () => {
+        const result = func.apply(window, args);
+
+        if (result instanceof Promise) {
+          await result;
+        }
+
+        if (resolveFn) {
+          resolveFn();
+          resolveFn = null;
+        }
+      }, wait);
+    });
+  };
+
+  return debouncedFunction;
+};
+
 
