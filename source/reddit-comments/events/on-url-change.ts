@@ -13,8 +13,8 @@ import { dispatchArrivedToRedditThreadEvent } from './on-thread';
 const handleUrlChange = (previousUrl: string, currentUrl: string) => {
   const hasArrived = hasArrivedToRedditThread(previousUrl, currentUrl);
 
-  const hasLeft = hasLeftRedditThread(previousUrl, currentUrl);
-  console.log('hasArrived', hasArrived, 'hasLeft', hasLeft);
+  // const hasLeft = hasLeftRedditThread(previousUrl, currentUrl);
+  // console.log('hasArrived', hasArrived, 'hasLeft', hasLeft);
 
   MeasureTime.setStartTime(performance.now());
 

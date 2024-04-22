@@ -42,3 +42,6 @@ onScroll, onKeyDown treba attach samo jednom
 4. onCommentsLoaded, onThreadArrived, onNewThreadArrived, onThreadLeft dispatch custom events
 
 debounce koji ne ceka na prvi call
+
+    attach listeners only once lock
+fix highlight on focus

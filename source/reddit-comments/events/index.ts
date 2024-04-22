@@ -6,14 +6,17 @@ import { isActiveTab } from '../utils';
 import { handleCtrlSpaceKeyDown } from './on-key-down';
 import { onReceiveMessage } from './on-message';
 import { debouncedScrollHandler } from './on-scroll';
-import { handleTabFocus } from './on-tab-focus';
 import { debouncedArrivedToRedditThreadHandler } from './on-thread';
 import { onUrlChange } from './on-url-change';
 
 /*-------------------------------- Entry point ------------------------------*/
 
+let isAttachedOnce = false;
 export const attachAllEventHandlers = async () => {
   if (!isActiveTab()) return;
+
+  if (isAttachedOnce) return;
+  isAttachedOnce = true;
 
   // await truncateDatabase();
 
@@ -37,4 +40,5 @@ export const attachAllEventHandlers = async () => {
 };
 
 // must not attach recursive
-document.addEventListener('visibilitychange', handleTabFocus);
+// no need to dispatch onThread
+document.addEventListener('visibilitychange', attachAllEventHandlers);

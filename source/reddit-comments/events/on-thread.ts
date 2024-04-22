@@ -24,6 +24,8 @@ import { retryAndWaitForCommentsToLoad } from '../dom/wait-for-comments';
 export const handleArrivedToRedditThread = async () => {
   if (!isActiveTabAndRedditThread()) return;
 
+  console.log('on thread');
+
   try {
     const db = await openDatabase();
     const { sortAllByNew } = await getSettings(db);

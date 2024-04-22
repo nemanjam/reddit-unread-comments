@@ -6,10 +6,7 @@ import { default as lodashDebounce } from 'lodash.debounce';
 export type AnyFunction = (...args: any[]) => any;
 
 export const debounce = (func: AnyFunction, wait: number) =>
-  lodashDebounce(func, wait, {
-    leading: true,
-    trailing: false,
-  });
+  lodashDebounce(func, wait, { leading: true, trailing: false });
 
 export const delayExecution = async <T extends any[]>(
   func: (...args: T) => Promise<void>,
