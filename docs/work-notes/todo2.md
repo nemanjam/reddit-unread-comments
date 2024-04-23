@@ -52,3 +52,5 @@ onScroll, onKeyDown treba attach samo jednom
 
 use retry-async with exception
 poenta je ista kao u cypress ili react-testing-library retry da async element loaded, cela filozofija
+
+onvisibilitychange (new tab) highlight isnt always triggered
