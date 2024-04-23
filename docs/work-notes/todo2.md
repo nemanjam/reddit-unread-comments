@@ -45,7 +45,7 @@ debounce koji ne ceka na prvi call
 
     attach listeners only once lock
     fix highlight on focus
-remove delayExecution(markAsRead) - needed, cancels on debounce
+    remove delayExecution(markAsRead) - needed, cancels on debounce
 
-isElementInViewport broken
+    isElementInViewport broken - fixed with debounceTrailing
 sortByNew

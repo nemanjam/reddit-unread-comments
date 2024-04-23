@@ -7,15 +7,13 @@ import {
 import { commentSelector, getContentSelectorFromId } from '../constants/selectors';
 import { validateCommentElementIdOrThrow } from '../validation';
 
-// sync, fix for big comments
+// sync, fix for big comments, debounce trailing
 export const isElementInViewport = (element: HTMLElement): boolean => {
   const rect = element.getBoundingClientRect();
   const elementHeight = commentHeightHeadroom + (rect.bottom - rect.top);
-
   const windowBottom = window.innerHeight || document.documentElement.clientHeight;
-  const isInViewport = rect.top >= 0 && rect.bottom <= windowBottom;
 
-  console.log('rect.bottom', rect.bottom, 'windowBottom', windowBottom);
+  const isInViewport = rect.top >= 0 && rect.bottom <= windowBottom;
 
   const isHigherThanViewportAndVisible =
     elementHeight > window.innerHeight && (rect.top >= 0 || rect.bottom <= windowBottom);

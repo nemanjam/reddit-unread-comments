@@ -1,5 +1,5 @@
 import { threadArrivedDebounceWait } from '../constants/config';
-import { debounce, MeasureTime } from '../utils';
+import { debounceLeading } from '../utils';
 import { waitAfterSortByNew } from '../constants/config';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
@@ -53,7 +53,8 @@ export const handleArrivedToRedditThread = async () => {
   }
 };
 
-export const debouncedArrivedToRedditThreadHandler = debounce(
+// must use debounceLeading to avoid 2 sec delay
+export const debouncedArrivedToRedditThreadHandler = debounceLeading(
   handleArrivedToRedditThread,
   threadArrivedDebounceWait
 );

@@ -18,7 +18,7 @@ import {
   highlightedCommentsCountInterval,
   markAllAsReadDbAndDomWait,
 } from '../constants/config';
-import { debounce, isRedditThread, wait } from '../utils';
+import { debounceTrailing, isRedditThread, wait } from '../utils';
 import { messageTypes, MyMessageType, sendMessage } from '../message';
 import SectionLogger from './section-logger';
 import logger from '../logger';
@@ -91,7 +91,7 @@ const Popup: FC = () => {
       setHighlightedOnTimeCount(highlightedOnTimeCount);
     };
 
-    const debouncedGetHighlightedOnTimeCount = debounce(
+    const debouncedGetHighlightedOnTimeCount = debounceTrailing(
       getHighlightedOnTimeCount,
       calcHighlightOnTimeDebounceWait
     );
@@ -167,7 +167,7 @@ const Popup: FC = () => {
     await sendMessage(message);
   };
 
-  const debouncedHandleSubmit = debounce(
+  const debouncedHandleSubmit = debounceTrailing(
     () => handleSubmit(onSubmit)(),
     formSubmitDebounceWait
   );

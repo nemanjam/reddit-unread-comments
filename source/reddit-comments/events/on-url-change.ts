@@ -1,5 +1,5 @@
 import { urlObserveDebounceWait, waitForLocationHrefToUpdate } from '../constants/config';
-import { debounce, hasArrivedToRedditThread, wait } from '../utils';
+import { debounceLeading, hasArrivedToRedditThread, wait } from '../utils';
 import { dispatchArrivedToRedditThreadEvent } from './on-thread';
 
 /*-------------------------------- onUrlChange ------------------------------*/
@@ -28,7 +28,10 @@ const observerCallback = async () => {
   }
 };
 
-const debouncedObserverCallback = debounce(observerCallback, urlObserveDebounceWait);
+const debouncedObserverCallback = debounceLeading(
+  observerCallback,
+  urlObserveDebounceWait
+);
 
 const observer = new MutationObserver(debouncedObserverCallback);
 

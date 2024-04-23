@@ -1,5 +1,5 @@
 import { markAsReadDelay, scrollDebounceWait } from '../constants/config';
-import { debounce, isActiveTabAndRedditThread, wait } from '../utils';
+import { debounceTrailing, isActiveTabAndRedditThread, wait } from '../utils';
 import { highlightByDate } from '../dom/highlight-by-date';
 import { highlightByRead, markAsRead } from '../dom/highlight-by-read';
 import { isActiveTabAndRedditThreadAndHasComments } from '../utils';
@@ -18,7 +18,7 @@ export const handleScroll = async () => {
     await highlightByDate(commentElements);
 
     // with db
-    await markAsRead(commentElements); // for next session
+    await markAsRead(commentElements); // un-highlights immediately, sets to 2e12
     await wait(markAsReadDelay);
     if (!isActiveTabAndRedditThread()) return;
 
@@ -28,4 +28,5 @@ export const handleScroll = async () => {
   }
 };
 
-export const debouncedScrollHandler = debounce(handleScroll, scrollDebounceWait);
+//! must use debounceTrailing for isInViewport last bottom comment
+export const debouncedScrollHandler = debounceTrailing(handleScroll, scrollDebounceWait);

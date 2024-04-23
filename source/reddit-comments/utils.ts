@@ -1,12 +1,15 @@
 import { redditThreadUrlRegex, redditUrlRegex } from './constants/selectors';
 import { SettingsData, SettingsDataKeys } from './database/schema';
 import { getAllComments } from './dom/highlight-common';
-import { default as lodashDebounce } from 'lodash.debounce';
+import debounce from 'lodash.debounce';
 
 export type AnyFunction = (...args: any[]) => any;
 
-export const debounce = (func: AnyFunction, wait: number) =>
-  lodashDebounce(func, wait, { leading: true, trailing: false });
+export const debounceLeading = (func: AnyFunction, wait: number) =>
+  debounce(func, wait, { leading: true, trailing: false });
+
+export const debounceTrailing = (func: AnyFunction, wait: number) =>
+  debounce(func, wait, { leading: false, trailing: true });
 
 export const isActiveTab = () => document.visibilityState === 'visible';
 
