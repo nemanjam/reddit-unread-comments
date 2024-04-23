@@ -1,4 +1,5 @@
 import {
+  brokenCommentsThreadSelector,
   threadPostSelector,
   threadWithZeroCommentsSelector,
 } from '../constants/selectors';
@@ -21,3 +22,6 @@ export const getThreadIdFromDom = (): string => {
 
 export const isZeroCommentsThread = (): boolean =>
   Boolean(document.querySelector<HTMLElement>(threadWithZeroCommentsSelector));
+
+export const isBrokenCommentsThread = (): boolean =>
+  Boolean(document.querySelector<HTMLElement>(brokenCommentsThreadSelector));

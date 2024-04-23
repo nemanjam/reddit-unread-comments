@@ -1,6 +1,5 @@
 import { threadArrivedDebounceWait } from '../constants/config';
 import { debounceLeading } from '../utils';
-import { waitAfterSortByNew } from '../constants/config';
 import { getSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
 import { highlightByDate } from '../dom/highlight-by-date';
@@ -12,7 +11,6 @@ import { clickSortByNewMenuItem } from '../dom/sort-by-new';
 import {
   isActiveTabAndRedditThread,
   isActiveTabAndRedditThreadAndHasComments,
-  wait,
 } from '../utils';
 import logger from '../logger';
 import { ARRIVED_TO_REDDIT_THREAD_EVENT_NAME } from '../constants/events';
@@ -27,19 +25,20 @@ export const handleArrivedToRedditThread = async () => {
   try {
     const db = await openDatabase();
     const { sortAllByNew } = await getSettings(db);
+
     if (sortAllByNew) {
-      const hasSorted = await clickSortByNewMenuItem();
-      if (hasSorted) {
-        // delay must be AFTER sort
-        await wait(waitAfterSortByNew);
-      }
+      // when comments are loaded, sort menu is loaded too
+      const { isSuccess } = await retryAndWaitForCommentsToLoad();
+      if (!isSuccess) return;
+
+      await clickSortByNewMenuItem();
     }
 
+    // wait for sorted comments to reload
     const { isSuccess } = await retryAndWaitForCommentsToLoad();
     if (!isSuccess) return;
 
     //! important, must select element AFTER sort
-    // only root check, child functions must have commentElements array filled
     const { isOk, commentElements } = isActiveTabAndRedditThreadAndHasComments();
     if (!isOk) return;
 

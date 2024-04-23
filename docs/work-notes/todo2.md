@@ -41,11 +41,14 @@ onScroll, onKeyDown treba attach samo jednom
 3. wait - retry for comments to load or error, or timeout, on dropdown change too
 4. onCommentsLoaded, onThreadArrived, onNewThreadArrived, onThreadLeft dispatch custom events
 
-debounce koji ne ceka na prvi call
+    debounce koji ne ceka na prvi call - leading lodash
 
     attach listeners only once lock
     fix highlight on focus
     remove delayExecution(markAsRead) - needed, cancels on debounce
 
     isElementInViewport broken - fixed with debounceTrailing
-sortByNew
+    sortByNew
+
+use retry-async with exception
+poenta je ista kao u cypress ili react-testing-library retry da async element loaded, cela filozofija

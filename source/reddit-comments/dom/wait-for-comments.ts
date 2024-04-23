@@ -1,6 +1,6 @@
 import { defaultRetryOptions, RetryOptions } from '../constants/config';
 import { getElapsedTime, isActiveTabAndRedditThreadAndHasComments, wait } from '../utils';
-import { isZeroCommentsThread } from './thread';
+import { isBrokenCommentsThread, isZeroCommentsThread } from './thread';
 
 export interface RetryAndWaitResult {
   /** if should proceed with highlight */
@@ -11,6 +11,7 @@ export interface RetryAndWaitResult {
     | 'timeout'
     | 'left-thread'
     | 'zero-comments'
+    | 'broken-comments'
     | 'initial';
   elapsedTime: number;
   retryIndex: number;
@@ -20,41 +21,47 @@ export type RetryAndWaitCallbackResult = Pick<RetryAndWaitResult, 'reason' | 'is
 export type RetryAndWaitCallback = () => RetryAndWaitCallbackResult;
 
 export const waitForCommentsCallback: RetryAndWaitCallback = () => {
-  let result: RetryAndWaitCallbackResult = {
-    isSuccess: false,
-    reason: 'initial',
-  };
-
   // check 0 comments
   const hasZeroComments = isZeroCommentsThread();
 
   if (hasZeroComments) {
-    result = {
+    return {
       isSuccess: false,
       reason: 'zero-comments',
     };
   }
 
   // select broken comments dom
+  const hasBrokenComments = isBrokenCommentsThread();
+
+  if (hasBrokenComments) {
+    return {
+      isSuccess: false,
+      reason: 'broken-comments',
+    };
+  }
 
   const { isOk, isActiveTab, isRedditThread } =
     isActiveTabAndRedditThreadAndHasComments();
 
   if (isOk) {
-    result = {
+    return {
       isSuccess: true,
       reason: 'has-comments',
     };
   }
 
   if (!(isActiveTab && isRedditThread)) {
-    result = {
+    return {
       isSuccess: false,
       reason: 'left-thread',
     };
   }
 
-  return result;
+  return {
+    isSuccess: false,
+    reason: 'initial',
+  };
 };
 
 export const retryAndWaitForCommentsToLoad = () =>

@@ -43,6 +43,8 @@ export const threadPostIdRegexValidate = /^t3_[a-z0-9]+$/;
 export const threadWithZeroCommentsSelector =
   'comment-forest-empty-state[post-id^="t3_"]';
 
+export const brokenCommentsThreadSelector = '#main-content > shreddit-forbidden';
+
 /*----------------- header ----------------*/
 
 export const pageHeaderSelector = 'reddit-header-large';
@@ -57,6 +59,3 @@ export const sortMenuClickSelector = '#comment-sort-button';
 
 // dropdown item new
 export const sortByNewMenuItemSelector = 'div[slot="dropdown-items"] span.text-14';
-
-// for blur, outside of shadow dom, simple selector
-export const mainContentForBlurSelector = '#main-content';

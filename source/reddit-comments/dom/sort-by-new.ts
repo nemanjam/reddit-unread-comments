@@ -4,7 +4,6 @@ import {
   sortByNewMenuItemSelector,
   sortMenuShadowHostSelector,
   sortMenuClickSelector,
-  mainContentForBlurSelector,
 } from '../constants/selectors';
 import { MyElementNotFoundDOMException } from '../exceptions';
 import { wait } from '../utils';
@@ -16,6 +15,7 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
   // same shadowHost is reused for currently selected item and dropdown menu click
   const shadowHost = document.querySelector(sortMenuShadowHostSelector);
   const shadowRoot = shadowHost?.shadowRoot;
+
   if (!shadowRoot)
     throw new MyElementNotFoundDOMException(
       `shadowRoot not found. sortMenuShadowHostSelector: ${sortMenuShadowHostSelector}`
@@ -61,12 +61,7 @@ export const clickSortByNewMenuItem = async (): Promise<boolean> => {
     (sortByNewMenuItem as HTMLElement).click();
 
     // remove :focus-visible border
-    const mainContent = document.querySelector<HTMLElement>(mainContentForBlurSelector);
-    if (!mainContent)
-      throw new MyElementNotFoundDOMException(
-        `mainContent not found. mainContentForBlurSelector: ${mainContentForBlurSelector}`
-      );
-    mainContent?.click();
+    sortMenu.blur();
   }
 
   return true;
