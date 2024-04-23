@@ -11,10 +11,9 @@ Screenshot of User Settings popup and highlighted unread comments and highlighte
 
 1. Break the existing dom, events, constants logic into separate files
 2. Completely rewrite events logic
-    - attach onScroll, onKeyDown, onVisibilityChange unconditionally on mount
-    - fix onUrlChange mutation observer event and debounce it, await `location.href`, fixed hasLeftThread condition
-    - add custom onArrivedToRedditThread event
-    - replace the existing debounce function with debounceLeading and debounceTrailing from lodash
-3. Add retryAndWait function for better awaitng thread loading state
-
+    - attach `onScroll`, `onKeyDown`, `onVisibilityChange` unconditionally on mount
+    - fix `onUrlChange` mutation observer event and debounce it, await `location.href`, fixed `hasLeftThread` condition
+    - add custom `onArrivedToRedditThread` event
+    - replace the existing debounce function with `debounceLeading` and `debounceTrailing` from lodash
+3. Add `retryAndWait` function for better awaitng thread loading state
 
