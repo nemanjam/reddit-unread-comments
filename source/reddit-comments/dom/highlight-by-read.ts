@@ -163,21 +163,11 @@ export const markAsRead = async (
     const commentContentElement = getCommentContentElement(commentElement);
     if (!commentContentElement) return;
 
+    // must check isInViewport at the moment of scroll for the last bottom comment
     const isInViewport = isElementInViewport(commentContentElement);
-
-    if (commentId === 't1_l0qyzpu') {
-      console.log(
-        'commentId:',
-        commentId,
-        'isInViewport',
-        isInViewport,
-        'commentContentElement',
-        commentContentElement
-      );
-    }
-
     if (!isInViewport || isAlreadyMarkedComment) return;
 
+    // delay must be here...
     const sessionCreatedAt = currentSessionCreatedAt;
     await addComment(db, { threadId, commentId, sessionCreatedAt });
 

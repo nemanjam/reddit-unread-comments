@@ -128,3 +128,9 @@ rect.bottom 1127.1666259765625
 window.innerHeight 608 
 document.documentElement.clientHeight 608 
 rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) false
+
+
+document.querySelector('shreddit-comment[thingid="t1_l0qgs9v"]  > div[slot="comment"]').getBoundingClientRect().bottom
+
+
+

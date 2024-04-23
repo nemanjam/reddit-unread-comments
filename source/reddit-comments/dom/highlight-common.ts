@@ -12,25 +12,13 @@ export const isElementInViewport = (element: HTMLElement): boolean => {
   const rect = element.getBoundingClientRect();
   const elementHeight = commentHeightHeadroom + (rect.bottom - rect.top);
 
-  const isInViewport =
-    rect.top >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+  const windowBottom = window.innerHeight || document.documentElement.clientHeight;
+  const isInViewport = rect.top >= 0 && rect.bottom <= windowBottom;
 
-  console.log(
-    'rect.bottom',
-    rect.bottom,
-    'window.innerHeight',
-    window.innerHeight,
-    'document.documentElement.clientHeight',
-    document.documentElement.clientHeight,
-    'rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)',
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-  );
+  console.log('rect.bottom', rect.bottom, 'windowBottom', windowBottom);
 
   const isHigherThanViewportAndVisible =
-    elementHeight > window.innerHeight &&
-    (rect.top >= 0 ||
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight));
+    elementHeight > window.innerHeight && (rect.top >= 0 || rect.bottom <= windowBottom);
 
   const result = isInViewport || isHigherThanViewportAndVisible;
   return result;
