@@ -2,21 +2,25 @@ import { ARRIVED_TO_REDDIT_THREAD_EVENT_NAME } from '../constants/events';
 import { truncateDatabase } from '../database/limit-size';
 import { initSettings } from '../database/models/settings';
 import { openDatabase } from '../database/schema';
-import { isActiveTab } from '../utils';
+import { isRedditThreadWithHref } from '../utils';
 import { handleCtrlSpaceKeyDown } from './on-key-down';
 import { onReceiveMessage } from './on-message';
 import { debouncedScrollHandler } from './on-scroll';
-import { debouncedArrivedToRedditThreadHandler } from './on-thread';
+import {
+  debouncedArrivedToRedditThreadHandler,
+  dispatchArrivedToRedditThreadEvent,
+} from './on-thread';
 import { onUrlChange } from './on-url-change';
 
 /*-------------------------------- Entry point ------------------------------*/
 
+// fails for current tab for many tabs, add retry
 let isAttachedOnce = false;
 export const attachAllEventHandlers = async () => {
-  if (!isActiveTab()) return;
-
   if (isAttachedOnce) return;
-  isAttachedOnce = true;
+
+  //!important: attach in background tabs too
+  if (!isRedditThreadWithHref()) return;
 
   // await truncateDatabase();
 
@@ -37,8 +41,10 @@ export const attachAllEventHandlers = async () => {
 
   onReceiveMessage();
   onUrlChange();
+
+  // on bottom
+  isAttachedOnce = true;
 };
 
-// must not attach recursive
-// no need to dispatch onThread
-document.addEventListener('visibilitychange', attachAllEventHandlers);
+// only dispatch onThread, don't re-attach handlers, attached unconditionally
+document.addEventListener('visibilitychange', dispatchArrivedToRedditThreadEvent);
