@@ -54,3 +54,7 @@ use retry-async with exception
 poenta je ista kao u cypress ili react-testing-library retry da async element loaded, cela filozofija
 
 onvisibilitychange (new tab) highlight isnt always triggered
+-----------------------
+// todo after 1.1.1
+must retry all functions
+onLoad event

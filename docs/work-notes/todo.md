@@ -130,8 +130,8 @@ don't forget: update readme with links BEFORE the release
 remove focus from new select box, click somewhere else
 logger switch isn't realtime, Logger.resetInstance()
 
-git tag -a 1.1.0 -m "Release 1.1.0"
-git push all 1.1.0
+git tag -a 1.1.1 -m "Release 1.1.1"
+git push all 1.1.1
 ----------
 add mark thread as read button
 
