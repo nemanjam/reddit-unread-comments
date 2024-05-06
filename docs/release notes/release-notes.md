@@ -17,3 +17,7 @@ Screenshot of User Settings popup and highlighted unread comments and highlighte
     - replace the existing debounce function with `debounceLeading` and `debounceTrailing` from lodash
 3. Add `retryAndWait` function for better awaitng thread loading state
 
+#### 1.1.1
+
+1. fix highlight on active tab
+
