@@ -14,6 +14,9 @@ import { onUrlChange } from './on-url-change';
 
 /*-------------------------------- Entry point ------------------------------*/
 
+// must retry all functions
+// onLoad event
+
 // fails for current tab for many tabs, add retry
 let isAttachedOnce = false;
 export const attachAllEventHandlers = async () => {
