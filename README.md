@@ -43,7 +43,7 @@ Version `1.1.1` also includes `Immediately` checkbox to mark the current thread 
 
 ### Install from store
 
-- **Firefox store link:** [https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments](https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments/)
+- **Firefox store link:** [https://addons.mozilla.org/en-US/firefox/addon/reddit-unread-comments](https://addons.mozilla.org/firefox/addon/reddit-unread-comments/)
 
 - **Chrome store link:** [https://chromewebstore.google.com/detail/reddit-unread-comments/bbpcddepjkegcdfnddhagpdjhmhnegcc](https://chromewebstore.google.com/detail/reddit-unread-comments/bbpcddepjkegcdfnddhagpdjhmhnegcc)
 
